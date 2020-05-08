@@ -170,18 +170,39 @@ absl::Status Run(const std::string& sql) {
 }  // namespace
 }  // namespace zetasql
 
+std::string join(const std::vector<std::string>& v, const char* delim = 0) {
+  std::string s;
+  if (!v.empty()) {
+    s += v[0];
+    for (decltype(v.size()) i = 1, c = v.size(); i < c; ++i) {
+      if (delim) s += delim;
+      s += v[i];
+    }
+  }
+  return s;
+}
+
 int main(int argc, char* argv[]) {
   const char kUsage[] =
-      "Usage: format [path]\n";
+      "Usage: execute_query [--table_spec=<table_spec>] <sql>\n";
   std::vector<char*> remaining_args = absl::ParseCommandLine(argc, argv);
   if (argc <= 1) {
     LOG(QFATAL) << kUsage;
   }
-  const std::string sql = absl::StrJoin(remaining_args.begin() + 1,
-  remaining_args.end(), " ");
+  const std::string sql = absl::StrJoin(remaining_args.begin() + 1, remaining_args.end(), " ");
 
-  const absl::Status status = zetasql::Run(sql);
+  zetasql::TableNamesSet dml_table_names;
+  zetasql::LanguageOptions language_options;
+  language_options.EnableMaximumLanguageFeaturesForDevelopment();
+  language_options.SetEnabledLanguageFeatures({zetasql::FEATURE_V_1_3_ALLOW_DASHES_IN_TABLE_NAME});
+  language_options.SetSupportsAllStatementKinds();
+  const absl::Status status = zetasql::ExtractTableNamesFromStatement(
+    sql, zetasql::AnalyzerOptions(language_options), &dml_table_names);
+
   if (status.ok()) {
+    for (const std::vector<std::string>& table : dml_table_names) {
+      std::cout << join(table, ".") << std::endl;
+    }
     return 0;
   } else {
     std::cout << "ERROR: " << status << std::endl;
