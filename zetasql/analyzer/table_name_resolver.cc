@@ -26,6 +26,7 @@
 #include "zetasql/parser/ast_node_kind.h"
 #include "zetasql/parser/parse_tree.h"
 #include "zetasql/parser/parse_tree_errors.h"
+#include "zetasql/parser/parser.h"
 #include "zetasql/public/analyzer.h"
 #include "zetasql/public/language_options.h"
 #include "zetasql/public/options.pb.h"
@@ -76,8 +77,15 @@ class TableNameResolver {
 
   absl::Status FindTableNames(const ASTScript& script);
 
+  std::map<ResolvedNodeKind, TableNamesSet> node_kind_to_table_names() {
+    return _node_kind_to_table_names;
+  }
+
+
  private:
   typedef std::set<std::string> AliasSet;  // Always lowercase.
+
+  std::map<ResolvedNodeKind, TableNamesSet> _node_kind_to_table_names;
 
   absl::Status FindInStatement(const ASTStatement* statement);
 
@@ -200,13 +208,16 @@ class TableNameResolver {
 
 absl::Status TableNameResolver::FindTableNamesAndTemporalReferences(
     const ASTStatement& statement) {
+
   table_names_->clear();
+
   if (table_resolution_time_info_map_ != nullptr) {
     ZETASQL_RET_CHECK_EQ((type_factory_ == nullptr), (catalog_ == nullptr));
     table_resolution_time_info_map_->clear();
   }
 
   ZETASQL_RETURN_IF_ERROR(FindInStatement(&statement));
+
   // Sanity check - these should get popped.
   ZETASQL_RET_CHECK(local_table_aliases_.empty());
   return absl::OkStatus();
@@ -273,8 +284,8 @@ absl::Status TableNameResolver::FindInStatement(const ASTStatement* statement) {
       break;
 
     case AST_CREATE_TABLE_STATEMENT: {
-      const ASTQuery* query =
-          statement->GetAs<ASTCreateTableStatement>()->query();
+      const ASTCreateTableStatement* create_statement = statement->GetAs<ASTCreateTableStatement>();
+      const ASTQuery* query = create_statement->query();
       if (query == nullptr) {
         if (analyzer_options_->language().SupportsStatementKind(
                 RESOLVED_CREATE_TABLE_STMT)) {
@@ -283,6 +294,9 @@ absl::Status TableNameResolver::FindInStatement(const ASTStatement* statement) {
       } else {
         if (analyzer_options_->language().SupportsStatementKind(
                 RESOLVED_CREATE_TABLE_AS_SELECT_STMT)) {
+          _node_kind_to_table_names[RESOLVED_CREATE_TABLE_AS_SELECT_STMT].insert(
+            create_statement->name()->ToIdentifierVector()
+          );
           return FindInQuery(query, /*visible_aliases=*/{});
         }
       }
@@ -746,6 +760,7 @@ absl::Status TableNameResolver::FindInInsertStatement(
                    statement->GetTargetPathForNonNested());
   std::vector<std::string> path = path_expr->ToIdentifierVector();
   zetasql_base::InsertIfNotPresent(table_names_, path);
+  _node_kind_to_table_names[RESOLVED_INSERT_STMT].insert(path);
   zetasql_base::InsertIfNotPresent(&visible_aliases,
                           absl::AsciiStrToLower(path.back()));
 
@@ -768,6 +783,7 @@ absl::Status TableNameResolver::FindInUpdateStatement(
   const std::vector<std::string> path = path_expr->ToIdentifierVector();
 
   zetasql_base::InsertIfNotPresent(table_names_, path);
+  _node_kind_to_table_names[RESOLVED_UPDATE_STMT].insert(path);
   const std::string alias = statement->alias() == nullptr
                                 ? path.back()
                                 : statement->alias()->GetAsString();
@@ -1140,6 +1156,34 @@ absl::Status FindTableNamesAndResolutionTime(
   return TableNameResolver(sql, &analyzer_options, type_factory, catalog,
                            table_names, table_resolution_time_info_map)
       .FindTableNamesAndTemporalReferences(statement);
+}
+
+std::map<ResolvedNodeKind, TableNamesSet> GetNodeKindToTableNamesMap(
+    absl::string_view sql, const AnalyzerOptions& analyzer_options, TableNamesSet* table_names) {
+    std::unique_ptr<ParserOutput> parser_output;
+    // AnalyzerOptions local_options = analyzer_options;
+    auto status = ParseStatement(sql, analyzer_options.GetParserOptions(), &parser_output);
+    // // If the arena and IdStringPool are not set in <options>, use the
+    // // arena and IdStringPool from the parser output by default.
+    // if (local_options.arena() == nullptr) {
+    //   local_options.set_arena(parser_output->arena());
+    // }
+    // if (local_options.id_string_pool() == nullptr) {
+    //   local_options.set_id_string_pool(
+    //     parser_output->id_string_pool());
+    // }
+
+    auto resolver = TableNameResolver(sql, &analyzer_options, nullptr, nullptr,
+                           table_names, nullptr);
+
+    if (parser_output == nullptr) {
+      std::cout << status << std::endl;
+      return std::map<ResolvedNodeKind, TableNamesSet>();
+    }
+
+    resolver.FindTableNamesAndTemporalReferences(*parser_output->statement());
+
+    return resolver.node_kind_to_table_names();
 }
 
 absl::Status FindTableNamesInScript(absl::string_view sql,
