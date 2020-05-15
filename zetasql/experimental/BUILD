@@ -95,3 +95,18 @@ cc_binary(
         "@com_google_absl//absl/types:optional",
     ],
 )
+
+cc_binary(
+    name = "dag",
+    srcs = [
+        "dag.cc",
+    ],
+    deps = [
+        "//zetasql/analyzer",
+        "//zetasql/resolved_ast",
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:parse",
+        "@com_google_absl//absl/strings",
+        "@boost//:graph",
+    ],
+)
