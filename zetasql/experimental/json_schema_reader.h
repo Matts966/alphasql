@@ -47,7 +47,7 @@ std::map<std::string, TypeKind> FromBigQueryTypeToZetaSQLTypeMap = {
   {"FLOAT64", TYPE_DOUBLE},
   {"NUMERIC", TYPE_NUMERIC},
   {"BYTES", TYPE_BYTES},
-  {"TIMESSTAMP", TYPE_TIMESTAMP},
+  {"TIMESTAMP", TYPE_TIMESTAMP},
   {"DATE", TYPE_DATE},
   {"TIME", TYPE_TIME},
   {"DATETIME", TYPE_DATETIME},
