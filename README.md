@@ -1,4 +1,4 @@
-## ZetaSQL Formatter
+## AlphaSQL
 
 This repository is forked from [google/zetasql](https://github.com/google/zetasql) and provides BigQuery parallelizer and Type Checker for SQL set.
 
