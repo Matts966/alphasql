@@ -40,14 +40,14 @@ namespace zetasql {
 namespace {
 
 // Constructs a Catalog corresponding to --table_spec.
-std::unique_ptr<Catalog> ConstructCatalog(
+SimpleCatalog* ConstructCatalog(
     const google::protobuf::DescriptorPool* pool, TypeFactory* type_factory) {
-  auto catalog = absl::make_unique<SimpleCatalog>("catalog", type_factory);
+  auto catalog = new SimpleCatalog("catalog", type_factory);
   catalog->AddZetaSQLFunctions();
   catalog->SetDescriptorPool(pool);
   const std::string json_schema_path = absl::GetFlag(FLAGS_json_schema_path);
-  zetasql::UpdateCatalogFromJSON(json_schema_path, catalog.get());
-  return std::move(catalog);
+  zetasql::UpdateCatalogFromJSON(json_schema_path, catalog);
+  return catalog;
 }
 
 // Prints the result of executing a query. Currently requires loading all the
@@ -99,16 +99,43 @@ absl::Status PrintResults(std::unique_ptr<EvaluatorTableIterator> iter) {
 }
 
 // Runs the tool.
-absl::Status Run(const std::string& sql, const AnalyzerOptions& options, Catalog* catalog) {
-  std::unique_ptr<const AnalyzerOutput> output;
-
-//   PreparedQuery query(sql, options);
+absl::Status Run(const std::string& sql, const AnalyzerOptions& options, SimpleCatalog* catalog) {
+//   PreparedQuery query(sql, EvaluatorOptions());
 //   ZETASQL_RETURN_IF_ERROR(query.Prepare(options, catalog));
 //   ZETASQL_ASSIGN_OR_RETURN(std::unique_ptr<EvaluatorTableIterator> iter,
 //                            query.Execute());
+//   return PrintResults(std::move(iter));
+
+//   ZETASQL_ASSIGN_OR_RETURN(const std::string explain, query.ExplainAfterPrepare());
+//   std::cout << explain << std::endl;
+//   return absl::OkStatus();
 
   TypeFactory factory;
-  return AnalyzeStatement(sql, options, catalog, &factory, &output);
+  std::unique_ptr<const AnalyzerOutput> output;
+  ZETASQL_RETURN_IF_ERROR(AnalyzeStatement(sql, options, catalog, &factory, &output));
+
+
+  auto resolved_statement = output->resolved_statement();
+  // std::cout << resolved_statement->DebugString(); << std::endl;
+  switch (resolved_statement->node_kind()) {
+    case RESOLVED_CREATE_TABLE_STMT:
+    case RESOLVED_CREATE_TABLE_AS_SELECT_STMT:
+      auto* create_stmt = resolved_statement->GetAs<ResolvedCreateTableStmt>();
+    //   auto* create_stmt =
+    //     static_cast<ResolvedCreateTableStmt*>(resolved_statement.get());
+      std::cout << "DDL analyzed, adding table to catalog..." << std::endl;
+      std::string table_name = absl::StrJoin(create_stmt->name_path(), ".");
+      std::unique_ptr<zetasql::SimpleTable> table(new zetasql::SimpleTable(table_name));
+      for (const auto& column_definition : create_stmt->column_definition_list()) {
+        std::unique_ptr<zetasql::SimpleColumn> column(new SimpleColumn(table_name, column_definition->column().name_id().ToString(),
+          catalog->type_factory()->MakeSimpleType(column_definition->column().type()->kind())));
+        ZETASQL_RETURN_IF_ERROR(table->AddColumn(column.release(), true));
+      }
+      catalog->AddTable(table->Name(), table.release());
+      break;
+  }
+
+  return absl::OkStatus();
 }
 
 bool GetExecutionPlan(const std::string dot_path, std::vector<std::string>& execution_plan) {
@@ -166,15 +193,20 @@ int main(int argc, char* argv[]) {
   for (const std::string& sql_file_path : execution_plan) {
     if (!std::filesystem::is_regular_file(sql_file_path)) {
       std::cout << "ERROR: not file " << sql_file_path << std::endl;
-      // return 1;
+      return 1;
       continue;
     }
     std::filesystem::path file_path(sql_file_path);
+    std::cout << "analyzing " << sql_file_path << "..." << std::endl;
     std::ifstream file(file_path, std::ios::in);
     std::string sql(std::istreambuf_iterator<char>(file), {});
-    const absl::Status status = zetasql::Run(sql, options, catalog.get());
+    const absl::Status status = zetasql::Run(sql, options, catalog);
     if (status.ok()) {
-      return 0;
+      std::cout << "SUCCESS: analysis finished!" << std::endl;
+      std::cout << "catalog:" << std::endl;
+      for (const std::string& table_name : catalog->table_names()) {
+        std::cout << "\t" << table_name << std::endl;
+      }
     } else {
       std::cout << "ERROR: " << status << std::endl;
       return 1;
