@@ -109,7 +109,7 @@ namespace zetasql {
 
 int main(int argc, char* argv[]) {
   const char kUsage[] =
-      "Usage: dag <directory or file paths...>\n";
+      "Usage: dag <directory or file paths of sql...>\n";
   std::vector<char*> args = absl::ParseCommandLine(argc, argv);
   if (argc <= 1) {
     LOG(QFATAL) << kUsage;
@@ -118,7 +118,6 @@ int main(int argc, char* argv[]) {
 
   std::map<std::string, table_queries> table_queries_map;
 
-  int rc = 0;
   for (const auto& path : remaining_args) {
     if (std::filesystem::is_regular_file(path)) {
       std::filesystem::path file_path(path);

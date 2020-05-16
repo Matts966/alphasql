@@ -23,7 +23,6 @@ package(
 
 cc_library(
     name = "output_query_result",
-    testonly = 1,
     srcs = ["output_query_result.cc"],
     hdrs = ["output_query_result.h"],
     copts = ["-Wno-sign-compare"],
@@ -35,6 +34,16 @@ cc_library(
         "//zetasql/reference_impl:evaluation",
         "//zetasql/resolved_ast",
         "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_library(
+    name = "json_schema_reader",
+    hdrs = ["json_schema_reader.h"],
+    deps = [
+        "//zetasql/public:simple_catalog",
+        "//zetasql/public:type",
+        "@boost//:property_tree",
     ],
 )
 
@@ -82,8 +91,44 @@ cc_binary(
 )
 
 cc_binary(
+    name = "pipeline_type_checker",
+    srcs = [
+        "pipeline_type_checker.cc",
+    ],
+    deps = [
+        ":output_query_result",
+        ":json_schema_reader",
+        "//zetasql/base",
+        "//zetasql/base:map_util",
+        "//zetasql/base:ret_check",
+        "//zetasql/base:source_location",
+        "//zetasql/base:status",
+        "//zetasql/base:statusor",
+        "//zetasql/public:analyzer",
+        "//zetasql/public:catalog",
+        "//zetasql/public:evaluator",
+        "//zetasql/public:evaluator_table_iterator",
+        "//zetasql/public:language_options",
+        "//zetasql/public:simple_catalog",
+        "//zetasql/public:type",
+        "//zetasql/public:type_cc_proto",
+        "//zetasql/public:value",
+        "//zetasql/resolved_ast",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:parse",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/strings:cord",
+        "@com_google_absl//absl/types:optional",
+        "@com_google_absl//absl/types:span",
+        "@com_google_protobuf//:protobuf",
+        "@boost//:graph",
+    ],
+)
+
+cc_binary(
     name = "format",
-    testonly = 1,
     srcs = [
         "format.cc",
     ],
