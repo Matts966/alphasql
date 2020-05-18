@@ -174,10 +174,10 @@ int main(int argc, char* argv[]) {
   // adds the edges
   for (int i = 0; i < nedges; i++) {
     // Skip duplicates
-    if (edge(indexes[depends_on[i].first], indexes[depends_on[i].second], g).second) {
+    if (edge(indexes[depends_on[i].second], indexes[depends_on[i].first], g).second) {
       continue;
     }
-    add_edge(indexes[depends_on[i].first], indexes[depends_on[i].second], g);
+    add_edge(indexes[depends_on[i].second], indexes[depends_on[i].first] g);
   }
 
   const std::string output_path = absl::GetFlag(FLAGS_output_path);

@@ -153,7 +153,7 @@ bool GetExecutionPlan(const std::string dot_path, std::vector<std::string>& exec
     return false;
   }
   std::vector<int> result;
-  topological_sort(g, std::back_inserter(result));
+  topological_sort(g, std::front_inserter(result));
   property_map<Graph, vertex_name_t>::type names = get(vertex_name, g);
   for (int i : result) {
     execution_plan.push_back(names[i]);
