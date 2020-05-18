@@ -172,6 +172,10 @@ int main(int argc, char* argv[]) {
 
   // adds the edges
   for (int i = 0; i < nedges; i++) {
+    // Skip duplicates
+    if (edge(indexes[depends_on[i].first], indexes[depends_on[i].second], g).second) {
+      continue;
+    }
     add_edge(indexes[depends_on[i].first], indexes[depends_on[i].second], g);
   }
 
