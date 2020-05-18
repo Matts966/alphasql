@@ -83,10 +83,8 @@ namespace zetasql {
       }
     }
     for (auto const& table_name : table_names) {
-      for (const auto& table_name : table_names) {
-        const std::string table_string = absl::StrJoin(table_name, ".");
-        table_queries_map[table_string].others.push_back(file_path);
-      }
+      const std::string table_string = absl::StrJoin(table_name, ".");
+      table_queries_map[table_string].others.push_back(file_path);
     }
     return;
   }
