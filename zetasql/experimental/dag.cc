@@ -12,6 +12,9 @@
 
 typedef std::pair<std::string, std::string> Edge;
 
+ABSL_FLAG(std::string, output_path, "",
+          "Output path for DAG.");
+
 struct table_queries {
   std::vector<std::string> create;
   std::vector<std::string> update;
@@ -179,5 +182,17 @@ int main(int argc, char* argv[]) {
     add_edge(indexes[depends_on[i].first], indexes[depends_on[i].second], g);
   }
 
-  write_graphviz(std::cout, g, make_label_writer(get(vertex_name, g)));
+  const std::string output_path = absl::GetFlag(FLAGS_output_path);
+  if (output_path == "") {
+    write_graphviz(std::cout, g, make_label_writer(get(vertex_name, g)));
+  } else {
+    if (std::filesystem::is_regular_file(output_path) || !std::filesystem::exists(output_path)) {
+      std::ofstream out(output_path);
+      write_graphviz(out, g, make_label_writer(get(vertex_name, g)));
+    } else {
+      std::cout << "output_path is not a regular_file!" << std::endl;
+      return 1;
+    }
+  }
+  return 0;
 }
