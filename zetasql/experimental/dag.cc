@@ -177,7 +177,7 @@ int main(int argc, char* argv[]) {
     if (edge(indexes[depends_on[i].second], indexes[depends_on[i].first], g).second) {
       continue;
     }
-    add_edge(indexes[depends_on[i].second], indexes[depends_on[i].first] g);
+    add_edge(indexes[depends_on[i].second], indexes[depends_on[i].first], g);
   }
 
   const std::string output_path = absl::GetFlag(FLAGS_output_path);
