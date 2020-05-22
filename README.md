@@ -2,6 +2,22 @@
 
 This repository is forked from [google/zetasql](https://github.com/google/zetasql) and provides BigQuery Parallelizer and Type Checker for SQL set.
 
+## Docker
+
+You can run commands below with docker
+
+```bash
+docker run -it --rm -v `pwd`:/home:Z matts966/alphasql:latest [command]
+```
+
+like
+
+```bash
+docker run -it --rm -v `pwd`:/home:Z matts966/alphasql:latest pipeline_type_checker ./sample/sample1.dot
+```
+
+Commands are installed in PATH.
+
 ## Extract DAG from SQL set
 
 ```bash
