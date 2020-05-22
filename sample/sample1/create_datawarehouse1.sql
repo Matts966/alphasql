@@ -1,0 +1,2 @@
+CREATE OR REPLACE TABLE datawarehouse1
+(x STRING);

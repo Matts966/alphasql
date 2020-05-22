@@ -1,0 +1,8 @@
+CREATE OR REPLACE TABLE `mart` AS
+SELECT x FROM datawarehouse1
+UNION ALL
+SELECT x FROM interium1
+UNION ALL
+SELECT x FROM interium2
+UNION ALL
+SELECT x FROM interium3;
