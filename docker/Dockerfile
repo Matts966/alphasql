@@ -13,13 +13,13 @@ ENV CC /usr/bin/gcc
 COPY . /work/zetasql
 WORKDIR /work/zetasql
 
-RUN bazel build //zetasql/experimental:format && \
-    cp ./bazel-bin/zetasql/experimental/format .
+RUN bazel build //zetasql/experimental:all && \
+    cp ./bazel-bin/zetasql/experimental/dag . && \
+    cp ./bazel-bin/zetasql/experimental/pipeline_type_checker .
 
 
 FROM gcr.io/distroless/cc
-COPY --from=builder /work/zetasql/bazel-bin/zetasql/experimental/format /usr/bin/format
+COPY --from=builder /work/zetasql/dag /usr/bin/dag
+COPY --from=builder /work/zetasql/pipeline_type_checker /usr/bin/pipeline_type_checker
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libstdc++.so.6 /usr/lib/x86_64-linux-gnu/libstdc++.so.6
 WORKDIR /home
-ENTRYPOINT [ "format" ]
-CMD [ "." ]

@@ -1,20 +1,17 @@
 update: osx linux push
 	@echo "all artifacts are updated"
 run: build
-	docker run -it --rm -v `pwd`:/home:Z matts966/zetasql-formatter:latest
+	docker run -it --rm -v `pwd`:/home:Z matts966/alphasql:latest
 build:
-	DOCKER_BUILDKIT=1 docker build -t matts966/zetasql-formatter:latest -f ./docker/Dockerfile .
-build-formatter: build
-	mv ./zetasql-kotlin/build/*_jar.jar ~/.Trash/
-	docker run -it --rm -v `pwd`:/work/zetasql/ \
-		-v /var/run/docker.sock:/var/run/docker.sock \
-		bazel
+	DOCKER_BUILDKIT=1 docker build -t matts966/alphasql:latest -f ./docker/Dockerfile .
 push: build
-	docker push matts966/zetasql-formatter:latest
+	docker push matts966/alphasql:latest
 osx:
-	CC=g++ bazel build //zetasql/experimental:format
-	sudo cp ./bazel-bin/zetasql/experimental/format ./bin/osx/zetasql-formatter
-	sudo cp ./bin/osx/zetasql-formatter /usr/local/bin
+	CC=g++ bazel build //zetasql/experimental:all
+	sudo cp ./bazel-bin/zetasql/experimental/dag ./bin/osx/dag
+	sudo cp ./bazel-bin/zetasql/experimental/pipeline_type_checker ./bin/osx/pipeline_type_checker
+	sudo cp ./bin/osx/dag /usr/local/bin
+	sudo cp ./bin/osx/pipeline_type_checker /usr/local/bin
 linux: build
 	./docker/linux-copy-bin.sh
-.PHONY: run build build-formatter osx push
+.PHONY: run build osx push
