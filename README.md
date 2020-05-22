@@ -177,7 +177,7 @@ do
 done
 ```
 
-JSON schema file should have only a top level `table_shecmas` list element, and string `name` and `scheme` elements for each tables. `name` and `type` elements in `scheme` elements are recognized as column type like a official API.
+JSON schema file should have only a top level `table_shecmas` list element, and string `name` and `scheme` elements for each tables. `name` and `type` elements in `scheme` elements are recognized like a official API.
 
 ```json
 {
