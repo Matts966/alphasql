@@ -47,7 +47,9 @@ SimpleCatalog* ConstructCatalog(
   catalog->AddZetaSQLFunctions();
   catalog->SetDescriptorPool(pool);
   const std::string json_schema_path = absl::GetFlag(FLAGS_json_schema_path);
-  zetasql::UpdateCatalogFromJSON(json_schema_path, catalog);
+  if (json_schema_path != "") {
+    zetasql::UpdateCatalogFromJSON(json_schema_path, catalog);
+  }
   return catalog;
 }
 
