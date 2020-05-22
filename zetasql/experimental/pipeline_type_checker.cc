@@ -169,8 +169,13 @@ int main(int argc, char* argv[]) {
   if (argc <= 1) {
     LOG(QFATAL) << kUsage;
   }
+
   const std::string dot_path = absl::StrJoin(remaining_args.begin() + 1,
   remaining_args.end(), " ");
+  if (!std::filesystem::is_regular_file(dot_path)) {
+    std::cout << "ERROR: not a file " << dot_path << std::endl;
+    return 1;
+  }
 
   std::vector<std::string> execution_plan;
   zetasql::GetExecutionPlan(dot_path, execution_plan);
@@ -190,9 +195,8 @@ int main(int argc, char* argv[]) {
 
   for (const std::string& sql_file_path : execution_plan) {
     if (!std::filesystem::is_regular_file(sql_file_path)) {
-      std::cout << "ERROR: not file " << sql_file_path << std::endl;
+      std::cout << "ERROR: not a file " << sql_file_path << std::endl;
       return 1;
-      continue;
     }
     std::filesystem::path file_path(sql_file_path);
     std::cout << "analyzing " << sql_file_path << "..." << std::endl;
