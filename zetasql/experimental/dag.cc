@@ -14,6 +14,8 @@ typedef std::pair<std::string, std::string> Edge;
 
 ABSL_FLAG(std::string, output_path, "",
           "Output path for DAG.");
+ABSL_FLAG(std::string, external_required_tables_output_path, "",
+          "Output path for external required tables.");
 
 struct table_queries {
   std::vector<std::string> create;
@@ -111,7 +113,7 @@ namespace zetasql {
 
 int main(int argc, char* argv[]) {
   const char kUsage[] =
-      "Usage: dag <directory or file paths of sql...>\n";
+      "Usage: dag --external_required_tables_output_path <filename> --output_path <filename> <directory or file paths of sql...>\n";
   std::vector<char*> args = absl::ParseCommandLine(argc, argv);
   if (argc <= 1) {
     LOG(QFATAL) << kUsage;
@@ -139,7 +141,8 @@ int main(int argc, char* argv[]) {
 
   std::vector<Edge> depends_on;
   std::set<std::string> vertices;
-  for (auto const& [_, table_queries] : table_queries_map) {
+  std::vector<std::string> external_required_tables;
+  for (auto const& [table_name, table_queries] : table_queries_map) {
     zetasql::UpdateEdgesAndVertices(depends_on, vertices, table_queries.others, std::vector<std::vector<std::string>>{
       table_queries.insert,
       table_queries.update,
@@ -152,6 +155,30 @@ int main(int argc, char* argv[]) {
     zetasql::UpdateEdgesAndVertices(depends_on, vertices, table_queries.update, std::vector<std::vector<std::string>>{
       table_queries.create,
     });
+    if (table_queries.create.empty()) {
+      external_required_tables.push_back(table_name);
+    }
+  }
+
+  if (!external_required_tables.empty()) {
+    const std::string external_required_tables_output_path = absl::GetFlag(FLAGS_external_required_tables_output_path);
+    if (external_required_tables_output_path == "") {
+      std::cout << "EXTERNAL REQUIRED TABLES:" << std::endl;
+      for (const auto& required_table : external_required_tables) {
+        std::cout << required_table << std::endl;
+      }
+    } else {
+      if (std::filesystem::is_regular_file(external_required_tables_output_path)
+          || !std::filesystem::exists(external_required_tables_output_path)) {
+        std::ofstream out(external_required_tables_output_path);
+        for (const auto& required_table : external_required_tables) {
+          out << required_table << std::endl;
+        }
+      } else {
+        std::cout << "external_required_tables_output_path is not a regular_file!" << std::endl;
+        return 1;
+      }
+    }
   }
 
   const int nedges = depends_on.size();
