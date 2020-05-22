@@ -1,4 +1,4 @@
-UPDATE `interium2`
+UPDATE `interim2`
 SET
   x = 0
 WHERE

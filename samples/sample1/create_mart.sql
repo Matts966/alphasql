@@ -1,8 +1,8 @@
 CREATE OR REPLACE TABLE `mart` AS
 SELECT x FROM datawarehouse1
 UNION ALL
-SELECT x FROM interium1
+SELECT x FROM interim1
 UNION ALL
-SELECT x FROM interium2
+SELECT x FROM interim2
 UNION ALL
-SELECT x FROM interium3;
+SELECT x FROM interim3;
