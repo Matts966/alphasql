@@ -67,6 +67,7 @@ namespace zetasql {
       for (const auto& table_name : table_names) {
         const std::string table_string = absl::StrJoin(table_name, ".");
         switch (node_kind) {
+          case RESOLVED_CREATE_TABLE_STMT:
           case RESOLVED_CREATE_TABLE_AS_SELECT_STMT:
             table_queries_map[table_string].create.push_back(file_path);
             break;

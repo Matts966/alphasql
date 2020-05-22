@@ -289,6 +289,9 @@ absl::Status TableNameResolver::FindInStatement(const ASTStatement* statement) {
       if (query == nullptr) {
         if (analyzer_options_->language().SupportsStatementKind(
                 RESOLVED_CREATE_TABLE_STMT)) {
+          _node_kind_to_table_names[RESOLVED_CREATE_TABLE_STMT].insert(
+            create_statement->name()->ToIdentifierVector()
+          );
           return absl::OkStatus();
         }
       } else {
