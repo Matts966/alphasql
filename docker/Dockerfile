@@ -1,3 +1,5 @@
+# syntax = docker/dockerfile:experimental
+
 FROM l.gcr.io/google/bazel:1.0.0 as builder
 
 # Use gcc because clang can't build m4
@@ -13,7 +15,8 @@ ENV CC /usr/bin/gcc
 COPY . /work/zetasql
 WORKDIR /work/zetasql
 
-RUN bazel build //zetasql/experimental:all && \
+RUN --mount=type=cache,target=/root/.cache \
+    bazel build //zetasql/experimental:all && \
     cp ./bazel-bin/zetasql/experimental/dag . && \
     cp ./bazel-bin/zetasql/experimental/pipeline_type_checker .
 
