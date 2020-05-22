@@ -117,25 +117,20 @@ absl::Status Run(const std::string& sql, const AnalyzerOptions& options, SimpleC
   std::unique_ptr<const AnalyzerOutput> output;
   ZETASQL_RETURN_IF_ERROR(AnalyzeStatement(sql, options, catalog, &factory, &output));
 
-
   auto resolved_statement = output->resolved_statement();
-  // std::cout << resolved_statement->DebugString(); << std::endl;
   switch (resolved_statement->node_kind()) {
     case RESOLVED_CREATE_TABLE_STMT:
     case RESOLVED_CREATE_TABLE_AS_SELECT_STMT:
       auto* create_stmt = resolved_statement->GetAs<ResolvedCreateTableStmt>();
-    //   auto* create_stmt =
-    //     static_cast<ResolvedCreateTableStmt*>(resolved_statement.get());
       std::cout << "DDL analyzed, adding table to catalog..." << std::endl;
       std::string table_name = absl::StrJoin(create_stmt->name_path(), ".");
       std::unique_ptr<zetasql::SimpleTable> table(new zetasql::SimpleTable(table_name));
       for (const auto& column_definition : create_stmt->column_definition_list()) {
         std::unique_ptr<zetasql::SimpleColumn> column(new SimpleColumn(table_name, column_definition->column().name_id().ToString(),
           catalog->type_factory()->MakeSimpleType(column_definition->column().type()->kind())));
-        ZETASQL_RETURN_IF_ERROR(table->AddColumn(column.release(), true));
+        ZETASQL_RETURN_IF_ERROR(table->AddColumn(column.release(), false));
       }
-      catalog->AddTable(table->Name(), table.release());
-      break;
+      catalog->AddTable(table.release());
   }
 
   return absl::OkStatus();
