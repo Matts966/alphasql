@@ -36,6 +36,25 @@ The image below is extracted from SQL set in `./samples/sample1` .
 
 ![dag.dot](samples/sample1.png)
 
+## Parallel Execution
+
+The output DAG can be run parallely using [bq_jobrunner](https://github.com/tsintermax/bq_jobrunner) and Python.
+
+```Python
+from bq_jobrunner.bq_jobrunner import BQJobrunner
+
+path_to_dag_dot = "./path/to/dag.dot"
+
+runner = BQJobrunner(
+    PROJECT_ID,
+    location=REGION,
+)
+runner.compose_query_by_dot_path(path_to_dag_dot)
+runner.execute()
+```
+
+Note that you should run job_runner in the same path as in extracting DAG.
+
 ## SQL set Pipeline level Type Check
 
 Note that you should run type_checker in the same path as in extracting DAG.
@@ -198,25 +217,6 @@ JSON schema file should have only a top level `table_shecmas` list element, and 
     ]
 }
 ```
-
-## Parallel Execution
-
-The output DAG can be run parallely using [bq_jobrunner](https://github.com/tsintermax/bq_jobrunner) and Python.
-
-```Python
-from bq_jobrunner.bq_jobrunner import BQJobrunner
-
-path_to_dag_dot = "./path/to/dag.dot"
-
-runner = BQJobrunner(
-    PROJECT_ID,
-    location=REGION,
-)
-runner.compose_query_by_dot_path(path_to_dag_dot)
-runner.execute()
-```
-
-Note that you should run job_runner in the same path as in extracting DAG.
 
 ## License
 
