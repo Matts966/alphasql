@@ -187,7 +187,7 @@ You can extract required external tables by
 ```bash
 $ ./bin/osx/dag --external_required_tables_output_path ./required_tables.txt {./path/to/sqls}
 # and get schemata using bq command
-$ cat {./path/to/sqls} | while read line
+$ cat ./required_tables.txt | while read line
 do
     bq show \
         --schema \
