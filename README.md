@@ -45,7 +45,7 @@ from bq_jobrunner.bq_jobrunner import BQJobrunner
 
 FILE_PATH = "./path/to/dag.dot"
 PROJECT_ID = "your-project-id"
-REGION = "asia-northeast1"
+REGION = "asia-northeast1" # your region
 
 runner = BQJobrunner(
     PROJECT_ID,
