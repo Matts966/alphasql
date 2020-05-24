@@ -28,7 +28,7 @@ $ ./bin/osx/dag --output_path ./samples/sample1.dot ./samples/sample1/
 $ dot -Tpng samples/sample1.dot -o samples/sample1.png
 ```
 
-Note that sometimes the output has cycle and manual editing is needed.
+Note that sometimes the output has cycle and manual editing is needed ([issue](https://github.com/Matts966/alphasql/issues/2)).
 
 ### Sample DAG output
 
