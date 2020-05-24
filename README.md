@@ -16,7 +16,7 @@ like
 docker run -it --rm -v `pwd`:/home:Z matts966/alphasql:latest pipeline_type_checker ./samples/sample1.dot
 ```
 
-Commands are installed in PATH.
+Commands are installed in the PATH of the image.
 
 ## Extract DAG from SQL set
 
