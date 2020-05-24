@@ -18,6 +18,8 @@ docker run -it --rm -v `pwd`:/home:Z matts966/alphasql:latest pipeline_type_chec
 
 Commands are installed in the PATH of the image.
 
+Also, binaries for Linux and OSX are in [bin](./bin) directory. 
+
 ## Extract DAG from SQL set
 
 ```bash
