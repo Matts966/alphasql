@@ -43,13 +43,15 @@ The output DAG can be run parallely using [bq_jobrunner](https://github.com/tsin
 ```Python
 from bq_jobrunner.bq_jobrunner import BQJobrunner
 
-path_to_dag_dot = "./path/to/dag.dot"
+FILE_PATH = "./path/to/dag.dot"
+PROJECT_ID = "your-project-id"
+REGION = "asia-northeast1"
 
 runner = BQJobrunner(
     PROJECT_ID,
     location=REGION,
 )
-runner.compose_query_by_dot_path(path_to_dag_dot)
+runner.compose_query_by_dot_path(FILE_PATH)
 runner.execute()
 ```
 
