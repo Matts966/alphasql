@@ -212,7 +212,7 @@ int main(int argc, char* argv[]) {
   if (output_path == "") {
     write_graphviz(std::cout, g, make_label_writer(get(vertex_name, g)));
   } else {
-    if (std::filesystem::is_regular_file(output_path) || std::filesystem::exists(output_path)) {
+    if (std::filesystem::is_regular_file(output_path) || !std::filesystem::exists(output_path)) {
       std::ofstream out(output_path);
       write_graphviz(out, g, make_label_writer(get(vertex_name, g)));
     } else {
