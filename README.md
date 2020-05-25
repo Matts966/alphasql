@@ -18,7 +18,7 @@ docker run -it --rm -v `pwd`:/home:Z matts966/alphasql:latest pipeline_type_chec
 
 Commands are installed in the PATH of the image.
 
-Also, binaries for Linux and OSX are in [bin](./bin) directory. 
+Also, binaries for Linux and OSX are in [bin](./bin) directory.
 
 ## Extract DAG from SQL set
 
@@ -200,11 +200,11 @@ do
 done
 ```
 
-JSON schema file should have only a top level `table_shecmas` list element, and string `name` and `schema` elements for each tables. `name` and `type` elements in `schema` elements are recognized like a official API.
+JSON schema file should have only a top level `table_schemas` list element, and string `name` and `schema` elements for each tables. `name` and `type` elements in `schema` elements are recognized like a official API.
 
 ```json
 {
-    "table_shecmas": [
+    "table_schemas": [
         {
             "name": "tablename1",
             "schema": [

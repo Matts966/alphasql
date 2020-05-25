@@ -87,7 +87,7 @@ void UpdateCatalogFromJSON(const std::string& json_schema_path, SimpleCatalog* c
   using namespace boost;
   property_tree::ptree pt;
   property_tree::read_json(json_schema_path, pt);
-  BOOST_FOREACH(property_tree::ptree::value_type &schema, pt.get_child("table_shecmas")) {
+  BOOST_FOREACH(property_tree::ptree::value_type &schema, pt.get_child("table_schemas")) {
     std::string table_name = schema.second.get<std::string>("name");
     std::unique_ptr<SimpleTable> table(new SimpleTable(table_name));
     BOOST_FOREACH(property_tree::ptree::value_type &field, schema.second.get_child("schema")) {
