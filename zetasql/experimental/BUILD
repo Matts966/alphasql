@@ -44,6 +44,7 @@ cc_library(
         "//zetasql/public:simple_catalog",
         "//zetasql/public:type",
         "@boost//:property_tree",
+        "@com_google_absl//absl/strings",
     ],
 )
 

@@ -73,7 +73,7 @@ class ResolvedColumn {
     DCHECK_GT(column_id, 0) << "column_id should be positive";
     DCHECK(!table_name.empty());
     DCHECK(!name.empty());
-    DCHECK(type != nullptr);
+    DCHECK(type != nullptr) << "table_id: " << table_name << ", column_id: " << name;
   }
 
   // Return true if this ResolvedColumn has been initialized.
