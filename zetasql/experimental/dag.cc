@@ -59,7 +59,7 @@ namespace zetasql {
       std::cout << "not a sql file " << file_path << "!" << std::endl;
       return;
     }
-    std::cout << "reading " << file_path << "..." << std::endl;
+    std::cout << "reading " << file_path << std::endl;
     std::ifstream file(file_path, std::ios::in);
     std::string sql(std::istreambuf_iterator<char>(file), {});
     TableNamesSet table_names;
