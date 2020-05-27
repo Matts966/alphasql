@@ -183,7 +183,7 @@ You can specify external schemata (not created by queries in SQL set) by passing
 
 ```bash
 # with external schema
-$ ./bin/osx/pipeline_type_checker --json_schema_path ./sample-schema.json ./samples/sample1.dot
+$ ./bin/osx/pipeline_type_checker --json_schema_path ./samples/sample-schema.json ./samples/sample1.dot
 ```
 
 You can extract required external tables by
@@ -200,25 +200,17 @@ do
 done
 ```
 
-JSON schema file should have only a top level `table_schemas` list element, and string `name` and `schema` elements for each tables. `name` and `type` elements in `schema` elements are recognized like a official API.
+JSON schema file should have only a top level map element keyed by string element, which specifies table name and each value specifies schema for its key. `name` and `type` elements in the schema elements are recognized like a official API.
 
 ```json
 {
-    "table_schemas": [
-        {
-            "name": "tablename1",
-            "schema": [
+        "tablename1": [
+                {"mode": "NULLABLE", "name": "column1", "type": "STRING", "description": null}
+        ],
+        "tablename2": [
                 {"mode": "NULLABLE", "name": "column1", "type": "STRING", "description": null},
-            ]
-        },
-        {
-            "name": "tablename2",
-            "schema": [
-                {"mode": "NULLABLE", "name": "column1", "type": "STRING", "description": null},
-                {"mode": "NULLABLE", "name": "column2", "type": "INT64", "description": null},
-            ]
-        }
-    ]
+                {"mode": "NULLABLE", "name": "column2", "type": "INT64", "description": null}
+        ]
 }
 ```
 

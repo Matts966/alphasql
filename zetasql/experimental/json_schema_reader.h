@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <tuple>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
 #include "zetasql/public/simple_catalog.h"
@@ -37,10 +38,13 @@ void UpdateCatalogFromJSON(const std::string& json_schema_path, SimpleCatalog* c
   using namespace boost;
   property_tree::ptree pt;
   property_tree::read_json(json_schema_path, pt);
-  BOOST_FOREACH(property_tree::ptree::value_type &schema, pt.get_child("table_schemas")) {
-    std::string table_name = schema.second.get<std::string>("name");
+
+  std::string table_name;
+  for (property_tree::ptree::const_iterator it = pt.begin(); it != pt.end(); ++it) {
+    table_name = it->first;
+    const property_tree::ptree& schema = it->second;
     std::unique_ptr<SimpleTable> table(new SimpleTable(table_name));
-    BOOST_FOREACH(property_tree::ptree::value_type &field, schema.second.get_child("schema")) {
+    BOOST_FOREACH(const property_tree::ptree::value_type &field, schema) {
       std::string mode = field.second.get<std::string>("mode");
       std::string type_string = field.second.get<std::string>("type");
       mode = absl::AsciiStrToUpper(mode);
@@ -74,7 +78,8 @@ void UpdateCatalogFromJSON(const std::string& json_schema_path, SimpleCatalog* c
         new SimpleColumn(table_name, field.second.get<std::string>("name"), zetasql_type));
       table->AddColumn(column.release(), true);
     }
-    catalog->AddTable(table->Name(), table.release());
+
+    catalog->AddTable(table.release());
   }
 
   return;
