@@ -214,6 +214,16 @@ JSON schema file should have only a top level map element keyed by string elemen
 }
 ```
 
+## CI Example
+
+The pipeline level type check above is also useful in CI context. The sample in [./samples/sample-ci](./samples/sample-ci) contains an example for extracting dag, retrieving schema and checking schema and type of SQL set quering bigquery public dataset. You can introduce the CI to your environment only by copying `cloudbuild_ci_sample.yaml` and `python_entrypoint.py` to your project.
+
+You can try the example CI with `gcloud` command by
+
+```
+(cd ./samples/sample-ci && gcloud builds submit --config=cloudbuild_ci_sample.yaml .)
+```
+
 ## License
 
 [Apache License 2.0](LICENSE)

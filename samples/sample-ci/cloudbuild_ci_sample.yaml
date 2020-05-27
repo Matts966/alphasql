@@ -1,0 +1,28 @@
+steps:
+- name: 'matts966/alphasql'
+  entrypoint: 'dag'
+  volumes:
+  - name: 'vol'
+    path: '/vol'
+  args: [
+    '--external_required_tables_output_path',
+    '/vol/required_tables.txt',
+    '--output_path',
+    '/vol/dag.dot',
+    '.',
+  ]
+- name: 'python:3.8'
+  volumes:
+  - name: 'vol'
+    path: '/vol'
+  entrypoint: './python_entrypoint.py'
+- name: 'matts966/alphasql'
+  entrypoint: 'pipeline_type_checker'
+  volumes:
+  - name: 'vol'
+    path: '/vol'
+  args: [
+    '--json_schema_path',
+    '/vol/schema.json',
+    '/vol/dag.dot',
+  ]
