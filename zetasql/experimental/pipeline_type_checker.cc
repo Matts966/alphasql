@@ -118,6 +118,9 @@ absl::Status Run(const std::string& sql, const AnalyzerOptions& options, SimpleC
   ParseResumeLocation location = ParseResumeLocation::FromStringView(sql);
   bool at_end_of_input = false;
   std::unique_ptr<const AnalyzerOutput> output;
+
+  std::vector<std::string> temp_function_names;
+
   while (!at_end_of_input) {
     ZETASQL_RETURN_IF_ERROR(AnalyzeNextStatement(&location, options, catalog, &factory, &output, &at_end_of_input));
 
@@ -145,9 +148,17 @@ absl::Status Run(const std::string& sql, const AnalyzerOptions& options, SimpleC
         Function* function = new Function(function_name, "group", Function::SCALAR);
         function->AddSignature(create_function_stmt->signature());
         catalog->AddOwnedFunction(function);
+        if (create_function_stmt->create_scope() == ResolvedCreateStatement::CREATE_TEMP) {
+          temp_function_names.push_back(function_name);
+        }
         break;
       }
     }
+  }
+
+  for (const auto& function_name : temp_function_names) {
+    std::cout << "Removing temporary function " << function_name << std::endl;
+    catalog->RemoveOwnedFunction(function_name);
   }
 
   return absl::OkStatus();

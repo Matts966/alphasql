@@ -391,6 +391,22 @@ void SimpleCatalog::AddOwnedFunction(const std::string& name,
   AddOwnedFunction(name, absl::WrapUnique(function));
 }
 
+void SimpleCatalog::RemoveOwnedFunction(const std::string& full_name_without_group) {
+  absl::MutexLock l(&mutex_);
+
+  functions_.erase(absl::AsciiStrToLower(full_name_without_group));
+
+  for (auto it = owned_functions_.begin(); it != owned_functions_.end();) {
+    if (it->get()->FullName(false /* include_group */) == full_name_without_group) {
+      it = owned_functions_.erase(it);
+      return;
+    } else {
+      ++it;
+    }
+  }
+  CHECK(false) << "No function named " << full_name_without_group;
+}
+
 void SimpleCatalog::AddOwnedFunctionLocked(
     const std::string& name, std::unique_ptr<const Function> function) {
   AddFunctionLocked(name, function.get());

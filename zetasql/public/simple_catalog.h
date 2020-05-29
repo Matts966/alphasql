@@ -210,6 +210,9 @@ class SimpleCatalog : public EnumerableCatalog {
   void AddOwnedFunction(const std::string& name, const Function* function);
   void AddOwnedFunction(const Function* function) ABSL_LOCKS_EXCLUDED(mutex_);
 
+  void RemoveOwnedFunction(const std::string& full_name_without_group)
+      ABSL_LOCKS_EXCLUDED(mutex_);
+
   // Table Valued Functions
   void AddTableValuedFunction(const std::string& name,
                               const TableValuedFunction* function)
