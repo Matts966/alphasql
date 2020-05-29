@@ -34,7 +34,7 @@ Note that sometimes the output has cycle and manual editing is needed ([issue](h
 
 ### Sample DAG output
 
-The image below is extracted from SQL set in `./samples/sample1` .
+The image below is extracted from SQL set in `./samples/sample1` . You can write tests for created tables and run them parallely only by separating SQL file.
 
 ![dag.dot](samples/sample1.png)
 

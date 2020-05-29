@@ -7,7 +7,10 @@ digraph G {
 5[label="./samples/sample1/create_interim3.sql"];
 6[label="./samples/sample1/create_mart.sql"];
 7[label="./samples/sample1/insert_into_interim1.sql"];
-8[label="./samples/sample1/update_interim2.sql"];
+8[label="./samples/sample1/test_mart1.sql"];
+9[label="./samples/sample1/test_mart2.sql"];
+10[label="./samples/sample1/test_mart3.sql"];
+11[label="./samples/sample1/update_interim2.sql"];
 0->3 ;
 0->5 ;
 0->6 ;
@@ -16,9 +19,12 @@ digraph G {
 2->5 ;
 2->4 ;
 3->7 ;
-4->8 ;
+4->11 ;
 5->7 ;
 5->6 ;
+6->10 ;
+6->9 ;
+6->8 ;
 7->6 ;
-8->6 ;
+11->6 ;
 }
