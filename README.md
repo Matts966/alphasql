@@ -200,7 +200,7 @@ do
 done
 ```
 
-JSON schema file should have only a top level map element keyed by string element, which specifies table name and each value specifies schema for its key. `name` and `type` elements in the schema elements are recognized like a official API.
+JSON schema file should have only a top level map element keyed by string element, which specifies table name and each value specifies schema for its key. `name` and `type` elements in the schema elements are recognized like the official API.
 
 ```json
 {
