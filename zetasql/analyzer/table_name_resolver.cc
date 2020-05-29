@@ -29,6 +29,7 @@
 #include "zetasql/parser/parser.h"
 #include "zetasql/public/analyzer.h"
 #include "zetasql/public/language_options.h"
+#include "zetasql/public/parse_resume_location.h"
 #include "zetasql/public/options.pb.h"
 #include "zetasql/resolved_ast/resolved_ast.h"
 #include "zetasql/resolved_ast/resolved_node_kind.pb.h"
@@ -1163,21 +1164,18 @@ absl::Status FindTableNamesAndResolutionTime(
 
 std::map<ResolvedNodeKind, TableNamesSet> GetNodeKindToTableNamesMap(
     absl::string_view sql, const AnalyzerOptions& analyzer_options, TableNamesSet* table_names) {
-    std::unique_ptr<ParserOutput> parser_output;
-    // AnalyzerOptions local_options = analyzer_options;
-    auto status = ParseStatement(sql, analyzer_options.GetParserOptions(), &parser_output);
-    // // If the arena and IdStringPool are not set in <options>, use the
-    // // arena and IdStringPool from the parser output by default.
-    // if (local_options.arena() == nullptr) {
-    //   local_options.set_arena(parser_output->arena());
-    // }
-    // if (local_options.id_string_pool() == nullptr) {
-    //   local_options.set_id_string_pool(
-    //     parser_output->id_string_pool());
-    // }
+  std::unique_ptr<ParserOutput> parser_output;
+  // AnalyzerOptions local_options = analyzer_options;
 
-    auto resolver = TableNameResolver(sql, &analyzer_options, nullptr, nullptr,
-                           table_names, nullptr);
+  ParseResumeLocation location = ParseResumeLocation::FromStringView(sql);
+  bool at_end_of_input = false;
+
+  auto resolver = TableNameResolver(sql, &analyzer_options, nullptr, nullptr,
+                                    table_names, nullptr);
+
+  while (!at_end_of_input) {
+    auto status = ParseNextStatement(&location, analyzer_options.GetParserOptions(),
+                                      &parser_output, &at_end_of_input);
 
     if (parser_output == nullptr) {
       std::cout << status << std::endl;
@@ -1185,8 +1183,9 @@ std::map<ResolvedNodeKind, TableNamesSet> GetNodeKindToTableNamesMap(
     }
 
     resolver.FindTableNamesAndTemporalReferences(*parser_output->statement());
+  }
 
-    return resolver.node_kind_to_table_names();
+  return resolver.node_kind_to_table_names();
 }
 
 absl::Status FindTableNamesInScript(absl::string_view sql,
