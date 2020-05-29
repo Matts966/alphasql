@@ -34,7 +34,7 @@ Note that sometimes the output has cycle and manual editing is needed ([issue](h
 
 ### Sample DAG output
 
-The image below is extracted from SQL set in `./samples/sample1` . You can write tests for created tables and run them parallely only by separating SQL file.
+The image below is extracted from SQL set in [./samples/sample1](./samples/sample1) . You can write tests for created tables and run them parallely only by separating SQL file.
 
 ![dag.dot](samples/sample1.png)
 
@@ -59,7 +59,7 @@ runner.execute()
 
 Note that you should run job_runner in the same path as in extracting DAG.
 
-## SQL set Pipeline level Type Check
+## Pipeline level Type Check for SQL set
 
 Note that you should run type_checker in the same path as in extracting DAG.
 
@@ -139,7 +139,7 @@ catalog:
         interium3
 ```
 
-If you change column `x`'s type in `./samples/create_datawarehouse1.sql` to `STRING`, type checking will fail.
+If you change column `x`'s type in `./samples/create_datawarehouse1.sql` to `STRING`, type checker reports error.
 
 ```bash
 $ ./bin/osx/pipeline_type_checker ./samples/sample1.dot
@@ -200,7 +200,7 @@ do
 done
 ```
 
-JSON schema file should have only a top level map element keyed by string element, which specifies table name and each value specifies schema for its key. `name` and `type` elements in the schema elements are recognized like the official API.
+JSON schema file should have only a top level map element keyed by string element, which specifies table name, and each value specifies schema for its key. `name` and `type` elements in the schema elements are recognized like the official API.
 
 ```json
 {
