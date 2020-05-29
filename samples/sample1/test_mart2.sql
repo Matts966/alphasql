@@ -1,16 +1,30 @@
 WITH
   row_count AS (
+    -- To avoid ERROR: INVALID_ARGUMENT: Table not found: dataset.__TABLES__
+    --
+    -- SELECT
+    --   row_count
+    -- FROM
+    --   dataset.__TABLES__
+    -- WHERE
+    --   table_id = mart
+    --
     SELECT
-      row_count
+      COUNT(*)
     FROM
-      dataset.__TABLES__
-    WHERE
-      table_id = mart
+      `mart`
+  ),
+  row_count_unique AS (
+    SELECT
+      COUNT(DISTINCT x)
+    FROM
+      `mart`
   )
 SELECT
   `IF`((
       SELECT
-        COUNT(DISTINCT x) = row_count.row_count
+        row_count = row_count_unique
       FROM
-        mart
+        row_count,
+        row_count_unique
     ), ERROR("x should be unique"), "OK");
