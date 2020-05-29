@@ -22,7 +22,7 @@ def main():
             if len(splited_table_name) == 3:
                 dataset_ref = bq_client.dataset(splited_table_name[1], project=splited_table_name[0])
             else:
-                dataset_ref = bq_client.dataset(splited_table_name[1])
+                dataset_ref = bq_client.dataset(splited_table_name[0])
             table_ref = dataset_ref.table(splited_table_name[-1])
             table = bq_client.get_table(table_ref)
             tables[table_name] = [field.to_api_repr() for field in table.schema]
