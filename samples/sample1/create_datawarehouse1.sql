@@ -1,2 +1,4 @@
 CREATE OR REPLACE TABLE datawarehouse1
-(x INT64);
+(
+  x INT64
+);

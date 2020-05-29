@@ -1,5 +1,5 @@
-UPDATE `interim2`
+UPDATE interim2
 SET
   x = 0
 WHERE
-  x < 0
+  x < 0;

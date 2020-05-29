@@ -1,3 +1,5 @@
-INSERT INTO `interim1`
-SELECT x
-FROM interim3
+INSERT INTO interim1
+SELECT
+  x
+FROM
+  interim3;
