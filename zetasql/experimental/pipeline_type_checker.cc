@@ -18,6 +18,7 @@
 #include "zetasql/public/simple_catalog.h"
 #include "zetasql/public/type.h"
 #include "zetasql/public/value.h"
+#include "zetasql/public/parse_resume_location.h"
 #include "zetasql/resolved_ast/resolved_ast.h"
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
@@ -114,23 +115,39 @@ absl::Status Run(const std::string& sql, const AnalyzerOptions& options, SimpleC
 //   return absl::OkStatus();
 
   TypeFactory factory;
+  ParseResumeLocation location = ParseResumeLocation::FromStringView(sql);
+  bool at_end_of_input = false;
   std::unique_ptr<const AnalyzerOutput> output;
-  ZETASQL_RETURN_IF_ERROR(AnalyzeStatement(sql, options, catalog, &factory, &output));
+  while (!at_end_of_input) {
+    ZETASQL_RETURN_IF_ERROR(AnalyzeNextStatement(&location, options, catalog, &factory, &output, &at_end_of_input));
 
-  auto resolved_statement = output->resolved_statement();
-  switch (resolved_statement->node_kind()) {
-    case RESOLVED_CREATE_TABLE_STMT:
-    case RESOLVED_CREATE_TABLE_AS_SELECT_STMT:
-      auto* create_stmt = resolved_statement->GetAs<ResolvedCreateTableStmt>();
-      std::cout << "DDL analyzed, adding table to catalog..." << std::endl;
-      std::string table_name = absl::StrJoin(create_stmt->name_path(), ".");
-      std::unique_ptr<zetasql::SimpleTable> table(new zetasql::SimpleTable(table_name));
-      for (const auto& column_definition : create_stmt->column_definition_list()) {
-        std::unique_ptr<zetasql::SimpleColumn> column(new SimpleColumn(table_name, column_definition->column().name_id().ToString(),
-          catalog->type_factory()->MakeSimpleType(column_definition->column().type()->kind())));
-        ZETASQL_RETURN_IF_ERROR(table->AddColumn(column.release(), false));
+    auto resolved_statement = output->resolved_statement();
+
+    switch (resolved_statement->node_kind()) {
+      case RESOLVED_CREATE_TABLE_STMT:
+      case RESOLVED_CREATE_TABLE_AS_SELECT_STMT: {
+        auto* create_table_stmt = resolved_statement->GetAs<ResolvedCreateTableStmt>();
+        std::cout << "DDL analyzed, adding table to catalog..." << std::endl;
+        std::string table_name = absl::StrJoin(create_table_stmt->name_path(), ".");
+        std::unique_ptr<zetasql::SimpleTable> table(new zetasql::SimpleTable(table_name));
+        for (const auto& column_definition : create_table_stmt->column_definition_list()) {
+          std::unique_ptr<zetasql::SimpleColumn> column(new SimpleColumn(table_name, column_definition->column().name_id().ToString(),
+            catalog->type_factory()->MakeSimpleType(column_definition->column().type()->kind())));
+          ZETASQL_RETURN_IF_ERROR(table->AddColumn(column.release(), false));
+        }
+        catalog->AddTable(table.release());
+        break;
       }
-      catalog->AddTable(table.release());
+      case RESOLVED_CREATE_FUNCTION_STMT: {
+        auto* create_function_stmt = resolved_statement->GetAs<ResolvedCreateFunctionStmt>();
+        std::cout << "Create Function Statement analyzed, adding function to catalog..." << std::endl;
+        std::string function_name = absl::StrJoin(create_function_stmt->name_path(), ".");
+        Function* function = new Function(function_name, "group", Function::SCALAR);
+        function->AddSignature(create_function_stmt->signature());
+        catalog->AddOwnedFunction(function);
+        break;
+      }
+    }
   }
 
   return absl::OkStatus();
