@@ -1,6 +1,6 @@
 ## AlphaSQL
 
-This repository is forked from [google/zetasql](https://github.com/google/zetasql) and provides BigQuery Parallelizer and Type Checker for SQL set.
+This repository is forked from [google/zetasql](https://github.com/google/zetasql) and provides integrated Type/Scheme Checker and Parallelization for SQL set.
 
 ## Docker
 
