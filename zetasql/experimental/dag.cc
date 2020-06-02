@@ -54,6 +54,16 @@ namespace zetasql {
       sql, options, table_names);
   }
 
+  void UpdateAlreadyInsertedTablesAndTableQueriesMapInternal(const std::string table_string, const std::string file_path,
+                                                             std::set<std::string>& already_inserted_tables,
+                                                             std::vector<std::string>& files) {
+    if (already_inserted_tables.count(table_string)) {
+      return;
+    }
+    already_inserted_tables.insert(table_string);
+    files.push_back(file_path);
+  }
+
   void UpdateTableQueriesMapAndVertices(const std::filesystem::path& file_path,
                                         std::map<std::string, table_queries>& table_queries_map,
                                         std::set<std::string>& vertices) {
@@ -65,31 +75,38 @@ namespace zetasql {
     std::ifstream file(file_path, std::ios::in);
     std::string sql(std::istreambuf_iterator<char>(file), {});
     TableNamesSet table_names;
-    const std::map<ResolvedNodeKind, TableNamesSet> node_kind_to_table_names =
+    std::map<ResolvedNodeKind, TableNamesSet> node_kind_to_table_names =
       ExtractTableNamesFromSQL(sql, &table_names);
-    for (auto const& [node_kind, table_names] : node_kind_to_table_names) {
-      for (const auto& table_name : table_names) {
-        const std::string table_string = absl::StrJoin(table_name, ".");
-        switch (node_kind) {
-          case RESOLVED_CREATE_TABLE_STMT:
-          case RESOLVED_CREATE_TABLE_AS_SELECT_STMT:
-            table_queries_map[table_string].create.push_back(file_path);
-            break;
-          case RESOLVED_UPDATE_STMT:
-            table_queries_map[table_string].update.push_back(file_path);
-            break;
-          case RESOLVED_INSERT_STMT:
-            table_queries_map[table_string].insert.push_back(file_path);
-            break;
-          default:
-            std::cout << "unsupported node kind " << ResolvedNodeKindToString(node_kind) << std::endl;
-            return;
-        }
-      }
+
+    // Check already inserted or not to avoid redundant cycles
+    std::set<std::string> already_inserted_tables;
+
+    // Assume only the node kinds below in the map.
+    for (auto const& table_name : node_kind_to_table_names[RESOLVED_CREATE_TABLE_STMT]) {
+      const std::string table_string = absl::StrJoin(table_name, ".");
+      UpdateAlreadyInsertedTablesAndTableQueriesMapInternal(table_string, file_path, already_inserted_tables,
+                                                            table_queries_map[table_string].create);
     }
+    for (auto const& table_name : node_kind_to_table_names[RESOLVED_CREATE_TABLE_AS_SELECT_STMT]) {
+      const std::string table_string = absl::StrJoin(table_name, ".");
+      UpdateAlreadyInsertedTablesAndTableQueriesMapInternal(table_string, file_path, already_inserted_tables,
+                                                            table_queries_map[table_string].create);
+    }
+    for (auto const& table_name : node_kind_to_table_names[RESOLVED_UPDATE_STMT]) {
+      const std::string table_string = absl::StrJoin(table_name, ".");
+      UpdateAlreadyInsertedTablesAndTableQueriesMapInternal(table_string, file_path, already_inserted_tables,
+                                                            table_queries_map[table_string].update);
+    }
+    for (auto const& table_name : node_kind_to_table_names[RESOLVED_INSERT_STMT]) {
+      const std::string table_string = absl::StrJoin(table_name, ".");
+      UpdateAlreadyInsertedTablesAndTableQueriesMapInternal(table_string, file_path, already_inserted_tables,
+                                                            table_queries_map[table_string].insert);
+    }
+
     for (auto const& table_name : table_names) {
       const std::string table_string = absl::StrJoin(table_name, ".");
-      table_queries_map[table_string].others.push_back(file_path);
+      UpdateAlreadyInsertedTablesAndTableQueriesMapInternal(table_string, file_path, already_inserted_tables,
+                                                            table_queries_map[table_string].others);
     }
 
     vertices.insert(file_path);

@@ -2,4 +2,4 @@ INSERT INTO interim1
 SELECT
   x
 FROM
-  interim3;
+  interim1;

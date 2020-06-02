@@ -11,6 +11,7 @@ digraph G {
 9[label="./samples/sample1/test_mart2.sql"];
 10[label="./samples/sample1/test_mart3.sql"];
 11[label="./samples/sample1/update_interim2.sql"];
+12[label="./samples/sample1/update_interium1.sql"];
 0->3 ;
 0->5 ;
 0->6 ;
@@ -18,13 +19,13 @@ digraph G {
 1->4 ;
 2->5 ;
 2->4 ;
-3->7 ;
+3->12 ;
 4->11 ;
-5->7 ;
 5->6 ;
 6->10 ;
 6->9 ;
 6->8 ;
 7->6 ;
 11->6 ;
+12->7 ;
 }
