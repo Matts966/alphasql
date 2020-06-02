@@ -229,6 +229,8 @@ You can try the example CI with `gcloud` command by
 (cd ./samples/sample-ci && gcloud builds submit --config=cloudbuild_ci_sample.yaml .)
 ```
 
+This example does not execute actual BigQuery.
+
 ## License
 
 [Apache License 2.0](LICENSE)
