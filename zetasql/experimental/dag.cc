@@ -54,8 +54,9 @@ namespace zetasql {
       sql, options, table_names);
   }
 
-  void UpdateTableQueriesMap(const std::filesystem::path& file_path,
-                             std::map<std::string, table_queries>& table_queries_map) {
+  void UpdateTableQueriesMapAndVertices(const std::filesystem::path& file_path,
+                                        std::map<std::string, table_queries>& table_queries_map,
+                                        std::set<std::string>& vertices) {
     if (file_path.extension() != ".bq" && file_path.extension() != ".sql") {
       std::cout << "not a sql file " << file_path << "!" << std::endl;
       return;
@@ -90,6 +91,9 @@ namespace zetasql {
       const std::string table_string = absl::StrJoin(table_name, ".");
       table_queries_map[table_string].others.push_back(file_path);
     }
+
+    vertices.insert(file_path);
+
     return;
   }
 
@@ -136,7 +140,7 @@ int main(int argc, char* argv[]) {
   for (const auto& path : remaining_args) {
     if (std::filesystem::is_regular_file(path)) {
       std::filesystem::path file_path(path);
-      zetasql::UpdateTableQueriesMap(file_path, table_queries_map);
+      zetasql::UpdateTableQueriesMapAndVertices(file_path, table_queries_map, vertices);
       continue;
     }
     std::filesystem::recursive_directory_iterator file_path(path,
@@ -146,8 +150,7 @@ int main(int argc, char* argv[]) {
       if (err) {
         std::cout << "WARNING: " << err << std::endl;
       }
-      vertices.insert(file_path->path());
-      zetasql::UpdateTableQueriesMap(file_path->path(), table_queries_map);
+      zetasql::UpdateTableQueriesMapAndVertices(file_path->path(), table_queries_map, vertices);
     }
   }
 
