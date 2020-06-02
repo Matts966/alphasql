@@ -26,6 +26,9 @@ Also, binaries for Linux and OSX are in [bin](./bin) directory.
 # To extract DAG from your SQL set
 $ ./bin/osx/dag --output_path ./samples/sample1.dot ./samples/sample1/
 
+# Or you can check the output in stdout by
+$ ./bin/osx/dag [paths]
+
 # with graphviz
 $ dot -Tpng samples/sample1.dot -o samples/sample1.png
 ```
@@ -38,7 +41,7 @@ If there are cycles, warning is emitted. You can see the example in [./samples/s
 
 The image below is extracted from SQL set in [./samples/sample1](./samples/sample1) . You can write tests for created tables and run them parallely only by separating SQL file.
 
-![dag.dot](samples/sample1.png)
+![dag.dot](samples/sample1/sample1.png)
 
 ## Parallel Execution
 
