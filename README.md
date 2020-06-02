@@ -32,6 +32,8 @@ $ dot -Tpng samples/sample1.dot -o samples/sample1.png
 
 Note that sometimes the output has cycle and manual editing is needed ([issue](https://github.com/Matts966/alphasql/issues/2)).
 
+If there are cycles, warning is emitted. You can see the example in [./samples/sample-cycle](./samples/sample-cycle) .
+
 ### Sample DAG output
 
 The image below is extracted from SQL set in [./samples/sample1](./samples/sample1) . You can write tests for created tables and run them parallely only by separating SQL file.

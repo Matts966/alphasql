@@ -8,6 +8,7 @@
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "boost/graph/graphviz.hpp"
+#include "boost/graph/depth_first_search.hpp"
 #include "absl/strings/str_join.h"
 
 typedef std::pair<std::string, std::string> Edge;
@@ -109,6 +110,18 @@ namespace zetasql {
   }
 }
 
+struct cycle_detector : public boost::dfs_visitor<> {
+  cycle_detector( bool& has_cycle)
+    : _has_cycle(has_cycle) { }
+
+  template <class Edge, class Graph>
+  void back_edge(Edge, Graph&) {
+    _has_cycle = true;
+  }
+protected:
+  bool& _has_cycle;
+};
+
 int main(int argc, char* argv[]) {
   const char kUsage[] =
       "Usage: dag --external_required_tables_output_path <filename> --output_path <filename> <directory or file paths of sql...>\n";
@@ -204,6 +217,13 @@ int main(int argc, char* argv[]) {
       continue;
     }
     add_edge(indexes[depends_on[i].second], indexes[depends_on[i].first], g);
+  }
+
+  bool has_cycle = false;
+  cycle_detector vis(has_cycle);
+  depth_first_search(g, visitor(vis));
+  if (has_cycle) {
+    std::cout << "Warning!!! There are cycles in your dependency graph!!! " << std::endl;
   }
 
   const std::string output_path = absl::GetFlag(FLAGS_output_path);
