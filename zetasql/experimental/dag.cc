@@ -92,14 +92,12 @@ namespace zetasql {
     return;
   }
 
-  void UpdateEdgesAndVertices(std::vector<Edge>& depends_on, std::set<std::string>& vertices,
-                              std::vector<std::string> dependents, std::vector<std::vector<std::string>> parents) {
+  void UpdateEdges(std::vector<Edge>& depends_on,
+                   std::vector<std::string> dependents, std::vector<std::vector<std::string>> parents) {
     if (!dependents.size()) return;
-    for (const std::string& dep : dependents) vertices.insert(dep);
     for (const auto& parent : parents) {
       if (!parent.size()) continue;
       for (const std::string& p : parent) {
-        vertices.insert(p);
         for (const std::string& dep : dependents) {
           if (dep != p) {
             depends_on.push_back(std::make_pair(dep, p));
@@ -121,7 +119,7 @@ int main(int argc, char* argv[]) {
   std::vector<char*> remaining_args(args.begin() + 1, args.end());
 
   std::map<std::string, table_queries> table_queries_map;
-
+  std::set<std::string> vertices;
   for (const auto& path : remaining_args) {
     if (std::filesystem::is_regular_file(path)) {
       std::filesystem::path file_path(path);
@@ -135,24 +133,24 @@ int main(int argc, char* argv[]) {
       if (err) {
         std::cout << "WARNING: " << err << std::endl;
       }
+      vertices.insert(file_path->path());
       zetasql::UpdateTableQueriesMap(file_path->path(), table_queries_map);
     }
   }
 
   std::vector<Edge> depends_on;
-  std::set<std::string> vertices;
   std::vector<std::string> external_required_tables;
   for (auto const& [table_name, table_queries] : table_queries_map) {
-    zetasql::UpdateEdgesAndVertices(depends_on, vertices, table_queries.others, std::vector<std::vector<std::string>>{
+    zetasql::UpdateEdges(depends_on, table_queries.others, {
       table_queries.insert,
       table_queries.update,
       table_queries.create,
     });
-    zetasql::UpdateEdgesAndVertices(depends_on, vertices, table_queries.insert, std::vector<std::vector<std::string>>{
+    zetasql::UpdateEdges(depends_on, table_queries.insert, {
       table_queries.update,
       table_queries.create,
     });
-    zetasql::UpdateEdgesAndVertices(depends_on, vertices, table_queries.update, std::vector<std::vector<std::string>>{
+    zetasql::UpdateEdges(depends_on, table_queries.update, {
       table_queries.create,
     });
     if (table_queries.create.empty()) {
