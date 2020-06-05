@@ -39,3 +39,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: 'bin/*'
+          releaseId: ${{ github.ref }}
