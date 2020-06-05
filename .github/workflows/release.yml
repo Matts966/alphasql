@@ -42,4 +42,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: 'bin/*'
-          releaseId: ${{ steps.tag.outputs.tag }}
+          releaseId: ${{ steps.create_release.outputs.id }}
