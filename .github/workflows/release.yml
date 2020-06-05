@@ -27,8 +27,9 @@ jobs:
       - name: Zip binaries
         shell: bash
         env:
-          TAG: ${{ github.ref }}
+          GITHUB_REF: ${{ github.ref }}
         run: |
+          TAG=${GITHUB_REF##*/}
           7z a bin/alphasql_${TAG}_linux_x86_64.zip $(find ./bin/linux -type f)
           7z a bin/alphasql_${TAG}_darwin_amd64.zip $(find ./bin/osx -type f)
 
