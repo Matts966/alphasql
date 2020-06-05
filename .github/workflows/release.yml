@@ -24,12 +24,19 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@master
 
+      - name: Extract tag name
+        id: tag
+        uses: actions/github-script@0.2.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            return context.payload.ref.replace(/\/refs\/tags\//, '');
+
       - name: Zip binaries
         shell: bash
         env:
-          GITHUB_REF: ${{ github.ref }}
+          TAG: ${{ steps.tag.outputs.result }}
         run: |
-          TAG=${GITHUB_REF##*/}
           7z a bin/alphasql_${TAG}_linux_x86_64.zip $(find ./bin/linux -type f)
           7z a bin/alphasql_${TAG}_darwin_amd64.zip $(find ./bin/osx -type f)
 
@@ -39,4 +46,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: 'bin/*'
-          releaseId: ${{ github.ref }}
+          releaseId: ${{ steps.tag.outputs.result }}
