@@ -36,8 +36,8 @@ jobs:
           7z a bin/alphasql_${TAG}_linux_x86_64.zip $(find ./bin/linux -type f)
           7z a bin/alphasql_${TAG}_darwin_amd64.zip $(find ./bin/osx -type f)
 
-      - name: Upload Release Asset
-        id: upload-release-asset
+      - name: Upload Linux Asset
+        id: upload-linux-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -47,8 +47,8 @@ jobs:
           asset_name: alphasql_${{ steps.tag.outputs.tag }}_linux_x86_64.zip
           asset_content_type: application/zip
 
-      - name: Upload Release Asset
-        id: upload-release-asset
+      - name: Upload OSX Asset
+        id: upload-osx-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
