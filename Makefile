@@ -1,4 +1,5 @@
-update: osx linux push
+update: osx linux
+	make push
 	@echo "all artifacts are updated"
 run: build
 	docker run -it --rm -v `pwd`:/home:Z matts966/alphasql:latest

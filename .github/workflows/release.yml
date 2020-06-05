@@ -2,8 +2,9 @@
 
 name: release
 on:
-  release:
-    types: [created]
+  create:
+    tags:
+    - v*.*.*
 jobs:
   generate:
     name: Create release-artifacts
@@ -11,10 +12,17 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@master
+
+      - name: Create ninja archive
+        shell: bash
+        run: |
+          apt install p7zip-full
+          7z a bin/alphasql_${{ github.ref }}_linux_x86_64.zip $(find ./bin/linux -type f)
+          7z a bin/alphasql_${{ github.ref }}_darwin_amd64.zip $(find ./bin/osx -type f)
+
       - name: Upload the artifacts
         uses: skx/github-action-publish-binaries@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: 'bin/**/*'
-  
+          args: 'bin/*'
