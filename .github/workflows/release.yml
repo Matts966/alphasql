@@ -32,10 +32,14 @@ jobs:
           script: |
             return context.payload.ref.replace(/\/refs\/tags\//, '');
 
+      - name: Extract tag name
+        id: tag
+        run: echo ::set-output name=tag::${GITHUB_REF##*/}
+
       - name: Zip binaries
         shell: bash
         env:
-          TAG: ${{ steps.tag.outputs.result }}
+          TAG: ${{ steps.tag.outputs.tag }}
         run: |
           7z a bin/alphasql_${TAG}_linux_x86_64.zip $(find ./bin/linux -type f)
           7z a bin/alphasql_${TAG}_darwin_amd64.zip $(find ./bin/osx -type f)
@@ -46,4 +50,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: 'bin/*'
-          releaseId: ${{ steps.tag.outputs.result }}
+          releaseId: ${{ steps.tag.outputs.tag }}
