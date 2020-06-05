@@ -33,8 +33,10 @@ jobs:
         env:
           TAG: ${{ steps.tag.outputs.tag }}
         run: |
-          tar -zcvf bin/alphasql_${TAG}_linux_x86_64.tar.gz $(find ./bin/linux -type f)
-          tar -zcvf bin/alphasql_${TAG}_darwin_amd64.tar.gz $(find ./bin/osx -type f)
+          mv ./bin/linux alphasql_${TAG}_linux_x86_64
+          tar -zcvf bin/alphasql_${TAG}_linux_x86_64.tar.gz alphasql_${TAG}_linux_x86_64
+          mv ./bin/osx alphasql_${TAG}_darwin_amd64
+          tar -zcvf bin/alphasql_${TAG}_darwin_amd64.tar.gz alphasql_${TAG}_darwin_amd64
 
       - name: Upload Linux Asset
         id: upload-linux-asset
