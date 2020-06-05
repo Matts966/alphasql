@@ -10,14 +10,27 @@ jobs:
     name: Create release-artifacts
     runs-on: ubuntu-latest
     steps:
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
       - name: Checkout the repository
         uses: actions/checkout@master
 
       - name: Zip binaries
         shell: bash
+        env:
+          TAG: ${{ github.ref }}
         run: |
-          7z a bin/alphasql_${{ github.ref }}_linux_x86_64.zip $(find ./bin/linux -type f)
-          7z a bin/alphasql_${{ github.ref }}_darwin_amd64.zip $(find ./bin/osx -type f)
+          7z a bin/alphasql_${TAG}_linux_x86_64.zip $(find ./bin/linux -type f)
+          7z a bin/alphasql_${TAG}_darwin_amd64.zip $(find ./bin/osx -type f)
 
       - name: Upload the artifacts
         uses: skx/github-action-publish-binaries@master
