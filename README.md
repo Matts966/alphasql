@@ -7,13 +7,13 @@ This repository is forked from [google/zetasql](https://github.com/google/zetasq
 You can run commands below with docker
 
 ```bash
-docker run -it --rm -v `pwd`:/home:Z matts966/alphasql:latest [command]
+docker run --rm -v `pwd`:/home matts966/alphasql:latest [command]
 ```
 
 like
 
 ```bash
-docker run -it --rm -v `pwd`:/home:Z matts966/alphasql:latest pipeline_type_checker ./samples/sample1.dot
+docker run --rm -v `pwd`:/home matts966/alphasql:latest pipeline_type_checker ./samples/sample1.dot
 ```
 
 Commands are installed in the PATH of the image.
