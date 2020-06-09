@@ -68,8 +68,9 @@ namespace zetasql {
                                         std::map<std::string, table_queries>& table_queries_map,
                                         std::set<std::string>& vertices) {
     if (file_path.extension() != ".bq" && file_path.extension() != ".sql") {
-      std::cout << "not a sql file " << file_path << "!" << std::endl;
-      return;
+      // std::cout << "not a sql file " << file_path << "!" << std::endl;
+      // Skip if not SQL.
+      return absl::OkStatus();
     }
     std::cout << "reading " << file_path << std::endl;
     std::ifstream file(file_path, std::ios::in);
