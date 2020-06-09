@@ -12,13 +12,13 @@ WITH
     SELECT
       COUNT(*)
     FROM
-      `mart`
+      mart
   ),
   row_count_unique AS (
     SELECT
       COUNT(DISTINCT x)
     FROM
-      `mart`
+      mart
   )
 SELECT
   `IF`((

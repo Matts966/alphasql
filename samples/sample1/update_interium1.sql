@@ -9,4 +9,4 @@ FROM
       interim1
   ) AS new_x
 WHERE
-  x = 0
+  x = 0;

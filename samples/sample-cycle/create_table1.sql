@@ -1,2 +1,5 @@
 CREATE TABLE table1 AS
-SELECT * FROM table2
+SELECT
+  *
+FROM
+  table2;
