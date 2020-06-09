@@ -227,7 +227,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
     std::filesystem::path file_path(sql_file_path);
-    std::cout << "analyzing " << sql_file_path << std::endl;
+    std::cout << "Analyzing " << file_path << std::endl;
     std::ifstream file(file_path, std::ios::in);
     std::string sql(std::istreambuf_iterator<char>(file), {});
     const absl::Status status = zetasql::Run(sql, options, catalog);

@@ -72,7 +72,7 @@ namespace zetasql {
       // Skip if not SQL.
       return absl::OkStatus();
     }
-    std::cout << "reading " << file_path << std::endl;
+    std::cout << "Reading " << file_path << std::endl;
     std::ifstream file(file_path, std::ios::in);
     std::string sql(std::istreambuf_iterator<char>(file), {});
     TableNamesSet table_names;
@@ -155,6 +155,8 @@ int main(int argc, char* argv[]) {
 
   std::map<std::string, table_queries> table_queries_map;
   std::set<std::string> vertices;
+  std::cout << "Reading paths passed as a command line arguments..." << std::endl;
+  std::cout << "Only files that end with .sql or .bq are analyzed." << std::endl;
   for (const auto& path : remaining_args) {
     if (std::filesystem::is_regular_file(path)) {
       std::filesystem::path file_path(path);
