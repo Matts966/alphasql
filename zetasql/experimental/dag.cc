@@ -3,6 +3,7 @@
 #include "zetasql/resolved_ast/resolved_ast.h"
 #include "zetasql/base/logging.h"
 #include "zetasql/base/status.h"
+#include "zetasql/base/statusor.h"
 #include "zetasql/public/analyzer.h"
 #include "zetasql/analyzer/table_name_resolver.h"
 #include "absl/flags/flag.h"
@@ -40,7 +41,7 @@ namespace zetasql {
     return **copy;
   }
 
-  std::map<ResolvedNodeKind, TableNamesSet> ExtractTableNamesFromSQL(const std::string sql,
+  zetasql_base::StatusOr<std::map<ResolvedNodeKind, TableNamesSet>> ExtractTableNamesFromSQL(const std::string sql,
                                                                      TableNamesSet* table_names) {
     LanguageOptions language_options;
     language_options.EnableMaximumLanguageFeaturesForDevelopment();
@@ -64,7 +65,7 @@ namespace zetasql {
     files.push_back(file_path);
   }
 
-  void UpdateTableQueriesMapAndVertices(const std::filesystem::path& file_path,
+  absl::Status UpdateTableQueriesMapAndVertices(const std::filesystem::path& file_path,
                                         std::map<std::string, table_queries>& table_queries_map,
                                         std::set<std::string>& vertices) {
     if (file_path.extension() != ".bq" && file_path.extension() != ".sql") {
@@ -76,8 +77,11 @@ namespace zetasql {
     std::ifstream file(file_path, std::ios::in);
     std::string sql(std::istreambuf_iterator<char>(file), {});
     TableNamesSet table_names;
-    std::map<ResolvedNodeKind, TableNamesSet> node_kind_to_table_names =
-      ExtractTableNamesFromSQL(sql, &table_names);
+    auto node_kind_to_table_names_or_status = ExtractTableNamesFromSQL(sql, &table_names);
+    if (!node_kind_to_table_names_or_status.ok()) {
+      return node_kind_to_table_names_or_status.status();
+    }
+    std::map<ResolvedNodeKind, TableNamesSet> node_kind_to_table_names = node_kind_to_table_names_or_status.value();
 
     // Check already inserted or not to avoid redundant cycles
     std::set<std::string> already_inserted_tables;
@@ -112,7 +116,7 @@ namespace zetasql {
 
     vertices.insert(file_path);
 
-    return;
+    return absl::OkStatus();
   }
 
   void UpdateEdges(std::vector<Edge>& depends_on,
@@ -160,7 +164,11 @@ int main(int argc, char* argv[]) {
   for (const auto& path : remaining_args) {
     if (std::filesystem::is_regular_file(path)) {
       std::filesystem::path file_path(path);
-      zetasql::UpdateTableQueriesMapAndVertices(file_path, table_queries_map, vertices);
+      absl::Status status = zetasql::UpdateTableQueriesMapAndVertices(file_path, table_queries_map, vertices);
+      if (!status.ok()) {
+        std::cout << status << std::endl;
+        return 1;
+      }
       continue;
     }
     std::filesystem::recursive_directory_iterator file_path(path,
@@ -170,7 +178,11 @@ int main(int argc, char* argv[]) {
       if (err) {
         std::cout << "WARNING: " << err << std::endl;
       }
-      zetasql::UpdateTableQueriesMapAndVertices(file_path->path(), table_queries_map, vertices);
+      absl::Status status = zetasql::UpdateTableQueriesMapAndVertices(file_path->path(), table_queries_map, vertices);
+      if (!status.ok()) {
+        std::cout << status << std::endl;
+        return 1;
+      }
     }
   }
 
@@ -242,13 +254,6 @@ int main(int argc, char* argv[]) {
     add_edge(indexes[depends_on[i].second], indexes[depends_on[i].first], g);
   }
 
-  bool has_cycle = false;
-  cycle_detector vis(has_cycle);
-  depth_first_search(g, visitor(vis));
-  if (has_cycle) {
-    std::cout << "Warning!!! There are cycles in your dependency graph!!! " << std::endl;
-  }
-
   const std::string output_path = absl::GetFlag(FLAGS_output_path);
   if (output_path == "") {
     write_graphviz(std::cout, g, make_label_writer(get(vertex_name, g)));
@@ -261,5 +266,13 @@ int main(int argc, char* argv[]) {
       return 1;
     }
   }
+
+  bool has_cycle = false;
+  cycle_detector vis(has_cycle);
+  depth_first_search(g, visitor(vis));
+  if (has_cycle) {
+    std::cout << "Warning!!! There are cycles in your dependency graph!!! " << std::endl;
+  }
+
   return 0;
 }

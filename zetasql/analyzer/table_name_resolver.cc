@@ -1211,7 +1211,7 @@ absl::Status FindTableNamesAndResolutionTime(
       .FindTableNamesAndTemporalReferences(statement);
 }
 
-std::map<ResolvedNodeKind, TableNamesSet> GetNodeKindToTableNamesMap(
+zetasql_base::StatusOr<std::map<ResolvedNodeKind, TableNamesSet>> GetNodeKindToTableNamesMap(
     absl::string_view sql, const AnalyzerOptions& analyzer_options, TableNamesSet* table_names) {
   std::unique_ptr<ParserOutput> parser_output;
   // AnalyzerOptions local_options = analyzer_options;
@@ -1227,8 +1227,7 @@ std::map<ResolvedNodeKind, TableNamesSet> GetNodeKindToTableNamesMap(
                                       &parser_output, &at_end_of_input);
 
     if (parser_output == nullptr) {
-      std::cout << status << std::endl;
-      return std::map<ResolvedNodeKind, TableNamesSet>();
+      return status;
     }
 
     resolver.FindTableNamesAndTemporalReferences(*parser_output->statement());

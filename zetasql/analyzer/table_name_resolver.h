@@ -74,7 +74,7 @@ inline absl::Status FindTables(absl::string_view sql,
       /* table_resolution_time_info_map = */ nullptr);
 }
 
-std::map<ResolvedNodeKind, TableNamesSet> GetNodeKindToTableNamesMap(
+zetasql_base::StatusOr<std::map<ResolvedNodeKind, TableNamesSet>> GetNodeKindToTableNamesMap(
     absl::string_view sql, const AnalyzerOptions& analyzer_options, TableNamesSet* table_names);
 
 }  // namespace table_name_resolver
