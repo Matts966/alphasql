@@ -17,10 +17,15 @@ osx:
 sample:
 	dag ./samples/sample1/ --output_path ./samples/sample1/dag.dot
 	dot -Tpng ./samples/sample1/dag.dot -o ./samples/sample1/dag.png
-	dag ./samples/sample2/ --output_path ./samples/sample2/dag.dot
-	dot -Tpng ./samples/sample2/dag.dot -o ./samples/sample2/dag.png
+	pipeline_type_checker ./samples/sample1/dag.dot
+
 	dag ./samples/sample-cycle/ --output_path ./samples/sample-cycle/dag.dot
 	dot -Tpng ./samples/sample-cycle/dag.dot -o ./samples/sample-cycle/dag.png
+	pipeline_type_checker ./samples/sample-cycle/dag.dot
+
+	dag ./samples/sample2/ --output_path ./samples/sample2/dag.dot
+	dot -Tpng ./samples/sample2/dag.dot -o ./samples/sample2/dag.png
+	pipeline_type_checker ./samples/sample2/dag.dot
 linux: build
 	./docker/linux-copy-bin.sh
 .PHONY: run build osx push

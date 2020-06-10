@@ -1,10 +1,10 @@
 UPDATE interim1
 SET
-  x = new_x.x
+  x = new_x.xx
 FROM
   (
     SELECT
-      x
+      x as xx
     FROM
       interim1
   ) AS new_x
