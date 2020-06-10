@@ -242,4 +242,7 @@ int main(int argc, char* argv[]) {
       return 1;
     }
   }
+
+  std::cout << "Successfully finished type check!" << std::endl;
+  return 0;
 }
