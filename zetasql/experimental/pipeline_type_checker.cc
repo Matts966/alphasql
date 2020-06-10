@@ -103,7 +103,7 @@ absl::Status PrintResults(std::unique_ptr<EvaluatorTableIterator> iter) {
 }
 
 // Runs the tool.
-absl::Status Run(const std::string& sql, const AnalyzerOptions& options, SimpleCatalog* catalog) {
+absl::Status Run(const std::string& sql_file_path, const AnalyzerOptions& options, SimpleCatalog* catalog) {
 //   PreparedQuery query(sql, EvaluatorOptions());
 //   ZETASQL_RETURN_IF_ERROR(query.Prepare(options, catalog));
 //   ZETASQL_ASSIGN_OR_RETURN(std::unique_ptr<EvaluatorTableIterator> iter,
@@ -114,8 +114,13 @@ absl::Status Run(const std::string& sql, const AnalyzerOptions& options, SimpleC
 //   std::cout << explain << std::endl;
 //   return absl::OkStatus();
 
+  std::filesystem::path file_path(sql_file_path);
+  std::cout << "Analyzing " << file_path << std::endl;
+  std::ifstream file(file_path, std::ios::in);
+  std::string sql(std::istreambuf_iterator<char>(file), {});
+
   TypeFactory factory;
-  ParseResumeLocation location = ParseResumeLocation::FromStringView(sql);
+  ParseResumeLocation location = ParseResumeLocation::FromStringView(sql_file_path, sql);
   bool at_end_of_input = false;
   std::unique_ptr<const AnalyzerOutput> output;
 
@@ -226,11 +231,7 @@ int main(int argc, char* argv[]) {
       std::cout << "ERROR: not a file " << sql_file_path << std::endl;
       return 1;
     }
-    std::filesystem::path file_path(sql_file_path);
-    std::cout << "Analyzing " << file_path << std::endl;
-    std::ifstream file(file_path, std::ios::in);
-    std::string sql(std::istreambuf_iterator<char>(file), {});
-    const absl::Status status = zetasql::Run(sql, options, catalog);
+    const absl::Status status = zetasql::Run(sql_file_path, options, catalog);
     if (status.ok()) {
       std::cout << "SUCCESS: analysis finished!" << std::endl;
       std::cout << "catalog:" << std::endl;

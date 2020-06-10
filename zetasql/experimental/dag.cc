@@ -41,7 +41,7 @@ namespace zetasql {
     return **copy;
   }
 
-  zetasql_base::StatusOr<std::map<ResolvedNodeKind, TableNamesSet>> ExtractTableNamesFromSQL(const std::string sql,
+  zetasql_base::StatusOr<std::map<ResolvedNodeKind, TableNamesSet>> ExtractTableNamesFromSQL(const std::string& sql_file_path,
                                                                      TableNamesSet* table_names) {
     LanguageOptions language_options;
     language_options.EnableMaximumLanguageFeaturesForDevelopment();
@@ -52,7 +52,7 @@ namespace zetasql {
     options.CreateDefaultArenasIfNotSet();
 
     return table_name_resolver::GetNodeKindToTableNamesMap(
-      sql, options, table_names);
+      sql_file_path, options, table_names);
   }
 
   void UpdateAlreadyInsertedTablesAndTableQueriesMapInternal(const std::string table_string, const std::string file_path,
@@ -66,18 +66,17 @@ namespace zetasql {
   }
 
   absl::Status UpdateTableQueriesMapAndVertices(const std::filesystem::path& file_path,
-                                        std::map<std::string, table_queries>& table_queries_map,
-                                        std::set<std::string>& vertices) {
+                                                std::map<std::string, table_queries>& table_queries_map,
+                                                std::set<std::string>& vertices) {
     if (file_path.extension() != ".bq" && file_path.extension() != ".sql") {
       // std::cout << "not a sql file " << file_path << "!" << std::endl;
       // Skip if not SQL.
       return absl::OkStatus();
     }
     std::cout << "Reading " << file_path << std::endl;
-    std::ifstream file(file_path, std::ios::in);
-    std::string sql(std::istreambuf_iterator<char>(file), {});
+
     TableNamesSet table_names;
-    auto node_kind_to_table_names_or_status = ExtractTableNamesFromSQL(sql, &table_names);
+    auto node_kind_to_table_names_or_status = ExtractTableNamesFromSQL(file_path.string(), &table_names);
     if (!node_kind_to_table_names_or_status.ok()) {
       return node_kind_to_table_names_or_status.status();
     }

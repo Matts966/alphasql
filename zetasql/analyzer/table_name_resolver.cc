@@ -21,7 +21,10 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <filesystem>
+#include <fstream>
 
+#include "zetasql/common/errors.h"
 #include "zetasql/base/logging.h"
 #include "zetasql/parser/ast_node_kind.h"
 #include "zetasql/parser/parse_tree.h"
@@ -1212,11 +1215,15 @@ absl::Status FindTableNamesAndResolutionTime(
 }
 
 zetasql_base::StatusOr<std::map<ResolvedNodeKind, TableNamesSet>> GetNodeKindToTableNamesMap(
-    absl::string_view sql, const AnalyzerOptions& analyzer_options, TableNamesSet* table_names) {
+    const std::string& sql_file_path, const AnalyzerOptions& analyzer_options, TableNamesSet* table_names) {
   std::unique_ptr<ParserOutput> parser_output;
   // AnalyzerOptions local_options = analyzer_options;
 
-  ParseResumeLocation location = ParseResumeLocation::FromStringView(sql);
+  std::filesystem::path file_path(sql_file_path);
+  std::ifstream file(file_path, std::ios::in);
+  std::string sql(std::istreambuf_iterator<char>(file), {});
+
+  ParseResumeLocation location = ParseResumeLocation::FromStringView(sql_file_path, sql);
   bool at_end_of_input = false;
 
   auto resolver = TableNameResolver(sql, &analyzer_options, nullptr, nullptr,
@@ -1227,7 +1234,8 @@ zetasql_base::StatusOr<std::map<ResolvedNodeKind, TableNamesSet>> GetNodeKindToT
                                       &parser_output, &at_end_of_input);
 
     if (parser_output == nullptr) {
-      return status;
+      return ConvertInternalErrorLocationAndAdjustErrorString(
+          analyzer_options.error_message_mode(), sql, status);
     }
 
     resolver.FindTableNamesAndTemporalReferences(*parser_output->statement());
