@@ -41,7 +41,7 @@ If there are cycles, warning is emitted. You can see the example in [./samples/s
 
 The image below is extracted from SQL set in [./samples/sample1](./samples/sample1) . You can write tests for created tables and run them parallely only by separating SQL file.
 
-![dag.dot](samples/sample1/sample1.png)
+![dag.dot](samples/sample1/dag.png)
 
 ## Parallel Execution
 
