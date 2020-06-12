@@ -234,12 +234,12 @@ int main(int argc, char* argv[]) {
     const absl::Status status = zetasql::Run(sql_file_path, options, catalog);
     if (status.ok()) {
       std::cout << "SUCCESS: analysis finished!" << std::endl;
+    } else {
+      std::cout << "ERROR: " << status << std::endl;
       std::cout << "catalog:" << std::endl;
       for (const std::string& table_name : catalog->table_names()) {
         std::cout << "\t" << table_name << std::endl;
       }
-    } else {
-      std::cout << "ERROR: " << status << std::endl;
       return 1;
     }
   }
