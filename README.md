@@ -33,7 +33,7 @@ $ ./bin/osx/dag [paths]
 $ dot -Tpng samples/sample1/dag.dot -o samples/sample1/dag.png
 ```
 
-Note that sometimes the output has cycle and manual editing is needed ([issue](https://github.com/Matts966/alphasql/issues/2)).
+Note that sometimes the output has cycle, and refactoring SQL files or manual editing of the dot file is needed ([issue](https://github.com/Matts966/alphasql/issues/2)).
 
 If there are cycles, warning is emitted. You can see the example in [./samples/sample-cycle](./samples/sample-cycle) .
 
@@ -45,7 +45,7 @@ The image below is extracted from SQL set in [./samples/sample1](./samples/sampl
 
 ## Parallel Execution
 
-The output DAG can be run parallely using [bq_jobrunner](https://github.com/tsintermax/bq_jobrunner) and Python.
+For BigQuery, the output DAG can be run parallely using [bq_jobrunner](https://github.com/tsintermax/bq_jobrunner) and Python.
 
 ```Python
 from bq_jobrunner.bq_jobrunner import BQJobrunner
