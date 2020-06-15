@@ -1,6 +1,6 @@
 ## AlphaSQL
 
-This repository is forked from [google/zetasql](https://github.com/google/zetasql) and provides integrated Type/Scheme Checker and Parallelization for SQL set.
+This repository is forked from [google/zetasql](https://github.com/google/zetasql) and provides integrated Type/Scheme Checker and Parallelization for sets of SQL files to eliminate syntax, type and schema errors from your datawarehouse.
 
 ## Docker
 
