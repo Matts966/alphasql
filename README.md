@@ -1,6 +1,22 @@
-## AlphaSQL
+# AlphaSQL
 
 This repository is forked from [google/zetasql](https://github.com/google/zetasql) and provides integrated Type/Scheme Checker and Parallelization for sets of SQL files to eliminate syntax, type and schema errors from your datawarehouse.
+
+## Features
+
+- [Docker Image](#docker)
+    - Use our AlphaSQL on Docker ；）
+- [Dependency Analysis](#extract-dag-from-sql-set)
+    - Extract DAG from your SQL file set.
+    - [Sample DAG output](#sample-dag-output)
+- [Parallel Execution](#parallel-execution)
+    - Automatically parallelize your SQL file set.
+- [Schema Checker](#pipeline-level-type-check-for-sql-set)
+    - Eliminate syntax, type and schema errors from your datawarehouse.
+    - [Schema specification by JSON](schema-specification-by-json)
+        - Input your lake schema in JSON.
+- [CI Example](#ci-example)
+    - Use our AlphaSQL to continuously check your datawarehouse on BigQuery using CloudBuild.
 
 ## Docker
 
@@ -123,6 +139,8 @@ catalog:
         datawarehouse3
         datawarehouse2
 ```
+
+### Schema specification by JSON
 
 You can specify external schemata (not created by queries in SQL set) by passing JSON schema path.
 
