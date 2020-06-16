@@ -13,7 +13,7 @@ This repository is forked from [google/zetasql](https://github.com/google/zetasq
     - Automatically parallelize your SQL file set.
 - [Schema Checker](#pipeline-level-type-check-for-sql-set)
     - Eliminate syntax, type and schema errors from your datawarehouse.
-    - [Schema specification by JSON](schema-specification-by-json)
+    - [Schema specification by JSON](#schema-specification-by-json)
         - Input your lake schema in JSON.
 - [CI Example](#ci-example)
     - Use our AlphaSQL to continuously check your datawarehouse on BigQuery using CloudBuild.
