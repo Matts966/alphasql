@@ -85,13 +85,12 @@ class TableNameResolver {
     return _node_kind_to_table_names;
   }
 
+  absl::Status FindInStatement(const ASTStatement* statement);
 
  private:
   typedef std::set<std::string> AliasSet;  // Always lowercase.
 
   std::map<ResolvedNodeKind, TableNamesSet> _node_kind_to_table_names;
-
-  absl::Status FindInStatement(const ASTStatement* statement);
 
   // Consumes either an ASTScript, ASTStatementList, or ASTScriptStatement.
   absl::Status FindInScriptNode(const ASTNode* node);
@@ -1231,14 +1230,18 @@ zetasql_base::StatusOr<std::map<ResolvedNodeKind, TableNamesSet>> GetNodeKindToT
 
   while (!at_end_of_input) {
     auto status = ParseNextStatement(&location, analyzer_options.GetParserOptions(),
-                                      &parser_output, &at_end_of_input);
+                                     &parser_output, &at_end_of_input);
 
     if (parser_output == nullptr) {
       return ConvertInternalErrorLocationAndAdjustErrorString(
           analyzer_options.error_message_mode(), sql, status);
     }
 
-    resolver.FindTableNamesAndTemporalReferences(*parser_output->statement());
+    status = resolver.FindInStatement(parser_output->statement());
+    if (!status.ok()) {
+      return ConvertInternalErrorLocationAndAdjustErrorString(
+          analyzer_options.error_message_mode(), sql, status);
+    }
   }
 
   return resolver.node_kind_to_table_names();
