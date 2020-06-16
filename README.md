@@ -197,5 +197,6 @@ This example does not execute actual BigQuery.
 
 [Apache License 2.0](LICENSE)
 
-## Support Disclaimer
-This is not an officially supported Google product.
+## Sponsors
+
+The development of this project is sponsored by [Japan Data Science Consortium](https://jdsc.ai/) and [Cybozu Lab](https://labs.cybozu.co.jp/).
