@@ -8,3 +8,9 @@ SELECT
   x
 FROM
   datawarehouse2;
+-- insert for preprocessing
+INSERT INTO interim1
+SELECT
+  x
+FROM
+  interim1;

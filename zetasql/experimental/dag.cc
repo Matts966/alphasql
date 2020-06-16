@@ -21,8 +21,6 @@ ABSL_FLAG(std::string, external_required_tables_output_path, "",
 
 struct table_queries {
   std::vector<std::string> create;
-  std::vector<std::string> update;
-  std::vector<std::string> insert;
   std::vector<std::string> others;
 };
 
@@ -55,16 +53,6 @@ namespace zetasql {
       sql_file_path, options, table_names);
   }
 
-  void UpdateAlreadyInsertedTablesAndTableQueriesMapInternal(const std::string table_string, const std::string file_path,
-                                                             std::set<std::string>& already_inserted_tables,
-                                                             std::vector<std::string>& files) {
-    if (already_inserted_tables.count(table_string)) {
-      return;
-    }
-    already_inserted_tables.insert(table_string);
-    files.push_back(file_path);
-  }
-
   absl::Status UpdateTableQueriesMapAndVertices(const std::filesystem::path& file_path,
                                                 std::map<std::string, table_queries>& table_queries_map,
                                                 std::set<std::string>& vertices) {
@@ -82,35 +70,19 @@ namespace zetasql {
     }
     std::map<ResolvedNodeKind, TableNamesSet> node_kind_to_table_names = node_kind_to_table_names_or_status.value();
 
-    // Check already inserted or not to avoid redundant cycles
-    std::set<std::string> already_inserted_tables;
-
-    // Assume only the node kinds below in the map.
+    // Resolve file dependency from DML on DDL.
     for (auto const& table_name : node_kind_to_table_names[RESOLVED_CREATE_TABLE_STMT]) {
       const std::string table_string = absl::StrJoin(table_name, ".");
-      UpdateAlreadyInsertedTablesAndTableQueriesMapInternal(table_string, file_path, already_inserted_tables,
-                                                            table_queries_map[table_string].create);
+      table_queries_map[table_string].create.push_back(file_path);
     }
     for (auto const& table_name : node_kind_to_table_names[RESOLVED_CREATE_TABLE_AS_SELECT_STMT]) {
       const std::string table_string = absl::StrJoin(table_name, ".");
-      UpdateAlreadyInsertedTablesAndTableQueriesMapInternal(table_string, file_path, already_inserted_tables,
-                                                            table_queries_map[table_string].create);
-    }
-    for (auto const& table_name : node_kind_to_table_names[RESOLVED_UPDATE_STMT]) {
-      const std::string table_string = absl::StrJoin(table_name, ".");
-      UpdateAlreadyInsertedTablesAndTableQueriesMapInternal(table_string, file_path, already_inserted_tables,
-                                                            table_queries_map[table_string].update);
-    }
-    for (auto const& table_name : node_kind_to_table_names[RESOLVED_INSERT_STMT]) {
-      const std::string table_string = absl::StrJoin(table_name, ".");
-      UpdateAlreadyInsertedTablesAndTableQueriesMapInternal(table_string, file_path, already_inserted_tables,
-                                                            table_queries_map[table_string].insert);
+      table_queries_map[table_string].create.push_back(file_path);
     }
 
     for (auto const& table_name : table_names) {
       const std::string table_string = absl::StrJoin(table_name, ".");
-      UpdateAlreadyInsertedTablesAndTableQueriesMapInternal(table_string, file_path, already_inserted_tables,
-                                                            table_queries_map[table_string].others);
+      table_queries_map[table_string].others.push_back(file_path);
     }
 
     vertices.insert(file_path);
@@ -189,15 +161,6 @@ int main(int argc, char* argv[]) {
   std::vector<std::string> external_required_tables;
   for (auto const& [table_name, table_queries] : table_queries_map) {
     zetasql::UpdateEdges(depends_on, table_queries.others, {
-      table_queries.insert,
-      table_queries.update,
-      table_queries.create,
-    });
-    zetasql::UpdateEdges(depends_on, table_queries.insert, {
-      table_queries.update,
-      table_queries.create,
-    });
-    zetasql::UpdateEdges(depends_on, table_queries.update, {
       table_queries.create,
     });
     if (table_queries.create.empty()) {
@@ -206,8 +169,6 @@ int main(int argc, char* argv[]) {
   }
 
   const int nedges = depends_on.size();
-  // int weights[nedges];
-  // std::fill(weights, weights + nedges, 1);
 
   using namespace boost;
 

@@ -18,7 +18,7 @@ This repository is forked from [google/zetasql](https://github.com/google/zetasq
 - [CI Example](#ci-example)
     - Use our AlphaSQL to continuously check your datawarehouse on BigQuery using CloudBuild.
 
-## Docker
+## Docker Image
 
 You can run commands below with docker
 
@@ -38,6 +38,8 @@ Also, binaries for Linux and OSX are in [bin](./bin) directory.
 
 ## Extract DAG from SQL set
 
+`dag` finds dependencies between DML and DDL.
+
 ```bash
 # To extract DAG from your SQL set
 $ ./bin/osx/dag --output_path ./samples/sample1/dag.dot ./samples/sample1/
@@ -52,6 +54,8 @@ $ dot -Tpng samples/sample1/dag.dot -o samples/sample1/dag.png
 Note that sometimes the output has cycle, and refactoring SQL files or manual editing of the dot file is needed ([issue](https://github.com/Matts966/alphasql/issues/2)).
 
 If there are cycles, warning is emitted. You can see the example in [./samples/sample-cycle](./samples/sample-cycle) .
+
+If you want to serially execute some statements, you can write SQL script that contains multiple statements. See [samples/sample1/create_interim1.sql](samples/sample1/create_interim1.sql) as an example.
 
 ### Sample DAG output
 
