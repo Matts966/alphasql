@@ -4,7 +4,7 @@ This repository is forked from [google/zetasql](https://github.com/google/zetasq
 
 ## Features
 
-- [Docker Image](#docker)
+- [Docker Image](#docker-image)
     - Use our AlphaSQL on Docker ；）
 - [Dependency Analysis](#extract-dag-from-sql-set)
     - Extract DAG from your SQL file set.
