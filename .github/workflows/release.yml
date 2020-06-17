@@ -12,17 +12,23 @@ jobs:
     steps:
       - name: Create release
         id: create_release
-        uses: actions/create-release@v1.0.0
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
+          body: |
+            Changes in this Release
+            - First Change
+            - Second Change
           draft: false
           prerelease: false
 
       - name: Checkout the repository
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
 
       - name: Zip binaries
         shell: bash
