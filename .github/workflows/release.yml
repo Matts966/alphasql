@@ -63,3 +63,4 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: matts966/alphasql
           tag_with_ref: true
+          dockerfile: docker/Dockerfile
