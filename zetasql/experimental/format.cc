@@ -1,5 +1,5 @@
 //
-// Copyright 2019 ZetaSQL Authors
+// Copyright 2020 Matts966
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,9 +14,6 @@
 // limitations under the License.
 //
 
-// Tool for running a query against a Catalog constructed from various input
-// sources. Also serves as a demo of the PreparedQuery API.
-//
 #include <iostream>
 #include <string>
 #include <vector>
