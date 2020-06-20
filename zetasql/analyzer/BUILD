@@ -87,6 +87,7 @@ cc_library(
         "query_resolver_helper.h",
         "resolver.h",
         "table_name_resolver.h",
+        "identifier_resolver.h",
         "//zetasql/public:analyzer.h",
     ],
     copts = [
