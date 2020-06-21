@@ -55,9 +55,9 @@ $ ./bin/osx/dag [paths]
 $ dot -Tpng samples/sample1/dag.dot -o samples/sample1/dag.png
 ```
 
-Note that sometimes the output has cycle, and refactoring SQL files or manual editing of the dot file is needed (see [this issue]([issue](https://github.com/Matts966/alphasql/issues/2)).
+Note that sometimes the output has cycle, and refactoring SQL files or manual editing of the dot file is needed (see [this issue](https://github.com/Matts966/alphasql/issues/2)).
 
-If there are cycles, warning is emitted. You can see the example in [./samples/sample-cycle](./samples/sample-cycle) .
+If there are cycles, warning is emitted, type checker reports error, and bq_jobrunner raise error before execution. You can see the example in [./samples/sample-cycle](./samples/sample-cycle) .
 
 If you want to serially execute some statements, you can write SQL script that contains multiple statements. See [samples/sample1/create_interim1.sql](samples/sample1/create_interim1.sql) as an example.
 
