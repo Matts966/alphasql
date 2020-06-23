@@ -10,6 +10,8 @@ AlphaSQL eliminates syntax, type and schema errors from your datawarehouse.
 
 - [Docker Image](#docker-image)
     - Use our AlphaSQL on Docker ；）
+- [Fast Binaries](#fast-binaries)
+    - For local use, binary installation is fast!
 - [Dependency Analysis](#extract-dag-from-sql-set)
     - Extract DAG from your SQL file set.
     - [Sample DAG output](#sample-dag-output)
@@ -38,7 +40,26 @@ docker run --rm -v `pwd`:/home matts966/alphasql:latest pipeline_type_checker ./
 
 Commands are installed in the PATH of the image.
 
-Also, binaries for Linux and OSX are in [bin](./bin) directory.
+## Fast Binaries
+
+```bash
+# To install for MacOSX
+temp=$(mktemp -d)
+wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alphasql_darwin_amd64.tar.gz \
+    && tar -zxvf $temp/alphasql_darwin_amd64.tar.gz -C /usr/local/bin --strip=1
+```
+
+```bash
+# To install for Linux
+temp=$(mktemp -d)
+wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alphasql_linux_x86_64.tar.gz \
+    && tar -zxvf $temp/alphasql_linux_x86_64.tar.gz -C /usr/local/bin --strip=1
+# Use gcc-9 for using std::filesystem api
+apt-get update && \
+    apt-get install --no-install-recommends -y gcc-9 g++-9
+# or
+yum install -y gcc-9 g++-9
+```
 
 ## Extract DAG from SQL set
 
