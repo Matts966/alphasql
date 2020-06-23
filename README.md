@@ -54,11 +54,6 @@ wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alph
 temp=$(mktemp -d)
 wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alphasql_linux_x86_64.tar.gz \
     && tar -zxvf $temp/alphasql_linux_x86_64.tar.gz -C /usr/local/bin --strip=1
-# Use gcc-9 for using std::filesystem api
-apt-get update && \
-    apt-get install --no-install-recommends -y gcc-9 g++-9
-# or
-yum install -y gcc-9 g++-9
 ```
 
 ## Extract DAG from SQL set
