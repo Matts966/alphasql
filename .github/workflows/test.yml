@@ -11,6 +11,6 @@ jobs:
           ref: ${{ github.ref }}
       - name: Test the repository
         uses: actions/checkout@v2
-        runs: |
+        rus: |
             apt-get install -y tzdata
             bazel test //zetasql/...
