@@ -3,7 +3,7 @@ on: push
 jobs:
   test:
     name: Test the repository
-    runs-on: docker://l.gcr.io/google/bazel:1.0.0
+    runs-on: ubuntu:latest
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
@@ -12,4 +12,7 @@ jobs:
       - name: Test the repository
         run: |
             apt-get install -y tzdata
+            apt install curl gnupg
+            curl https://bazel.build/bazel-release.pub.gpg | apt-key add -
+            echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | tee /etc/apt/sources.list.d/bazel.list
             bazel test //zetasql/...
