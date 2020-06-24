@@ -3,7 +3,7 @@ on: push
 jobs:
   test:
     name: Test the repository
-    runs-on: l.gcr.io/google/bazel:1.0.0
+    runs-on: docker://l.gcr.io/google/bazel:1.0.0
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
