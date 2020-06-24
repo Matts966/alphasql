@@ -10,7 +10,6 @@ jobs:
         with:
           ref: ${{ github.ref }}
       - name: Test the repository
-        uses: actions/checkout@v2
         run: |
             apt-get install -y tzdata
             bazel test //zetasql/...
