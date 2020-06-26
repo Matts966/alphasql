@@ -19,6 +19,13 @@ sample:
 	dot -Tpng ./samples/sample1/dag.dot -o ./samples/sample1/dag.png
 	pipeline_type_checker ./samples/sample1/dag.dot
 
+	dag ./samples/sample-arbitrary-dependency-graph-with-drop-statement/ --output_path \
+		./samples/sample-arbitrary-dependency-graph-with-drop-statement/dag.dot
+	dot -Tpng ./samples/sample-arbitrary-dependency-graph-with-drop-statement/dag.dot \
+		-o ./samples/sample-arbitrary-dependency-graph-with-drop-statement/dag.png
+	pipeline_type_checker ./samples/sample-arbitrary-dependency-graph-with-drop-statement/dag.dot \
+		--json_schema_path ./samples/sample-arbitrary-dependency-graph-with-drop-statement/schema.json
+
 	dag ./samples/sample-cycle/ --output_path ./samples/sample-cycle/dag.dot
 	dot -Tpng ./samples/sample-cycle/dag.dot -o ./samples/sample-cycle/dag.png
 	pipeline_type_checker ./samples/sample-cycle/dag.dot

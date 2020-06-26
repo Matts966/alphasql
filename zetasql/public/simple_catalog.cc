@@ -358,6 +358,37 @@ void SimpleCatalog::AddOwnedTable(const std::string& name, const Table* table) {
   AddOwnedTable(name, absl::WrapUnique(table));
 }
 
+void SimpleCatalog::DropOwnedTable(const std::string& name) {
+  absl::MutexLock l(&mutex_);
+
+  tables_.erase(absl::AsciiStrToLower(name));
+
+  for (auto it = owned_tables_.begin(); it != owned_tables_.end();) {
+    if (it->get()->Name() == name) {
+      it = owned_tables_.erase(it);
+      return;
+    } else {
+      ++it;
+    }
+  }
+  CHECK(false) << "No table named " << name;
+}
+
+void SimpleCatalog::DropOwnedTableIfExists(const std::string& name) {
+  absl::MutexLock l(&mutex_);
+
+  tables_.erase(absl::AsciiStrToLower(name));
+
+  for (auto it = owned_tables_.begin(); it != owned_tables_.end();) {
+    if (it->get()->Name() == name) {
+      it = owned_tables_.erase(it);
+      return;
+    } else {
+      ++it;
+    }
+  }
+}
+
 void SimpleCatalog::AddOwnedModel(const std::string& name,
                                   std::unique_ptr<const Model> model) {
   AddModel(name, model.get());
@@ -391,7 +422,7 @@ void SimpleCatalog::AddOwnedFunction(const std::string& name,
   AddOwnedFunction(name, absl::WrapUnique(function));
 }
 
-void SimpleCatalog::RemoveOwnedFunction(const std::string& full_name_without_group) {
+void SimpleCatalog::DropOwnedFunction(const std::string& full_name_without_group) {
   absl::MutexLock l(&mutex_);
 
   functions_.erase(absl::AsciiStrToLower(full_name_without_group));
