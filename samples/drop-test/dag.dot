@@ -1,0 +1,3 @@
+digraph G {
+0[label="./samples/drop-test/create-and-drop.sql"];
+}

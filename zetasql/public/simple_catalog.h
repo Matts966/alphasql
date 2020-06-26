@@ -154,6 +154,10 @@ class SimpleCatalog : public EnumerableCatalog {
       ABSL_LOCKS_EXCLUDED(mutex_);
   void AddOwnedTable(const std::string& name, const Table* table);
   void AddOwnedTable(const Table* table) ABSL_LOCKS_EXCLUDED(mutex_);
+  void DropOwnedTable(const std::string& name)
+      ABSL_LOCKS_EXCLUDED(mutex_);
+  void DropOwnedTableIfExists(const std::string& name)
+      ABSL_LOCKS_EXCLUDED(mutex_);
 
   // Models
   void AddModel(const std::string& name, const Model* model)
@@ -210,7 +214,7 @@ class SimpleCatalog : public EnumerableCatalog {
   void AddOwnedFunction(const std::string& name, const Function* function);
   void AddOwnedFunction(const Function* function) ABSL_LOCKS_EXCLUDED(mutex_);
 
-  void RemoveOwnedFunction(const std::string& full_name_without_group)
+  void DropOwnedFunction(const std::string& full_name_without_group)
       ABSL_LOCKS_EXCLUDED(mutex_);
 
   // Table Valued Functions

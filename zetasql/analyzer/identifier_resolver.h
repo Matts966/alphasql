@@ -457,9 +457,8 @@ absl::Status IdentifierResolver::FindInStatement(const ASTStatement* statement) 
     case AST_DROP_STATEMENT:
       if (analyzer_options_->language().SupportsStatementKind(
               RESOLVED_DROP_STMT)) {
-        // Note that for a DROP TABLE statement, the table name is not
-        // inserted into table_names_. Engines that need to know about a table
-        // referenced by DROP TABLE should handle that themselves.
+        zetasql_base::InsertIfNotPresent(table_names_,
+                                static_cast<const ASTDropStatement*>(statement)->name()->ToIdentifierVector());
         return absl::OkStatus();
       }
       break;

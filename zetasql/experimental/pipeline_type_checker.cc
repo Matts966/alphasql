@@ -141,6 +141,7 @@ absl::Status Run(const std::string& sql_file_path, const AnalyzerOptions& option
   std::unique_ptr<const AnalyzerOutput> output;
 
   std::vector<std::string> temp_function_names;
+  std::vector<std::string> temp_table_names;
 
   while (!at_end_of_input) {
     ZETASQL_RETURN_IF_ERROR(AnalyzeNextStatement(&location, options, catalog, &factory, &output, &at_end_of_input));
@@ -159,7 +160,10 @@ absl::Status Run(const std::string& sql_file_path, const AnalyzerOptions& option
             catalog->type_factory()->MakeSimpleType(column_definition->column().type()->kind())));
           ZETASQL_RETURN_IF_ERROR(table->AddColumn(column.release(), false));
         }
-        catalog->AddTable(table.release());
+        catalog->AddOwnedTable(table.release());
+        if (create_table_stmt->create_scope() == ResolvedCreateStatement::CREATE_TEMP) {
+          temp_table_names.push_back(table_name);
+        }
         break;
       }
       case RESOLVED_CREATE_FUNCTION_STMT: {
@@ -174,12 +178,28 @@ absl::Status Run(const std::string& sql_file_path, const AnalyzerOptions& option
         }
         break;
       }
+      case RESOLVED_DROP_STMT: {
+        auto* drop_stmt = resolved_statement->GetAs<ResolvedDropStmt>();
+        std::cout << "Drop Statement analyzed, dropping table from catalog..." << std::endl;
+        std::string table_name = absl::StrJoin(drop_stmt->name_path(), ".");
+        if (drop_stmt->is_if_exists()) {
+          catalog->DropOwnedTableIfExists(table_name);
+        } else {
+          catalog->DropOwnedTable(table_name);
+        }
+        break;
+      }
     }
+  }
+
+  for (const auto& table_name : temp_table_names) {
+    std::cout << "Removing temporary table " << table_name << std::endl;
+    catalog->DropOwnedTableIfExists(table_name);
   }
 
   for (const auto& function_name : temp_function_names) {
     std::cout << "Removing temporary function " << function_name << std::endl;
-    catalog->RemoveOwnedFunction(function_name);
+    catalog->DropOwnedFunction(function_name);
   }
 
   return absl::OkStatus();
