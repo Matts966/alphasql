@@ -9,6 +9,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.ref }}
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: /root/.cache
+          key: ${{ runner.os }}
       - name: Test the repository
         run: |
             sudo apt-get update && \
