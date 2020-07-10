@@ -45,6 +45,37 @@ std::map<std::string, TypeKind> FromBigQueryTypeToZetaSQLTypeMap = {
   {"GEOGRAPHY", TYPE_GEOGRAPHY},
 };
 
+void AddColumnToTable(SimpleTable* table, const boost::property_tree::ptree::value_type field) {
+  std::string mode = field.second.get<std::string>("mode");
+  std::string type_string = field.second.get<std::string>("type");
+  mode = absl::AsciiStrToUpper(mode);
+  type_string = absl::AsciiStrToUpper(type_string);
+
+  if (FromBigQueryTypeToZetaSQLTypeMap.count(type_string) == 0) {
+    std::cout << "ERROR: unsupported type " + type_string + "\n" << std::endl;
+    throw;
+  }
+
+  const zetasql::Type* zetasql_type;
+
+  // TODO(Matts966): Implement Struct types
+  if (mode == "REPEATED" && type_string != "RECORD") {
+    // Array types
+    zetasql_type = types::ArrayTypeFromSimpleTypeKind(FromBigQueryTypeToZetaSQLTypeMap[type_string]);
+  } else {
+    zetasql_type = types::TypeFromSimpleTypeKind(FromBigQueryTypeToZetaSQLTypeMap[type_string]);
+  }
+
+  if (zetasql_type == nullptr) {
+    std::cout << "ERROR: unsupported type " + type_string + "\n" << std::endl;
+    throw;
+  }
+
+  std::unique_ptr<SimpleColumn> column(
+      new SimpleColumn(table->Name(), field.second.get<std::string>("name"), zetasql_type));
+  table->AddColumn(column.release(), true);
+}
+
 void UpdateCatalogFromJSON(const std::string& json_schema_path, SimpleCatalog* catalog) {
   if (!std::filesystem::is_regular_file(json_schema_path)) {
     std::cout << "ERROR: not a json file path " << json_schema_path << std::endl;
@@ -61,38 +92,7 @@ void UpdateCatalogFromJSON(const std::string& json_schema_path, SimpleCatalog* c
     const property_tree::ptree& schema = it->second;
     std::unique_ptr<SimpleTable> table(new SimpleTable(table_name));
     BOOST_FOREACH(const property_tree::ptree::value_type &field, schema) {
-      std::string mode = field.second.get<std::string>("mode");
-      std::string type_string = field.second.get<std::string>("type");
-      mode = absl::AsciiStrToUpper(mode);
-      type_string = absl::AsciiStrToUpper(type_string);
-
-      // TODO(Matts966): Implement Array and Struct types
-      if (mode == "REPEATED") {
-        if (type_string == "RECORD") {
-
-        } else {
-
-        }
-        std::cout << "ERROR: unsupported type " + type_string + "\n" << std::endl;
-        throw;
-      } else {
-
-      }
-
-      if (FromBigQueryTypeToZetaSQLTypeMap.count(type_string) == 0) {
-        std::cout << "ERROR: unsupported type " + type_string + "\n" << std::endl;
-        throw;
-      }
-
-      const auto zetasql_type = types::TypeFromSimpleTypeKind(FromBigQueryTypeToZetaSQLTypeMap[type_string]);
-      if (zetasql_type == nullptr) {
-        std::cout << "ERROR: unsupported type " + type_string + "\n" << std::endl;
-        throw;
-      }
-
-      std::unique_ptr<SimpleColumn> column(
-        new SimpleColumn(table_name, field.second.get<std::string>("name"), zetasql_type));
-      table->AddColumn(column.release(), true);
+      AddColumnToTable(table.get(), field);
     }
 
     catalog->AddTable(table.release());
