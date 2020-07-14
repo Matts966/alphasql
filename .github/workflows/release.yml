@@ -72,5 +72,6 @@ jobs:
           docker push docker.pkg.github.com/alphasql/alphasql:${GITHUB_REF#refs/heads/}
         env:
             DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-            DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}        
+            DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}      
+            GITHUB_REF: ${{ github.ref }}
 
