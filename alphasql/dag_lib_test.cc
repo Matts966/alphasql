@@ -28,10 +28,10 @@ bool has_cycle = false;
 
 TEST(cycle_detector, cycle) {  
   Graph g1(2);
-  add_edge(0, 1, g);
-  add_edge(1, 0, g);
+  add_edge(0, 1, g1);
+  add_edge(1, 0, g1);
   cycle_detector vis(has_cycle);
-  depth_first_search(g, visitor(vis));
+  depth_first_search(g1, visitor(vis));
   ASSERT_TRUE(has_cycle);
 
   has_cycle = false;
@@ -39,8 +39,8 @@ TEST(cycle_detector, cycle) {
   add_edge(0, 1, g2);
   add_edge(1, 2, g2);
   add_edge(2, 0, g2);
-  cycle_detector vis(has_cycle);
-  depth_first_search(g2, visitor(vis));
+  cycle_detector vis2(has_cycle);
+  depth_first_search(g2, visitor(vis2));
   ASSERT_TRUE(has_cycle);
 
   has_cycle = false;
@@ -50,17 +50,17 @@ TEST(cycle_detector, cycle) {
   add_edge(2, 3, g3);
   add_edge(3, 4, g3);
   add_edge(4, 0, g3);
-  cycle_detector vis(has_cycle);
-  depth_first_search(g3, visitor(vis));
+  cycle_detector vis3(has_cycle);
+  depth_first_search(g3, visitor(vis3));
   ASSERT_TRUE(has_cycle);
 }
 
 TEST(cycle_detector, acycle) {
   has_cycle = false;
   Graph g1(2);
-  add_edge(0, 1, g);
+  add_edge(0, 1, g1);
   cycle_detector vis(has_cycle);
-  depth_first_search(g, visitor(vis));
+  depth_first_search(g1, visitor(vis));
   ASSERT_FALSE(has_cycle);
 
   has_cycle = false;
@@ -68,9 +68,10 @@ TEST(cycle_detector, acycle) {
   add_edge(0, 1, g2);
   add_edge(1, 2, g2);
   add_edge(0, 2, g2);
-  cycle_detector vis(has_cycle);
-  depth_first_search(g2, visitor(vis));
+  cycle_detector vis2(has_cycle);
+  depth_first_search(g2, visitor(vis2));
   ASSERT_FALSE(has_cycle);
 }
 
+}
 }
