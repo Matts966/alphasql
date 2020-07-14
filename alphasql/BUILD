@@ -91,3 +91,13 @@ cc_binary(
         ":identifier_resolver",
     ],
 )
+
+cc_test(
+    name = "dag_test",
+    srcs = ["dag_test.cc"],
+    deps = [
+        ":dag",
+        "@com_google_googletest//:gtest_main",
+        "@boost//:graph",
+    ],
+)
