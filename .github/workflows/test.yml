@@ -12,8 +12,10 @@ jobs:
       - name: Cache
         uses: actions/cache@v2
         with:
-          path: /root/.cache
+          path: /home/runner/.cache/bazel
           key: ${{ runner.os }}
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v2
       - name: Test the repository
         run: |
             sudo apt-get update && \
