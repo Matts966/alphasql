@@ -13,7 +13,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /home/runner/.cache/bazel
-          key: ${{ runner.os }}
+          key: ${{ runner.os }}-bazel-build
       - name: Test the repository
         run: |
             sudo apt-get update && \
