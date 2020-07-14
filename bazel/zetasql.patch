@@ -1,0 +1,81 @@
+diff --git zetasql/analyzer/BUILD zetasql/analyzer/BUILD
+index bd00b17..c00b1ac 100644
+--- zetasql/analyzer/BUILD
++++ zetasql/analyzer/BUILD
+@@ -14,7 +14,7 @@
+ # limitations under the License.
+ 
+ package(
+-    default_visibility = ["//:__subpackages__"],
++    default_visibility = ["//visibility:public"],
+ )
+ 
+ cc_library(
+diff --git zetasql/base/BUILD zetasql/base/BUILD
+index e40b42f..fb0f4b7 100644
+--- zetasql/base/BUILD
++++ zetasql/base/BUILD
+@@ -17,7 +17,7 @@
+ licenses(["notice"])  # Apache v2.0
+ 
+ package(
+-    default_visibility = ["//:__subpackages__"],
++    default_visibility = ["//visibility:public"],
+ )
+ 
+ package_group(
+diff --git zetasql/common/BUILD zetasql/common/BUILD
+index 8d523c5..75bd64f 100644
+--- zetasql/common/BUILD
++++ zetasql/common/BUILD
+@@ -14,7 +14,7 @@
+ # limitations under the License.
+ 
+ package(
+-    default_visibility = ["//:__subpackages__"],
++    default_visibility = ["//visibility:public"],
+     features = ["parse_headers"],
+ )
+ 
+diff --git zetasql/parser/BUILD zetasql/parser/BUILD
+index 67b5014..8bad1c4 100644
+--- zetasql/parser/BUILD
++++ zetasql/parser/BUILD
+@@ -17,7 +17,7 @@ load("//bazel:bison.bzl", "genyacc")
+ load("//bazel:flex.bzl", "genlex")
+ 
+ package(
+-    default_visibility = ["//:__subpackages__"],
++    default_visibility = ["//visibility:public"],
+ )
+ 
+ genrule(
+diff --git zetasql/public/simple_catalog.h zetasql/public/simple_catalog.h
+index ffd3b51..15c68dd 100644
+--- zetasql/public/simple_catalog.h
++++ zetasql/public/simple_catalog.h
+@@ -55,6 +55,11 @@ class SimpleTableProto;
+ //
+ // This class is thread-safe.
+ class SimpleCatalog : public EnumerableCatalog {
++  friend void dropOwnedTable(SimpleCatalog* catalog, const std::string& name);
++  friend void dropOwnedTableIfExists(SimpleCatalog* catalog, const std::string& name);
++  friend void dropOwnedFunction(SimpleCatalog* catalog, const std::string& full_name_without_group);
++
++
+  public:
+   // Construct a Catalog with catalog name <name>.
+   //
+diff --git zetasql/resolved_ast/BUILD zetasql/resolved_ast/BUILD
+index bb3f2b0..c2a49cf 100644
+--- zetasql/resolved_ast/BUILD
++++ zetasql/resolved_ast/BUILD
+@@ -16,7 +16,7 @@
+ 
+ load("//zetasql/resolved_ast:build_rules.bzl", "gen_resolved_ast_files")
+ 
+-package(default_visibility = ["//:__subpackages__"])
++package(default_visibility = ["//visibility:public"])
+ 
+ py_binary(
+     name = "gen_resolved_ast",

@@ -1,5 +1,5 @@
 #
-# Copyright 2018 ZetaSQL Authors
+# Copyright 2020 Matts966
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,25 +14,24 @@
 # limitations under the License.
 #
 
-""" Workspace for Open Source ZetaSQL library """
+""" Workspace for AlphaSQL """
 
-workspace(name = "com_google_zetasql")
+workspace(name = "com_github_Matts966_alphasql")
 
-# Bazel doesn't support recursively loading dependencies.
-# The recommended pattern is for a repo to provide a 'my_repo_deps()' method
-# which will download all dependencies. Thus, a _direct dependency of 'my_repo'
-# can ask it to load it dependencies. However, if 'my_repo' has dependencies
-# which themselves have dependencies, and provide a 'child_repo_deps()',
-# there is no way to compose a workspace such that 'my_repo_deps' calls
-# 'child_repo_deps' (since this would represent a serialization of
-# load-then-statement, which is forbidden).  So, we take the tactic of providing
-# a serialized sequence of numbered steps that must be invoked in series to
-# load all dependencies.  Copy the following code exactly into your WORKSPACE
-# to fully download all dependencies. The exactly nature of what happens at
-# each step may change over time (and additional steps may be added in the
-# future).
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-# such that 'my_repo_deps'
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+http_archive(
+   name = "com_google_zetasql",
+   strip_prefix = "zetasql-2020.06.1",
+   urls = [
+      "https://github.com/google/zetasql/archive/2020.06.1.tar.gz",
+   ],
+   sha256 = "fb82060f525177117181dfad1a629d1dc13f76dd5779e5a393d6405fb627100c",
+   patches = ["@com_github_Matts966_alphasql//bazel:zetasql.patch"],
+)
+
 load("@com_google_zetasql//bazel:zetasql_deps_step_1.bzl", "zetasql_deps_step_1")
 
 zetasql_deps_step_1()
@@ -48,8 +47,6 @@ zetasql_deps_step_3()
 load("@com_google_zetasql//bazel:zetasql_deps_step_4.bzl", "zetasql_deps_step_4")
 
 zetasql_deps_step_4()
-
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
     name = "com_github_nelhage_rules_boost",
