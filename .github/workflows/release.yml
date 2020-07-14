@@ -64,6 +64,7 @@ jobs:
           repository: matts966/alphasql
           tag_with_ref: true
           dockerfile: docker/Dockerfile
+          cache_froms: matts966/alphasql:latest
 
       - name: Push to GitHub Packages
         uses: docker/build-push-action@v1
@@ -76,3 +77,4 @@ jobs:
           repository: matts966/alphasql/alphasql
           tag_with_ref: true
           dockerfile: docker/Dockerfile
+          cache_froms: matts966/alphasql:latest
