@@ -12,7 +12,7 @@ jobs:
       - name: Cache
         uses: actions/cache@v2
         with:
-          path: /root/.cache
+          path: /home/runner/.cache/bazel
           key: ${{ runner.os }}
       - name: Test the repository
         run: |
