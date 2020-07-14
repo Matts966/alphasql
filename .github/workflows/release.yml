@@ -67,7 +67,7 @@ jobs:
 
       - name: Push to Github Registry
         run: |
-          docker tag matts966/alphasql docker.pkg.github.com/alphasql/alphasql:${GITHUB_REF#refs/heads/}
+          docker tag matts966/alphasql docker.pkg.github.com/alphasql/alphasql:${GITHUB_REF##*/}
           echo GITHUB_TOKEN | docker login https://docker.pkg.github.com -u DOCKER_USERNAME --password-stdin
           docker push docker.pkg.github.com/alphasql/alphasql:${GITHUB_REF#refs/heads/}
         env:
