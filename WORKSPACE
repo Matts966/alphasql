@@ -18,18 +18,13 @@
 
 workspace(name = "com_github_Matts966_alphasql")
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
-http_archive(
-   name = "com_google_zetasql",
-   strip_prefix = "zetasql-2020.06.1",
-   urls = [
-      "https://github.com/google/zetasql/archive/2020.06.1.tar.gz",
-   ],
-   sha256 = "fb82060f525177117181dfad1a629d1dc13f76dd5779e5a393d6405fb627100c",
-   patches = ["@com_github_Matts966_alphasql//bazel:zetasql.patch"],
+git_repository(
+    name = "com_google_zetasql",
+    commit = "1aefaa7c62fc7a50def879bb7c4225ec6974b7ef",
+    remote = "https://github.com/google/zetasql",
+    patches = ["@com_github_Matts966_alphasql//bazel:zetasql.patch"],
 )
 
 load("@com_google_zetasql//bazel:zetasql_deps_step_1.bzl", "zetasql_deps_step_1")
