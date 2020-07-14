@@ -65,13 +65,14 @@ jobs:
           tag_with_ref: true
           dockerfile: docker/Dockerfile
 
-      - name: Push to Github Registry
-        run: |
-          docker tag matts966/alphasql docker.pkg.github.com/alphasql/alphasql:${GITHUB_REF#refs/tags/}
-          echo GITHUB_TOKEN | docker login https://docker.pkg.github.com -u DOCKER_USERNAME --password-stdin
-          docker push docker.pkg.github.com/alphasql/alphasql:${GITHUB_REF#refs/tags/}
+      - name: Push to GitHub Packages
+        uses: docker/build-push-action@v1
         env:
-            DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-            DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}      
-            GITHUB_REF: ${{ github.ref }}
-
+          DOCKER_BUILDKIT: 1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: Matts966/alphasql/alphasql/
+          tag_with_ref: true
+          dockerfile: docker/Dockerfile
