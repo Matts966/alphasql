@@ -73,6 +73,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
-          repository: Matts966/alphasql/alphasql
+          repository: matts966/alphasql/alphasql
           tag_with_ref: true
           dockerfile: docker/Dockerfile
