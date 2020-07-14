@@ -3,15 +3,10 @@
 
 # Allow files and directories
 !bazel/*
-!java/**
-!javatests/**
-!tools/*
-!zetasql/**
+!alphasql/*
 !.bazelrc
 !.bazelversion
-!BUILD
 !WORKSPACE
-!zetasql_grpc.bzl
 
 # Ignore unnecessary files inside allowed directories
 # This should go after the allowed directories

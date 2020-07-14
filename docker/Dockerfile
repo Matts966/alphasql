@@ -12,17 +12,17 @@ RUN apt-get update && \
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 900 \
         --slave /usr/bin/g++ g++ /usr/bin/g++-9
 ENV CC /usr/bin/gcc
-COPY . /work/zetasql
-WORKDIR /work/zetasql
+COPY . /work/alphasql
+WORKDIR /work/alphasql
 
 RUN --mount=type=cache,target=/root/.cache \
-    bazel build //zetasql/experimental:all && \
-    cp ./bazel-bin/zetasql/experimental/dag . && \
-    cp ./bazel-bin/zetasql/experimental/pipeline_type_checker .
+    bazel build //alphasql:all && \
+    cp ./bazel-bin/alphasql/dag . && \
+    cp ./bazel-bin/alphasql/pipeline_type_checker .
 
 
 FROM gcr.io/distroless/cc
-COPY --from=builder /work/zetasql/dag /usr/bin/dag
-COPY --from=builder /work/zetasql/pipeline_type_checker /usr/bin/pipeline_type_checker
+COPY --from=builder /work/alphasql/dag /usr/bin/dag
+COPY --from=builder /work/alphasql/pipeline_type_checker /usr/bin/pipeline_type_checker
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libstdc++.so.6 /usr/lib/x86_64-linux-gnu/libstdc++.so.6
 WORKDIR /home

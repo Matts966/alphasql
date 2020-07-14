@@ -2,9 +2,7 @@
 
 [![github-action](https://github.com/Matts966/alphasql/workflows/release/badge.svg)](https://github.com/Matts966/alphasql/actions)
 
-This repository is forked from [google/zetasql](https://github.com/google/zetasql) and provides integrated Type/Scheme Checker and Parallelization for sets of SQL files.
-
-AlphaSQL eliminates syntax, type and schema errors from your datawarehouse.
+AlphaSQL provides **Automatic Parallelization** for sets of SQL files and integrated **Type/Scheme Checker** to eliminate syntax, type and schema errors from your datawarehouse.
 
 ## Features
 
