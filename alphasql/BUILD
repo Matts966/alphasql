@@ -78,9 +78,23 @@ cc_binary(
 
 cc_binary(
     name = "dag",
-    srcs = [
-        "dag.cc",
+    srcs = ["dag.cc"],
+    deps = [
+        "@com_google_zetasql//zetasql/analyzer",
+        "@com_google_zetasql//zetasql/resolved_ast",
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:parse",
+        "@com_google_absl//absl/strings",
+        "@boost//:graph",
+        ":identifier_resolver",
+        ":dag_lib",
     ],
+)
+
+
+cc_library(
+    name = "dag_lib",
+    hdrs = ["dag_lib.h"],
     deps = [
         "@com_google_zetasql//zetasql/analyzer",
         "@com_google_zetasql//zetasql/resolved_ast",
@@ -93,10 +107,10 @@ cc_binary(
 )
 
 cc_test(
-    name = "dag_test",
-    srcs = ["dag_test.cc"],
+    name = "dag_lib_test",
+    srcs = ["dag_lib_test.cc"],
     deps = [
-        ":dag",
+        ":dag_lib",
         "@com_google_googletest//:gtest_main",
         "@boost//:graph",
     ],

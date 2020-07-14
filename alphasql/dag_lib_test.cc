@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-#include "alphasql/dag.cc"
+#include "alphasql/dag_lib.h"
 #include "boost/graph/depth_first_search.hpp"
 #include "gtest/gtest.h"
 
