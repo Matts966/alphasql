@@ -29,3 +29,8 @@ jobs:
             echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
             sudo apt update && sudo apt install bazel-1.0.0
             bazel test --test_output=errors //alphasql/...
+  test-osx:
+    runs-on: macOS-latest
+    steps:
+      - name: Setup tmate session	
+        uses: mxschmitt/action-tmate@v2
