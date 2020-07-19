@@ -26,7 +26,7 @@ jobs:
           tar -zcvf bin/alphasql_darwin_amd64.tar.gz alphasql_darwin_amd64
       - name: Get Release
         id: get
-        uses: bruceadams/get-release@v1
+        uses: bruceadams/get-release@v1.2.0
       - name: Upload OSX Asset
         uses: actions/upload-release-asset@v1
         env:
@@ -69,7 +69,7 @@ jobs:
             tar -zcvf bin/alphasql_linux_x86_64.tar.gz alphasql_linux_x86_64
       - name: Get Release
         id: get
-        uses: bruceadams/get-release@v1
+        uses: bruceadams/get-release@v1.2.0
       - name: Upload Linux Asset
         id: upload-linux-asset
         uses: actions/upload-release-asset@v1
