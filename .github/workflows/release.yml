@@ -23,8 +23,10 @@ jobs:
         shell: bash
         run: |
           (cd "/usr/local/Cellar/bazel/3.3.1/libexec/bin" && curl -LO https://releases.bazel.build/1.0.0/release/bazel-1.0.0-darwin-x86_64 && chmod +x bazel-1.0.0-darwin-x86_64)
-          make osx
-          mv ./bazel-bin/alphasql alphasql_darwin_amd64
+          CC=g++ bazel build //alphasql:all
+          mkdir alphasql_darwin_amd64
+          mv ./bazel-bin/alphasql/dag ./alphasql_darwin_amd64/dag
+          mv ./bazel-bin/alphasql/pipeline_type_checker ./alphasql_darwin_amd64/pipeline_type_checker
           tar -zcvf bin/alphasql_darwin_amd64.tar.gz alphasql_darwin_amd64
       - name: Get Release
         id: get
@@ -67,7 +69,8 @@ jobs:
             echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
             sudo apt update && sudo apt install bazel-1.0.0
             bazel build //...
-            mv ./bazel-bin/alphasql alphasql_linux_x86_64
+            mv ./bazel-bin/alphasql/dag ./alphasql_linux_x86_64/dag
+            mv ./bazel-bin/alphasql/pipeline_type_checker ./alphasql_linux_x86_64/pipeline_type_checker
             tar -zcvf bin/alphasql_linux_x86_64.tar.gz alphasql_linux_x86_64
       - name: Get Release
         id: get
