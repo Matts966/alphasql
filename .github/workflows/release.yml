@@ -2,6 +2,8 @@ name: release
 on:
   release:
     types: [ published ]
+env:
+  GITHUB_TOKEN: ${{ github.token }}
 jobs:
   osx:
     name: Create artifacts on macOS-latest
