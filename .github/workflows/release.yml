@@ -107,6 +107,10 @@ jobs:
     name: Push image to GitHub Packages
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
       - name: Push to GitHub Packages
         uses: docker/build-push-action@v1
         env:
