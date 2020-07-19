@@ -38,7 +38,7 @@ jobs:
           asset_content_type: application/tar+gzip
 
   linux:
-    name: Create artifacts on macOS-latest
+    name: Create artifacts on Linux
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
@@ -83,6 +83,7 @@ jobs:
 
   docker-hub:
     name: Push image to docker hub
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
@@ -102,6 +103,7 @@ jobs:
 
   docker-github:
     name: Push image to GitHub Packages
+    runs-on: ubuntu-latest
     steps:
       - name: Push to GitHub Packages
         uses: docker/build-push-action@v1
