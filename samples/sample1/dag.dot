@@ -1,14 +1,14 @@
 digraph G {
-0[label="./samples/sample1/create_datawarehouse1.sql"];
-1[label="./samples/sample1/create_datawarehouse2.sql"];
-2[label="./samples/sample1/create_datawarehouse3.sql"];
-3[label="./samples/sample1/create_interim1.sql"];
-4[label="./samples/sample1/create_interim2.sql"];
-5[label="./samples/sample1/create_interim3.sql"];
-6[label="./samples/sample1/create_mart.sql"];
-7[label="./samples/sample1/test_mart1.sql"];
-8[label="./samples/sample1/test_mart2.sql"];
-9[label="./samples/sample1/test_mart3.sql"];
+0[label="samples/sample1/create_datawarehouse1.sql"];
+1[label="samples/sample1/create_datawarehouse2.sql"];
+2[label="samples/sample1/create_datawarehouse3.sql"];
+3[label="samples/sample1/create_interim1.sql"];
+4[label="samples/sample1/create_interim2.sql"];
+5[label="samples/sample1/create_interim3.sql"];
+6[label="samples/sample1/create_mart.sql"];
+7[label="samples/sample1/test_mart1.sql"];
+8[label="samples/sample1/test_mart2.sql"];
+9[label="samples/sample1/test_mart3.sql"];
 0->3 ;
 0->5 ;
 0->6 ;

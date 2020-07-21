@@ -1,10 +1,8 @@
 .PHONY: osx
 osx:
 	CC=g++ bazel build //alphasql:all
-	sudo cp ./bazel-bin/alphasql/dag ./bin/osx/dag
-	sudo cp ./bazel-bin/alphasql/pipeline_type_checker ./bin/osx/pipeline_type_checker
-	sudo cp ./bin/osx/dag /usr/local/bin
-	sudo cp ./bin/osx/pipeline_type_checker /usr/local/bin
+	sudo cp ./bazel-bin/alphasql/dag /usr/local/bin
+	sudo cp ./bazel-bin/alphasql/pipeline_type_checker /usr/local/bin
 
 .PHONY: sample
 sample:

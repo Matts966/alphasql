@@ -136,15 +136,14 @@ absl::Status Run(const std::string& sql_file_path, const AnalyzerOptions& option
 
   while (!at_end_of_input) {
     ZETASQL_RETURN_IF_ERROR(AnalyzeNextStatement(&location, options, catalog, &factory, &output, &at_end_of_input));
-
     auto resolved_statement = output->resolved_statement();
-
     switch (resolved_statement->node_kind()) {
       case RESOLVED_CREATE_TABLE_STMT:
       case RESOLVED_CREATE_TABLE_AS_SELECT_STMT: {
         auto* create_table_stmt = resolved_statement->GetAs<ResolvedCreateTableStmt>();
         std::cout << "DDL analyzed, adding table to catalog..." << std::endl;
         std::string table_name = absl::StrJoin(create_table_stmt->name_path(), ".");
+        // TODO(Matts966): raise error for duplicated table_names.
         std::unique_ptr<zetasql::SimpleTable> table(new zetasql::SimpleTable(table_name));
         for (const auto& column_definition : create_table_stmt->column_definition_list()) {
           std::unique_ptr<zetasql::SimpleColumn> column(new SimpleColumn(table_name, column_definition->column().name_id().ToString(),

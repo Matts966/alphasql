@@ -5,6 +5,8 @@
         "tablename2": [
                 {"mode": "NULLABLE", "name": "column1", "type": "STRING", "description": null},
                 {"mode": "NULLABLE", "name": "column2", "type": "INT64", "description": null}
+        ],
+        "dataset.main": [
+                {"mode": "NULLABLE", "name": "x", "type": "INT64", "description": null}
         ]
 }
-
