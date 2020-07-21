@@ -61,10 +61,10 @@ wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alph
 
 ```bash
 # To extract DAG from your SQL set
-$ ./bin/osx/dag --output_path ./samples/sample1/dag.dot ./samples/sample1/
+$ dag --output_path ./samples/sample1/dag.dot ./samples/sample1/
 
 # Or you can check the output in stdout by
-$ ./bin/osx/dag [paths]
+$ dag [paths]
 
 # with graphviz
 $ dot -Tpng samples/sample1/dag.dot -o samples/sample1/dag.png
@@ -109,7 +109,7 @@ Note that you should run type_checker in the same path as in extracting DAG.
 
 ```bash
 # to check type and schema of SQL set
-$ ./bin/osx/pipeline_type_checker ./samples/sample1.dot
+$ pipeline_type_checker ./samples/sample1.dot
 Analyzing "./samples/sample1/create_datawarehouse3.sql"
 DDL analyzed, adding table to catalog...
 SUCCESS: analysis finished!
@@ -169,13 +169,13 @@ You can specify external schemata (not created by queries in SQL set) by passing
 
 ```bash
 # with external schema
-$ ./bin/osx/pipeline_type_checker --json_schema_path ./samples/sample-schema.json ./samples/sample1/dag.dot
+$ pipeline_type_checker --json_schema_path ./samples/sample-schema.json ./samples/sample1/dag.dot
 ```
 
 You can extract required external tables by
 
 ```bash
-$ ./bin/osx/dag --external_required_tables_output_path ./required_tables.txt {./path/to/sqls}
+$ dag --external_required_tables_output_path ./required_tables.txt {./path/to/sqls}
 # and get schemata using bq command
 $ cat ./required_tables.txt | while read line
 do
