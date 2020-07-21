@@ -262,6 +262,9 @@ absl::Status IdentifierResolver::FindInStatement(const ASTStatement* statement) 
       if (query == nullptr) {
         if (analyzer_options_->language().SupportsStatementKind(
                 RESOLVED_CREATE_TABLE_STMT)) {
+          if (create_statement->scope() == ASTCreateStatement::TEMPORARY) {
+            return absl::OkStatus();
+          }
           _node_kind_to_table_names[RESOLVED_CREATE_TABLE_STMT].insert(
             create_statement->name()->ToIdentifierVector()
           );
@@ -270,6 +273,9 @@ absl::Status IdentifierResolver::FindInStatement(const ASTStatement* statement) 
       } else {
         if (analyzer_options_->language().SupportsStatementKind(
                 RESOLVED_CREATE_TABLE_AS_SELECT_STMT)) {
+          if (create_statement->scope() == ASTCreateStatement::TEMPORARY) {
+            return absl::OkStatus();
+          }
           _node_kind_to_table_names[RESOLVED_CREATE_TABLE_AS_SELECT_STMT].insert(
             create_statement->name()->ToIdentifierVector()
           );
