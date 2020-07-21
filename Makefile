@@ -1,3 +1,6 @@
+.PHONY: build-and-check
+build-and-check: test sample
+
 .PHONY: osx
 osx:
 	CC=g++ bazel build //alphasql:all
@@ -5,7 +8,7 @@ osx:
 	sudo cp ./bazel-bin/alphasql/pipeline_type_checker /usr/local/bin
 
 .PHONY: sample
-sample:
+sample: osx
 	ls -d samples/*/ | while read sample; do \
 		dag $$sample --output_path $$sample/dag.dot; \
 		dot -Tpng $$sample/dag.dot -o $$sample/dag.png; \
@@ -14,5 +17,5 @@ sample:
 	done;
 
 .PHONY: test
-test:
+test: osx
 	CC=g++ bazel test //alphasql:all

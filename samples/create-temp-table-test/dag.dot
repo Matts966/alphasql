@@ -1,0 +1,4 @@
+digraph G {
+0[label="samples/create-temp-table-test/reference.sql"];
+1[label="samples/create-temp-table-test/temp_table.sql"];
+}
