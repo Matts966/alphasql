@@ -13,8 +13,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cache/bazel
-          key: ${{ runner.os }}-bazel-build-${{ hashFiles('./**') }}
-          restore-keys: ${{ runner.os }}-bazel-build-
+          key: ${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
+          restore-keys: ${{ runner.os }}-bazelisk-build-
       - name: Test the repository
         run: |
           bazelisk test --test_output=errors //alphasql/...

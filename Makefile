@@ -4,7 +4,7 @@ build-and-check: test
 
 .PHONY: osx
 osx:
-	bazelisk build //alphasql:all
+	CC=g++ bazelisk build //alphasql:all
 	sudo cp ./bazel-bin/alphasql/dag /usr/local/bin
 	sudo cp ./bazel-bin/alphasql/pipeline_type_checker /usr/local/bin
 
@@ -23,4 +23,4 @@ sample: osx
 
 .PHONY: test
 test: osx
-	bazelisk test //alphasql:all
+	CC=g++ bazelisk test //alphasql:all
