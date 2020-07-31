@@ -17,18 +17,7 @@ jobs:
           restore-keys: ${{ runner.os }}-bazel-build-
       - name: Test the repository
         run: |
-            sudo apt-get update && \
-                sudo apt-get install tzdata build-essential software-properties-common -y && \
-                sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
-                sudo apt-get update && \
-                sudo apt-get install --no-install-recommends -y make gcc-9 g++-9 && \
-                sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 900 \
-                    --slave /usr/bin/g++ g++ /usr/bin/g++-9
-            sudo apt install curl gnupg
-            curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
-            echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
-            sudo apt update && sudo apt install bazel-1.0.0
-            bazel test --test_output=errors //alphasql/...
+            bazelisk test --test_output=errors //alphasql/...
 
   osx:
     name: Test the repository on Mac
@@ -47,6 +36,4 @@ jobs:
       - name: Test the repository
         shell: bash
         run: |
-          brew install bazelisk
-          brew tap bazelbuild/tap && brew extract bazel bazelbuild/tap --version 1.0.0
-          bazel test --test_output=errors //alphasql/...
+          bazelisk test --test_output=errors //alphasql/...
