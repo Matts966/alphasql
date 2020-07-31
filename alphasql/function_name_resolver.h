@@ -66,91 +66,15 @@ class FunctionNameResolver : public DefaultParseTreeVisitor {
   }
 
   // Visitor implementation.
-  void visitASTModelClause(const ASTModelClause* node, void* data) override;
-  void visitASTTemplatedParameterType(
-      const ASTTemplatedParameterType* node, void* data) override;
-  void visitASTConnectionClause(const ASTConnectionClause* node,
-                                void* data) override;
-  void visitASTCreateDatabaseStatement(const ASTCreateDatabaseStatement* node,
-                                       void* data) override; 
+  void visitASTFunctionCall(const ASTFunctionCall* node, void* data);
   void visitASTFunctionDeclaration(
       const ASTFunctionDeclaration* node, void* data) override;
-  void visitASTTVF(
-      const ASTTVF* node, void* data) override;
   void visitASTCreateFunctionStatement(const ASTCreateFunctionStatement* node,
                                        void* data) override;
   void visitASTCreateTableFunctionStatement(
       const ASTCreateTableFunctionStatement* node, void* data) override;
-  void visitASTCreateEntityStatement(const ASTCreateEntityStatement* node,
-                                     void* data) override;
-  void visitASTNotNullColumnAttribute(
-      const ASTNotNullColumnAttribute* node, void* data) override;
-  void visitASTHiddenColumnAttribute(
-      const ASTHiddenColumnAttribute* node, void* data) override;
-  void visitASTPrimaryKeyColumnAttribute(
-      const ASTPrimaryKeyColumnAttribute* node, void* data) override;
-  void visitASTColumnDefinition(const ASTColumnDefinition* node,
-                                void* data) override;
-  void visitASTWithPartitionColumnsClause(
-      const ASTWithPartitionColumnsClause* node, void* data) override;
-  void visitASTCreateExternalTableStatement(
-      const ASTCreateExternalTableStatement* node, void* data) override;
-  void visitASTGrantToClause(const ASTGrantToClause* node, void* data) override;
-  void visitASTFilterUsingClause(const ASTFilterUsingClause* node,
-                                 void* data) override;
-  void visitASTCreateRowAccessPolicyStatement(
-      const ASTCreateRowAccessPolicyStatement* node, void* data) override;
-  void visitASTExportModelStatement(const ASTExportModelStatement* node,
-                                    void* data) override;
   void visitASTCallStatement(const ASTCallStatement* node,
                              void* data) override;
-  void visitASTDefineTableStatement(const ASTDefineTableStatement* node,
-                                    void* data) override;
-  void visitASTDescribeStatement(const ASTDescribeStatement* node,
-                                 void* data) override;
-  void visitASTDescriptorColumn(const ASTDescriptorColumn* node,
-                                void* data) override;
-  void visitASTDescriptor(const ASTDescriptor* node, void* data) override;
-  void visitASTShowStatement(const ASTShowStatement* node,
-                             void* data) override;
-  void visitASTBeginStatement(const ASTBeginStatement* node,
-                              void* data) override;
-  void visitASTTransactionIsolationLevel(
-      const ASTTransactionIsolationLevel* node, void* data) override;
-  void visitASTTransactionReadWriteMode(const ASTTransactionReadWriteMode* node,
-                                        void* data) override;
-  void visitASTTransactionModeList(const ASTTransactionModeList* node,
-                                   void* data) override;
-  void visitASTSetTransactionStatement(const ASTSetTransactionStatement* node,
-                                       void* data) override;
-
-  void visitASTCommitStatement(const ASTCommitStatement* node,
-                               void* data) override;
-  void visitASTRollbackStatement(const ASTRollbackStatement* node,
-                                 void* data) override;
-  void visitASTStartBatchStatement(const ASTStartBatchStatement* node,
-                                   void* data) override;
-  void visitASTRunBatchStatement(const ASTRunBatchStatement* node,
-                                 void* data) override;
-  void visitASTAbortBatchStatement(const ASTAbortBatchStatement* node,
-                                   void* data) override;
-  void visitASTDropStatement(const ASTDropStatement* node, void* data) override;
-  void visitASTDropEntityStatement(const ASTDropEntityStatement* node,
-                                   void* data) override;
-  void visitASTDropFunctionStatement(
-      const ASTDropFunctionStatement* node, void* data) override;
-  void visitASTDropRowAccessPolicyStatement(
-      const ASTDropRowAccessPolicyStatement* node, void* data) override;
-  void visitASTDropAllRowAccessPoliciesStatement(
-      const ASTDropAllRowAccessPoliciesStatement* node, void* data) override;
-  void visitASTDropMaterializedViewStatement(
-      const ASTDropMaterializedViewStatement* node, void* data) override;
-  void visitASTRenameStatement(const ASTRenameStatement* node,
-                               void* data) override;
-  void visitASTImportStatement(const ASTImportStatement* node,
-                               void* data) override;
-  void visitASTModuleStatement(const ASTModuleStatement* node,
-                               void* data) override;
 };
 
 }  // namespace alphasql

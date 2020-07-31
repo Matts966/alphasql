@@ -77,33 +77,19 @@ zetasql_base::StatusOr<function_info> GetFunctionInformation(
   return resolver.function_information;
 }
 
-// Each instance should be used only once.
-void FunctionNameResolver::visitASTModelClause(const ASTModelClause* node, void* data) {
-  return;
-}
+// TODO:(Matts966) Check if this node is callee or caller and implement correctly
+// void FunctionNameResolver::visitASTTVF(const ASTTVF* node, void* data) {
+//   function_information.called.insert(node->name()->ToIdentifierVector());
+// }
 
-void FunctionNameResolver::visitASTTemplatedParameterType(
-    const ASTTemplatedParameterType* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTConnectionClause(const ASTConnectionClause* node,
-                                        void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTCreateDatabaseStatement(
-    const ASTCreateDatabaseStatement* node, void* data) {
-  return;
+void FunctionNameResolver::visitASTFunctionCall(const ASTFunctionCall* node, void* data) {
+  function_information.called.insert(node->function()->ToIdentifierVector());
+  visitASTChildren(node, data);
 }
 
 void FunctionNameResolver::visitASTFunctionDeclaration(
     const ASTFunctionDeclaration* node, void* data) {
   function_information.defined.insert(node->name()->ToIdentifierVector());
-}
-
-void FunctionNameResolver::visitASTTVF(const ASTTVF* node, void* data) {
-  function_information.called.insert(node->name()->ToIdentifierVector());
 }
 
 void FunctionNameResolver::visitASTCreateFunctionStatement(
@@ -128,62 +114,9 @@ void FunctionNameResolver::visitASTCreateTableFunctionStatement(
   }
 }
 
-void FunctionNameResolver::visitASTCreateEntityStatement(
-    const ASTCreateEntityStatement* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTNotNullColumnAttribute(
-    const ASTNotNullColumnAttribute* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTHiddenColumnAttribute(
-    const ASTHiddenColumnAttribute* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTPrimaryKeyColumnAttribute(
-    const ASTPrimaryKeyColumnAttribute* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTColumnDefinition(const ASTColumnDefinition* node,
-                                        void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTWithPartitionColumnsClause(
-    const ASTWithPartitionColumnsClause* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTCreateExternalTableStatement(
-    const ASTCreateExternalTableStatement* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTGrantToClause(const ASTGrantToClause* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTFilterUsingClause(const ASTFilterUsingClause* node,
-                                         void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTCreateRowAccessPolicyStatement(
-    const ASTCreateRowAccessPolicyStatement* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTExportModelStatement(const ASTExportModelStatement* node,
-                                            void* data) {
-  return;
-}
-
 void FunctionNameResolver::visitASTCallStatement(
     const ASTCallStatement* node, void* data) {
+  node->ChildrenAccept(this, data);
   // print("CALL");
   // node->procedure_name()->Accept(this, data);
   // print("(");
@@ -191,124 +124,6 @@ void FunctionNameResolver::visitASTCallStatement(
   // print(")");
 
   // Currently procedures are ignored.
-  return;
-}
-
-void FunctionNameResolver::visitASTDefineTableStatement(
-    const ASTDefineTableStatement* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTDescribeStatement(const ASTDescribeStatement* node,
-                                         void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTDescriptorColumn(const ASTDescriptorColumn* node,
-                                        void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTDescriptor(const ASTDescriptor* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTShowStatement(const ASTShowStatement* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTBeginStatement(
-    const ASTBeginStatement* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTTransactionIsolationLevel(
-    const ASTTransactionIsolationLevel* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTTransactionReadWriteMode(
-    const ASTTransactionReadWriteMode* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTTransactionModeList(const ASTTransactionModeList* node,
-                                           void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTSetTransactionStatement(
-    const ASTSetTransactionStatement* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTCommitStatement(const ASTCommitStatement* node,
-                                       void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTRollbackStatement(const ASTRollbackStatement* node,
-                                         void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTStartBatchStatement(const ASTStartBatchStatement* node,
-                                           void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTRunBatchStatement(const ASTRunBatchStatement* node,
-                                         void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTAbortBatchStatement(const ASTAbortBatchStatement* node,
-                                           void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTDropStatement(const ASTDropStatement* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTDropEntityStatement(const ASTDropEntityStatement* node,
-                                           void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTDropFunctionStatement(
-    const ASTDropFunctionStatement* node, void* data) {
-  //TODO: prioritize reference?
-  return;
-}
-
-void FunctionNameResolver::visitASTDropRowAccessPolicyStatement(
-    const ASTDropRowAccessPolicyStatement* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTDropAllRowAccessPoliciesStatement(
-    const ASTDropAllRowAccessPoliciesStatement* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTDropMaterializedViewStatement(
-    const ASTDropMaterializedViewStatement* node, void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTRenameStatement(const ASTRenameStatement* node,
-                                       void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTImportStatement(const ASTImportStatement* node,
-                                       void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTModuleStatement(const ASTModuleStatement* node,
-                                       void* data) {
   return;
 }
 
