@@ -17,7 +17,7 @@ jobs:
           restore-keys: ${{ runner.os }}-bazel-build-
       - name: Test the repository
         run: |
-            bazelisk test --test_output=errors //alphasql/...
+          bazelisk test --test_output=errors //alphasql/...
 
   osx:
     name: Test the repository on Mac
@@ -36,4 +36,4 @@ jobs:
       - name: Test the repository
         shell: bash
         run: |
-          bazelisk test --test_output=errors //alphasql/...
+          CC=g++ bazelisk test --test_output=errors //alphasql/...
