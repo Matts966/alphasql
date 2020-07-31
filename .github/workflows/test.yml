@@ -47,5 +47,8 @@ jobs:
       - name: Test the repository
         shell: bash
         run: |
+          (cd "/usr/local/Cellar/bazel/*/libexec/bin" && 
+            curl -LO https://releases.bazel.build/1.0.0/release/bazel-1.0.0-darwin-x86_64 && 
+            chmod +x bazel-1.0.0-darwin-x86_64)
           brew tap bazelbuild/tap && brew extract bazel bazelbuild/tap --version 1.0.0
           bazel test --test_output=errors //alphasql/...
