@@ -22,7 +22,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          CC=g++ bazelisk build //alphasql:all
+          bazelisk build //alphasql:all
           mkdir alphasql_darwin_amd64
           mv ./bazel-bin/alphasql/dag ./alphasql_darwin_amd64/dag
           mv ./bazel-bin/alphasql/pipeline_type_checker ./alphasql_darwin_amd64/pipeline_type_checker
