@@ -22,9 +22,7 @@ jobs:
       - name: Install bazel 1.0.0 and Build
         shell: bash
         run: |
-          (cd "/usr/local/Cellar/bazel/*/libexec/bin" && 
-            curl -LO https://releases.bazel.build/1.0.0/release/bazel-1.0.0-darwin-x86_64 && 
-            chmod +x bazel-1.0.0-darwin-x86_64)
+          brew install bazelisk
           CC=g++ bazel build //alphasql:all
           mkdir alphasql_darwin_amd64
           mv ./bazel-bin/alphasql/dag ./alphasql_darwin_amd64/dag
