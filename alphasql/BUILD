@@ -40,6 +40,22 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "function_name_resolver",
+    hdrs = ["function_name_resolver.h"],
+    srcs = ["function_name_resolver.cc"],
+    deps = [
+        "@com_google_zetasql//zetasql/public:simple_catalog",
+        "@com_google_zetasql//zetasql/public:type",
+        "@com_google_zetasql//zetasql/public:analyzer",
+        "@com_google_zetasql//zetasql/public:language_options",
+        "@com_google_zetasql//zetasql/parser:parser",
+        "@com_google_zetasql//zetasql/analyzer",
+        "@boost//:property_tree",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
 cc_binary(
     name = "pipeline_type_checker",
     srcs = [
@@ -80,13 +96,6 @@ cc_binary(
     name = "dag",
     srcs = ["dag.cc"],
     deps = [
-        "@com_google_zetasql//zetasql/analyzer",
-        "@com_google_zetasql//zetasql/resolved_ast",
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/flags:parse",
-        "@com_google_absl//absl/strings",
-        "@boost//:graph",
-        ":identifier_resolver",
         ":dag_lib",
     ],
 )
@@ -103,6 +112,7 @@ cc_library(
         "@com_google_absl//absl/strings",
         "@boost//:graph",
         ":identifier_resolver",
+        ":function_name_resolver",
     ],
 )
 

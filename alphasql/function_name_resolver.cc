@@ -1,3 +1,19 @@
+//
+// Copyright 2020 Matts966
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
 #include <memory>
 #include <set>
 #include <string>
@@ -24,112 +40,77 @@
 #include "zetasql/base/status.h"
 #include "zetasql/base/status_macros.h"
 #include "zetasql/base/statusor.h"
+#include "alphasql/function_name_resolver.h"
 
 
 namespace alphasql {
 
-using namespace parser;
+using namespace zetasql::parser;
 using namespace zetasql;
+
+const AnalyzerOptions* GetAnalyzerOptions() {
+  LanguageOptions language_options;
+  language_options.EnableMaximumLanguageFeaturesForDevelopment();
+  language_options.SetEnabledLanguageFeatures({FEATURE_V_1_3_ALLOW_DASHES_IN_TABLE_NAME});
+  language_options.SetSupportsAllStatementKinds();
+  AnalyzerOptions options(language_options);
+  options.mutable_language()->EnableMaximumLanguageFeaturesForDevelopment();
+  options.CreateDefaultArenasIfNotSet();
+  return &options;
+}
 
 namespace function_name_resolver {
 
+zetasql_base::StatusOr<function_info> GetFunctionInformation(
+    const std::string& sql_file_path, const AnalyzerOptions& analyzer_options) {
+  const AnalyzerOptions options = *GetAnalyzerOptions();
+  std::unique_ptr<ParserOutput> parser_output;
+
+  std::filesystem::path file_path(sql_file_path);
+  std::ifstream file(file_path, std::ios::in);
+  std::string sql(std::istreambuf_iterator<char>(file), {});
+
+  ZETASQL_RETURN_IF_ERROR(ParseScript(sql, options.GetParserOptions(),
+                              options.error_message_mode(), &parser_output));
+  FunctionNameResolver resolver = FunctionNameResolver();
+  parser_output->script()->Accept(&resolver, nullptr);
+  return resolver.function_information;
+}
+
 // Each instance should be used only once.
-void FunctionNameResolver::visitASTHintedStatement(const ASTHintedStatement* node,
-                                       void* data) {
-  visitASTChildren(node, data);
-}
-
-void FunctionNameResolver::visitASTExplainStatement(const ASTExplainStatement* node,
-                                        void* data) {
-  node->statement()->Accept(this, data);
-}
-
-void FunctionNameResolver::visitASTQueryStatement(const ASTQueryStatement* node,
-                                      void* data) {
-  visitASTQuery(node->query(), data);
-}
-
-void Unparser::visitASTModelClause(const ASTModelClause* node, void* data) {
+void FunctionNameResolver::visitASTModelClause(const ASTModelClause* node, void* data) {
   return;
 }
 
-void Unparser::visitASTFunctionParameters(
-    const ASTFunctionParameters* node, void* data) {
-  visitASTChildren(node, data);
-}
-
-void Unparser::visitASTTemplatedParameterType(
+void FunctionNameResolver::visitASTTemplatedParameterType(
     const ASTTemplatedParameterType* node, void* data) {
   return;
 }
 
-void Unparser::visitASTFunctionParameters(
-    const ASTFunctionParameters* node, void* data) {
-  visitASTChildren(node, data);
-}
-
-void Unparser::visitASTConnectionClause(const ASTConnectionClause* node,
+void FunctionNameResolver::visitASTConnectionClause(const ASTConnectionClause* node,
                                         void* data) {
   return;
 }
 
-void Unparser::visitASTTVFSchema(const ASTTVFSchema* node, void* data) {
-  visitASTChildren(node, data);
-}
-
-void Unparser::visitASTCreateDatabaseStatement(
+void FunctionNameResolver::visitASTCreateDatabaseStatement(
     const ASTCreateDatabaseStatement* node, void* data) {
   return;
 }
 
-void Unparser::visitASTCreateTableStatement(
-    const ASTCreateTableStatement* node, void* data) {
-  if (node->query() != nullptr) {
-    node->query()->Accept(this, data);
-  }
-}
-
 void FunctionNameResolver::visitASTFunctionDeclaration(
     const ASTFunctionDeclaration* node, void* data) {
-  if (node->is_temp()) {
-    return;
-  }
-  function_information.defined.push_back(node->name()->ToIdentifierVector);
-}
-
-void FunctionNameResolver::visitASTSqlFunctionBody(
-    const ASTSqlFunctionBody* node, void* data) {
-  node->expression()->Accept(this, data);
-}
-
-void FunctionNameResolver::visitASTTableClause(const ASTTableClause* node, void* data) {
-  if (node->tvf() != nullptr) {
-    node->tvf()->Accept(this, data);
-  }
+  function_information.defined.insert(node->name()->ToIdentifierVector());
 }
 
 void FunctionNameResolver::visitASTTVF(const ASTTVF* node, void* data) {
-  function_information.called.push_back(node->name()->ToIdentifierVector);
-}
-
-void FunctionNameResolver::visitASTTVFArgument(const ASTTVFArgument* node, void* data) {
-  if (node->expr() != nullptr) {
-    node->expr()->Accept(this, data);
-  }
-}
-
-void FunctionNameResolver::visitASTTVFSchemaColumn(const ASTTVFSchemaColumn* node,
-                                       void* data) {
-  visitASTChildren(node, data);
-}
-
-void FunctionNameResolver::visitASTCreateConstantStatement(
-    const ASTCreateConstantStatement* node, void* data) {
-  node->expr()->Accept(this, data);
+  function_information.called.insert(node->name()->ToIdentifierVector());
 }
 
 void FunctionNameResolver::visitASTCreateFunctionStatement(
     const ASTCreateFunctionStatement* node, void* data) {
+  if (node->is_temp()) {
+    return;
+  }
   node->function_declaration()->Accept(this, data);
   if (node->sql_function_body() != nullptr) {
     node->sql_function_body()->Accept(this, data);
@@ -138,6 +119,9 @@ void FunctionNameResolver::visitASTCreateFunctionStatement(
 
 void FunctionNameResolver::visitASTCreateTableFunctionStatement(
     const ASTCreateTableFunctionStatement* node, void* data) {
+  if (node->is_temp()) {
+    return;
+  }
   node->function_declaration()->Accept(this, data);
   if (node->query() != nullptr) {
     node->query()->Accept(this, data);
@@ -147,26 +131,6 @@ void FunctionNameResolver::visitASTCreateTableFunctionStatement(
 void FunctionNameResolver::visitASTCreateEntityStatement(
     const ASTCreateEntityStatement* node, void* data) {
   return;
-}
-
-void FunctionNameResolver::visitASTAlterEntityStatement(const ASTAlterEntityStatement* node,
-                                            void* data) {
-  VisitAlterStatementBase(node, data);
-}
-
-void FunctionNameResolver::visitASTCreateModelStatement(const ASTCreateModelStatement* node,
-                                            void* data) {
-  if (node->transform_clause() != nullptr) {
-    node->transform_clause()->Accept(this, data);
-  }
-  if (node->query() != nullptr) {
-    node->query()->Accept(this, data);
-  }
-}
-
-void FunctionNameResolver::visitASTTableElementList(const ASTTableElementList* node,
-                                        void* data) {
-  visitASTChildren(node, data);
 }
 
 void FunctionNameResolver::visitASTNotNullColumnAttribute(
@@ -184,29 +148,9 @@ void FunctionNameResolver::visitASTPrimaryKeyColumnAttribute(
   return;
 }
 
-void FunctionNameResolver::visitASTForeignKeyColumnAttribute(
-    const ASTForeignKeyColumnAttribute* node, void* data) {
-  visitASTChildren(node, data);
-}
-
-void FunctionNameResolver::visitASTColumnAttributeList(
-    const ASTColumnAttributeList* node, void* data) {
-  visitASTChildren(node, data);
-}
-
 void FunctionNameResolver::visitASTColumnDefinition(const ASTColumnDefinition* node,
                                         void* data) {
   return;
-}
-
-void FunctionNameResolver::visitASTCreateViewStatement(
-    const ASTCreateViewStatement* node, void* data) {
-  node->query()->Accept(this, data);
-}
-
-void FunctionNameResolver::visitASTCreateMaterializedViewStatement(
-    const ASTCreateMaterializedViewStatement* node, void* data) {
-  node->query()->Accept(this, data);
 }
 
 void FunctionNameResolver::visitASTWithPartitionColumnsClause(
@@ -233,19 +177,9 @@ void FunctionNameResolver::visitASTCreateRowAccessPolicyStatement(
   return;
 }
 
-void FunctionNameResolver::visitASTExportDataStatement(
-    const ASTExportDataStatement* node, void* data) {
-  node->query()->Accept(this, data);
-}
-
 void FunctionNameResolver::visitASTExportModelStatement(const ASTExportModelStatement* node,
                                             void* data) {
   return;
-}
-
-void FunctionNameResolver::visitASTWithConnectionClause(const ASTWithConnectionClause* node,
-                                            void* data) {
-  node->connection_clause()->Accept(this, data);
 }
 
 void FunctionNameResolver::visitASTCallStatement(
@@ -381,19 +315,6 @@ void FunctionNameResolver::visitASTImportStatement(const ASTImportStatement* nod
 void FunctionNameResolver::visitASTModuleStatement(const ASTModuleStatement* node,
                                        void* data) {
   return;
-}
-
-void FunctionNameResolver::visitASTFunctionCall(const ASTFunctionCall* node, void* data) {
-  visitASTChildren(node, data);
-}
-
-void FunctionNameResolver::visitASTArrayElement(const ASTArrayElement* node, void* data) {
-  visitASTChildren(node, data);
-}
-
-void FunctionNameResolver::visitASTAnalyticFunctionCall(const ASTAnalyticFunctionCall* node,
-                                            void* data) {
-  visitASTChildren(node, data);
 }
 
 }  // namespace function_name_resolver

@@ -22,11 +22,12 @@
 #include "zetasql/base/statusor.h"
 #include "zetasql/public/analyzer.h"
 #include "alphasql/identifier_resolver.h"
+#include "alphasql/function_name_resolver.h"
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
+#include "absl/strings/str_join.h"
 #include "boost/graph/graphviz.hpp"
 #include "boost/graph/depth_first_search.hpp"
-#include "absl/strings/str_join.h"
 
 typedef std::pair<std::string, std::string> Edge;
 
@@ -40,50 +41,37 @@ struct table_queries {
   std::vector<std::string> others;
 };
 
+struct function_queries {
+  std::vector<std::string> create;
+  std::vector<std::string> call;
+};
+
 namespace alphasql {
 
   using namespace zetasql;
 
-  // Returns <options> if it already has all arenas initialized, or otherwise
-  // populates <copy> as a copy for <options>, creates arenas in <copy> and
-  // returns it. This avoids unnecessary duplication of AnalyzerOptions, which
-  // might be expensive.
-  const AnalyzerOptions& GetOptionsWithArenas(
-      const AnalyzerOptions* options, std::unique_ptr<AnalyzerOptions>* copy) {
-    if (options->AllArenasAreInitialized()) {
-        return *options;
-    }
-    *copy = absl::make_unique<AnalyzerOptions>(*options);
-    (*copy)->CreateDefaultArenasIfNotSet();
-    return **copy;
-  }
-
   zetasql_base::StatusOr<std::map<ResolvedNodeKind, TableNamesSet>> ExtractTableNamesFromSQL(const std::string& sql_file_path,
+                                                                     const AnalyzerOptions& analyzer_options,
                                                                      TableNamesSet* table_names) {
-    LanguageOptions language_options;
-    language_options.EnableMaximumLanguageFeaturesForDevelopment();
-    language_options.SetEnabledLanguageFeatures({FEATURE_V_1_3_ALLOW_DASHES_IN_TABLE_NAME});
-    language_options.SetSupportsAllStatementKinds();
-    AnalyzerOptions options(language_options);
-    options.mutable_language()->EnableMaximumLanguageFeaturesForDevelopment();
-    options.CreateDefaultArenasIfNotSet();
-
+    std::unique_ptr<AnalyzerOptions> copy;
+    const AnalyzerOptions& options = *GetAnalyzerOptions();
     return identifier_resolver::GetNodeKindToTableNamesMap(
       sql_file_path, options, table_names);
   }
 
-  absl::Status UpdateTableQueriesMapAndVertices(const std::filesystem::path& file_path,
+  absl::Status UpdateIdentifierQueriesMapsAndVertices(const std::filesystem::path& file_path,
                                                 std::map<std::string, table_queries>& table_queries_map,
+                                                std::map<std::string, function_queries>& function_queries_map,
                                                 std::set<std::string>& vertices) {
     if (file_path.extension() != ".bq" && file_path.extension() != ".sql") {
-      // std::cout << "not a sql file " << file_path << "!" << std::endl;
-      // Skip if not SQL.
       return absl::OkStatus();
     }
     std::cout << "Reading " << file_path << std::endl;
 
+    const AnalyzerOptions options = *GetAnalyzerOptions();
+
     TableNamesSet table_names;
-    auto node_kind_to_table_names_or_status = ExtractTableNamesFromSQL(file_path.string(), &table_names);
+    auto node_kind_to_table_names_or_status = ExtractTableNamesFromSQL(file_path.string(), options, &table_names);
     if (!node_kind_to_table_names_or_status.ok()) {
       return node_kind_to_table_names_or_status.status();
     }
@@ -104,6 +92,26 @@ namespace alphasql {
       table_queries_map[table_string].others.push_back(file_path);
     }
 
+    // Resolve file dependency from SQL files calling functions on the callee.
+    auto function_information_or_status = function_name_resolver::GetFunctionInformation(file_path.string(), options);
+    if (function_information_or_status.ok()) {
+      return function_information_or_status.status();
+    }
+    auto function_info = function_information_or_status.value();
+    for (auto const& defined : function_info.defined) {
+      // for (auto const& defined : defineds) {
+        const std::string function_name = absl::StrJoin(defined, ".");
+        function_queries_map[function_name].create.push_back(file_path);
+      // }
+    }
+    for (auto const& called : function_info.called) {
+      // for (auto const& called : calleds) {
+        const std::string function_name = absl::StrJoin(called, ".");
+        function_queries_map[function_name].call.push_back(file_path);
+      // }
+    }
+
+    // Add the file as a vertice.
     vertices.insert(file_path);
 
     return absl::OkStatus();

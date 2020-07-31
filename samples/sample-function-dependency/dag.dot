@@ -1,0 +1,5 @@
+digraph G {
+0[label="./samples/sample2/udf1.sql"];
+1[label="./samples/sample2/udf2.sql"];
+2[label="./samples/sample2/with-udf.sql"];
+}
