@@ -1,8 +1,8 @@
 name: test
 on: push
 jobs:
-  test:
-    name: Test the repository
+  linux:
+    name: Test the repository on Linux
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
@@ -29,3 +29,23 @@ jobs:
             echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
             sudo apt update && sudo apt install bazel-1.0.0
             bazel test --test_output=errors //alphasql/...
+
+  osx:
+    name: Test the repository on Mac
+    runs-on: macOS-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: /private/var/tmp
+          key: ${{ runner.os }}-bazel-build-${{ hashFiles('./**') }}
+          restore-keys: ${{ runner.os }}-bazel-build-
+      - name: Test the repository
+        shell: bash
+        run: |
+          brew tap bazelbuild/tap && brew extract bazel bazelbuild/tap --version 1.0.0
+          bazel test --test_output=errors //alphasql/...
