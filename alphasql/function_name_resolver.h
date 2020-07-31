@@ -32,7 +32,7 @@ namespace alphasql {
 using namespace zetasql::parser;
 using namespace zetasql;
 
-const AnalyzerOptions* GetAnalyzerOptions();
+const AnalyzerOptions GetAnalyzerOptions();
 
 namespace function_name_resolver {
 
@@ -110,8 +110,6 @@ class FunctionNameResolver : public DefaultParseTreeVisitor {
                                  void* data) override;
   void visitASTDescriptorColumn(const ASTDescriptorColumn* node,
                                 void* data) override;
-  void visitASTDescriptorColumnList(const ASTDescriptorColumnList* node,
-                                    void* data) override;
   void visitASTDescriptor(const ASTDescriptor* node, void* data) override;
   void visitASTShowStatement(const ASTShowStatement* node,
                              void* data) override;

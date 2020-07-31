@@ -54,7 +54,7 @@ namespace alphasql {
                                                                      const AnalyzerOptions& analyzer_options,
                                                                      TableNamesSet* table_names) {
     std::unique_ptr<AnalyzerOptions> copy;
-    const AnalyzerOptions& options = *GetAnalyzerOptions();
+    const AnalyzerOptions& options = GetAnalyzerOptions();
     return identifier_resolver::GetNodeKindToTableNamesMap(
       sql_file_path, options, table_names);
   }
@@ -67,8 +67,7 @@ namespace alphasql {
       return absl::OkStatus();
     }
     std::cout << "Reading " << file_path << std::endl;
-
-    const AnalyzerOptions options = *GetAnalyzerOptions();
+    const AnalyzerOptions options = GetAnalyzerOptions();
 
     TableNamesSet table_names;
     auto node_kind_to_table_names_or_status = ExtractTableNamesFromSQL(file_path.string(), options, &table_names);
@@ -94,21 +93,23 @@ namespace alphasql {
 
     // Resolve file dependency from SQL files calling functions on the callee.
     auto function_information_or_status = function_name_resolver::GetFunctionInformation(file_path.string(), options);
-    if (function_information_or_status.ok()) {
+    if (!function_information_or_status.ok()) {
       return function_information_or_status.status();
     }
     auto function_info = function_information_or_status.value();
     for (auto const& defined : function_info.defined) {
-      // for (auto const& defined : defineds) {
-        const std::string function_name = absl::StrJoin(defined, ".");
-        function_queries_map[function_name].create.push_back(file_path);
-      // }
+      const std::string function_name = absl::StrJoin(defined, ".");
+
+      std::cout << function_name << " defined in " << file_path << std::endl;
+
+      function_queries_map[function_name].create.push_back(file_path);
     }
     for (auto const& called : function_info.called) {
-      // for (auto const& called : calleds) {
-        const std::string function_name = absl::StrJoin(called, ".");
-        function_queries_map[function_name].call.push_back(file_path);
-      // }
+      const std::string function_name = absl::StrJoin(called, ".");
+
+      std::cout << function_name << " called in " << file_path << std::endl;
+
+      function_queries_map[function_name].call.push_back(file_path);
     }
 
     // Add the file as a vertice.

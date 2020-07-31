@@ -48,7 +48,7 @@ namespace alphasql {
 using namespace zetasql::parser;
 using namespace zetasql;
 
-const AnalyzerOptions* GetAnalyzerOptions() {
+const AnalyzerOptions GetAnalyzerOptions() {
   LanguageOptions language_options;
   language_options.EnableMaximumLanguageFeaturesForDevelopment();
   language_options.SetEnabledLanguageFeatures({FEATURE_V_1_3_ALLOW_DASHES_IN_TABLE_NAME});
@@ -56,14 +56,14 @@ const AnalyzerOptions* GetAnalyzerOptions() {
   AnalyzerOptions options(language_options);
   options.mutable_language()->EnableMaximumLanguageFeaturesForDevelopment();
   options.CreateDefaultArenasIfNotSet();
-  return &options;
+  return options;
 }
 
 namespace function_name_resolver {
 
 zetasql_base::StatusOr<function_info> GetFunctionInformation(
     const std::string& sql_file_path, const AnalyzerOptions& analyzer_options) {
-  const AnalyzerOptions options = *GetAnalyzerOptions();
+  const AnalyzerOptions options = GetAnalyzerOptions();
   std::unique_ptr<ParserOutput> parser_output;
 
   std::filesystem::path file_path(sql_file_path);
@@ -206,11 +206,6 @@ void FunctionNameResolver::visitASTDescribeStatement(const ASTDescribeStatement*
 
 void FunctionNameResolver::visitASTDescriptorColumn(const ASTDescriptorColumn* node,
                                         void* data) {
-  return;
-}
-
-void FunctionNameResolver::visitASTDescriptorColumnList(const ASTDescriptorColumnList* node,
-                                            void* data) {
   return;
 }
 
