@@ -31,8 +31,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /private/var/tmp
-          key: ${{ runner.os }}-bazel-build-${{ hashFiles('./**') }}
-          restore-keys: ${{ runner.os }}-bazel-build-
+          key: ${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
+          restore-keys: ${{ runner.os }}-bazelisk-build-
       - name: Test the repository
         shell: bash
         run: |
