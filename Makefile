@@ -10,11 +10,14 @@ osx:
 
 .PHONY: sample
 sample: osx
+	color() { \
+		set -o pipefail; "$$@" 2>&1>&3|sed $$'s,.*,\e[31m&\e[m,'>&2; \
+	} 3>&1 && \
 	ls -d samples/*/ | while read sample; do \
 		echo ""; \
 		dag $$sample --output_path $$sample/dag.dot; \
 		dot -Tpng $$sample/dag.dot -o $$sample/dag.png; \
-		pipeline_type_checker $$sample/dag.dot \
+		color pipeline_type_checker $$sample/dag.dot \
 			--json_schema_path ./samples/sample-schema.json; \
 	done;
 
