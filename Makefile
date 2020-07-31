@@ -10,6 +10,7 @@ osx:
 .PHONY: sample
 sample: osx
 	ls -d samples/*/ | while read sample; do \
+		echo ""; \
 		dag $$sample --output_path $$sample/dag.dot; \
 		dot -Tpng $$sample/dag.dot -o $$sample/dag.png; \
 		pipeline_type_checker $$sample/dag.dot \

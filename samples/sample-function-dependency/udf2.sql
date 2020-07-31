@@ -1,0 +1,4 @@
+CREATE FUNCTION divideByTwo(x FLOAT64)
+RETURNS FLOAT64 LANGUAGE js AS """
+  return x/2;
+""";

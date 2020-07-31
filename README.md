@@ -34,7 +34,7 @@ docker run --rm -v `pwd`:/home matts966/alphasql:latest [command]
 like
 
 ```bash
-docker run --rm -v `pwd`:/home matts966/alphasql:latest pipeline_type_checker ./samples/sample1/dag.dot
+docker run --rm -v `pwd`:/home matts966/alphasql:latest pipeline_type_checker ./samples/sample/dag.dot
 ```
 
 Commands are installed in the PATH of the image.
@@ -61,26 +61,26 @@ wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alph
 
 ```bash
 # To extract DAG from your SQL set
-$ dag --output_path ./samples/sample1/dag.dot ./samples/sample1/
+$ dag --output_path ./samples/sample/dag.dot ./samples/sample/
 
 # Or you can check the output in stdout by
 $ dag [paths]
 
 # with graphviz
-$ dot -Tpng samples/sample1/dag.dot -o samples/sample1/dag.png
+$ dot -Tpng samples/sample/dag.dot -o samples/sample/dag.png
 ```
 
 Note that sometimes the output has cycle, and refactoring SQL files or manual editing of the dot file is needed (see [this issue](https://github.com/Matts966/alphasql/issues/2)).
 
 If there are cycles, warning is emitted, type checker reports error, and bq_jobrunner raise error before execution. You can see the example in [./samples/sample-cycle](./samples/sample-cycle) .
 
-If you want to serially execute some statements, you can write SQL script that contains multiple statements. See [samples/sample1/create_interim1.sql](samples/sample1/create_interim1.sql) as an example.
+If you want to serially execute some statements, you can write SQL script that contains multiple statements. See [samples/sample/create_interim1.sql](samples/sample/create_interim1.sql) as an example.
 
 ### Sample DAG output
 
-The image below is extracted from SQL set in [./samples/sample1](./samples/sample1) . You can write tests for created tables and run them parallely only by separating SQL file.
+The image below is extracted from SQL set in [./samples/sample](./samples/sample) . You can write tests for created tables and run them parallely only by separating SQL file.
 
-![dag.dot](samples/sample1/dag.png)
+![dag.dot](samples/sample/dag.png)
 
 ## Parallel Execution
 
@@ -109,55 +109,55 @@ Note that you should run type_checker in the same path as in extracting DAG.
 
 ```bash
 # to check type and schema of SQL set
-$ pipeline_type_checker ./samples/sample1.dot
-Analyzing "./samples/sample1/create_datawarehouse3.sql"
+$ pipeline_type_checker ./samples/sample.dot
+Analyzing "./samples/sample/create_datawarehouse3.sql"
 DDL analyzed, adding table to catalog...
 SUCCESS: analysis finished!
-Analyzing "./samples/sample1/create_datawarehouse2.sql"
+Analyzing "./samples/sample/create_datawarehouse2.sql"
 DDL analyzed, adding table to catalog...
 SUCCESS: analysis finished!
-Analyzing "./samples/sample1/create_interim2.sql"
+Analyzing "./samples/sample/create_interim2.sql"
 DDL analyzed, adding table to catalog...
 SUCCESS: analysis finished!
-Analyzing "./samples/sample1/update_interim2.sql"
+Analyzing "./samples/sample/update_interim2.sql"
 SUCCESS: analysis finished!
-Analyzing "./samples/sample1/create_datawarehouse1.sql"
+Analyzing "./samples/sample/create_datawarehouse1.sql"
 DDL analyzed, adding table to catalog...
 SUCCESS: analysis finished!
-Analyzing "./samples/sample1/create_interim3.sql"
+Analyzing "./samples/sample/create_interim3.sql"
 DDL analyzed, adding table to catalog...
 SUCCESS: analysis finished!
-Analyzing "./samples/sample1/create_interim1.sql"
+Analyzing "./samples/sample/create_interim1.sql"
 DDL analyzed, adding table to catalog...
 SUCCESS: analysis finished!
-Analyzing "./samples/sample1/update_interium1.sql"
+Analyzing "./samples/sample/update_interium1.sql"
 SUCCESS: analysis finished!
-Analyzing "./samples/sample1/insert_into_interim1.sql"
+Analyzing "./samples/sample/insert_into_interim1.sql"
 SUCCESS: analysis finished!
-Analyzing "./samples/sample1/create_mart.sql"
+Analyzing "./samples/sample/create_mart.sql"
 DDL analyzed, adding table to catalog...
 SUCCESS: analysis finished!
-Analyzing "./samples/sample1/test_mart1.sql"
+Analyzing "./samples/sample/test_mart1.sql"
 SUCCESS: analysis finished!
-Analyzing "./samples/sample1/test_mart2.sql"
+Analyzing "./samples/sample/test_mart2.sql"
 SUCCESS: analysis finished!
-Analyzing "./samples/sample1/test_mart3.sql"
+Analyzing "./samples/sample/test_mart3.sql"
 SUCCESS: analysis finished!
 Successfully finished type check!
 ```
 
-If you change column `x`'s type in `./samples/sample1/create_datawarehouse3.sql` to `STRING`, type checker reports error.
+If you change column `x`'s type in `./samples/sample/create_datawarehouse3.sql` to `STRING`, type checker reports error.
 
 ```bash
-$ pipeline_type_checker ./samples/sample1/dag.dot
-Analyzing "./samples/sample1/create_datawarehouse3.sql"
+$ pipeline_type_checker ./samples/sample/dag.dot
+Analyzing "./samples/sample/create_datawarehouse3.sql"
 DDL analyzed, adding table to catalog...
 SUCCESS: analysis finished!
-Analyzing "./samples/sample1/create_datawarehouse2.sql"
+Analyzing "./samples/sample/create_datawarehouse2.sql"
 DDL analyzed, adding table to catalog...
 SUCCESS: analysis finished!
-Analyzing "./samples/sample1/create_interim2.sql"
-ERROR: INVALID_ARGUMENT: Column 1 in UNION ALL has incompatible types: INT64, STRING [at ./samples/sample1/create_interim2.sql:7:1]
+Analyzing "./samples/sample/create_interim2.sql"
+ERROR: INVALID_ARGUMENT: Column 1 in UNION ALL has incompatible types: INT64, STRING [at ./samples/sample/create_interim2.sql:7:1]
 catalog:
         datawarehouse3
         datawarehouse2
@@ -169,7 +169,7 @@ You can specify external schemata (not created by queries in SQL set) by passing
 
 ```bash
 # with external schema
-$ pipeline_type_checker --json_schema_path ./samples/sample-schema.json ./samples/sample1/dag.dot
+$ pipeline_type_checker --json_schema_path ./samples/sample-schema.json ./samples/sample/dag.dot
 ```
 
 You can extract required external tables by

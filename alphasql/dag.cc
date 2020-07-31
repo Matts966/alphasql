@@ -27,13 +27,15 @@ int main(int argc, char* argv[]) {
   std::vector<char*> remaining_args(args.begin() + 1, args.end());
 
   std::map<std::string, table_queries> table_queries_map;
+  std::map<std::string, function_queries> function_queries_map;
   std::set<std::string> vertices;
   std::cout << "Reading paths passed as a command line arguments..." << std::endl;
   std::cout << "Only files that end with .sql or .bq are analyzed." << std::endl;
   for (const auto& path : remaining_args) {
     if (std::filesystem::is_regular_file(path)) {
       std::filesystem::path file_path(path);
-      absl::Status status = alphasql::UpdateTableQueriesMapAndVertices(file_path, table_queries_map, vertices);
+      absl::Status status = alphasql::UpdateIdentifierQueriesMapsAndVertices(file_path, table_queries_map,
+                                                                             function_queries_map, vertices);
       if (!status.ok()) {
         std::cout << status << std::endl;
         return 1;
@@ -47,7 +49,8 @@ int main(int argc, char* argv[]) {
       if (err) {
         std::cout << "WARNING: " << err << std::endl;
       }
-      absl::Status status = alphasql::UpdateTableQueriesMapAndVertices(file_path->path(), table_queries_map, vertices);
+      absl::Status status = alphasql::UpdateIdentifierQueriesMapsAndVertices(file_path->path(), table_queries_map,
+                                                                             function_queries_map, vertices);
       if (!status.ok()) {
         std::cout << status << std::endl;
         return 1;
@@ -64,6 +67,12 @@ int main(int argc, char* argv[]) {
     if (table_queries.create.empty()) {
       external_required_tables.push_back(table_name);
     }
+  }
+
+  for (auto const& [_, function_queries] : function_queries_map) {
+    alphasql::UpdateEdges(depends_on, function_queries.call, {
+      function_queries.create,
+    });
   }
 
   const int nedges = depends_on.size();
