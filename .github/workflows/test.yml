@@ -34,7 +34,7 @@ jobs:
       - name: Cache
         uses: actions/cache@v2
         with:
-          path: /private/var/tmp
+          path: /private/var/tmp/*bazel*
           key: ${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
           restore-keys: ${{ runner.os }}-bazelisk-build-
       - name: Test the repository
