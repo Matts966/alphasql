@@ -98,8 +98,8 @@ namespace alphasql {
     }
     auto function_info = function_information_or_status.value();
 
-    // TODO(Matts966): Multiple function definitions lead to cycles like tables
-    // and we should think if we should raise error here.
+    // TODO(Matts966): Multiple function definitions leads to duplicate key errors
+    // and problematic, so emit an understandable error here is more helpful.
     for (auto const& defined : function_info.defined) {
       const std::string function_name = absl::StrJoin(defined, ".");
 
