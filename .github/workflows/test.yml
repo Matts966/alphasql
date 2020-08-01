@@ -15,6 +15,11 @@ jobs:
           path: ~/.cache/bazel
           key: ${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
           restore-keys: ${{ runner.os }}-bazelisk-build-
+
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v2
+
       - name: Test the repository
         run: |
           bazelisk test --test_output=errors //alphasql/...
@@ -33,6 +38,10 @@ jobs:
           path: /private/var/tmp
           key: ${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
           restore-keys: ${{ runner.os }}-bazelisk-build-
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v2
+
       - name: Test the repository
         shell: bash
         run: |
