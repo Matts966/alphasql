@@ -17,12 +17,12 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /private/var/tmp
-          key: ${{ runner.os }}-bazel-build-${{ hashFiles('./**') }}
-          restore-keys: ${{ runner.os }}-bazel-build-
+          key: ${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
+          restore-keys: ${{ runner.os }}-bazelisk-build-
       - name: Build
         shell: bash
         run: |
-          bazelisk build //alphasql:all
+          CC=g++ bazelisk build //alphasql:all
           mkdir alphasql_darwin_amd64
           mv ./bazel-bin/alphasql/dag ./alphasql_darwin_amd64/dag
           mv ./bazel-bin/alphasql/pipeline_type_checker ./alphasql_darwin_amd64/pipeline_type_checker
@@ -52,10 +52,14 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cache/bazel
-          key: ${{ runner.os }}-bazel-build-${{ hashFiles('./**') }}
-          restore-keys: ${{ runner.os }}-bazel-build-
+          key: ${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
+          restore-keys: ${{ runner.os }}-bazelisk-build-
       - name: Build
         run: |
+            sudo apt-get update
+            sudo apt-get install --no-install-recommends -y gcc-9 g++-9
+            sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 900 \
+              --slave /usr/bin/g++ g++ /usr/bin/g++-9
             bazelisk build //...
             mkdir alphasql_linux_x86_64
             mv ./bazel-bin/alphasql/dag ./alphasql_linux_x86_64/dag

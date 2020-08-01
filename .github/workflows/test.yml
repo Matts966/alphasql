@@ -15,13 +15,12 @@ jobs:
           path: ~/.cache/bazel
           key: ${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
           restore-keys: ${{ runner.os }}-bazelisk-build-
-
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v2
-
       - name: Test the repository
         run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y gcc-9 g++-9
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 900 \
+            --slave /usr/bin/g++ g++ /usr/bin/g++-9
           bazelisk test --test_output=errors //alphasql/...
 
   osx:
@@ -38,10 +37,6 @@ jobs:
           path: /private/var/tmp
           key: ${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
           restore-keys: ${{ runner.os }}-bazelisk-build-
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v2
-
       - name: Test the repository
         shell: bash
         run: |
