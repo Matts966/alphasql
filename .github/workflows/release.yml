@@ -39,6 +39,8 @@ jobs:
           asset_path: alphasql_darwin_amd64.tar.gz
           asset_name: alphasql_darwin_amd64.tar.gz
           asset_content_type: application/tar+gzip
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v2
 
   linux:
     name: Create artifacts on Linux
