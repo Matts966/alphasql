@@ -18,7 +18,7 @@ jobs:
       - name: Test the repository
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y gcc-9 g++-9
+          sudo apt-get install --no-install-recommends -y gcc-9 g++-9 bison
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 900 \
             --slave /usr/bin/g++ g++ /usr/bin/g++-9
           bazelisk test --test_output=errors //alphasql/...
