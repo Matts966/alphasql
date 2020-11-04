@@ -15,25 +15,33 @@
 //
 
 #include <filesystem>
+#include <regex>
 #include "alphasql/dag_lib.h"
+
+std::regex DEFAULT_EXCLUDES(".*(.git/.*|.hg/.*|.svn/.*)");
 
 int main(int argc, char* argv[]) {
   const char kUsage[] =
       "Usage: dag --external_required_tables_output_path <filename> --output_path <filename> <directory or file paths of sql...>\n";
   std::vector<char*> args = absl::ParseCommandLine(argc, argv);
   if (argc <= 1) {
-    LOG(QFATAL) << kUsage;
+    ZETASQL_LOG(QFATAL) << kUsage;
   }
   std::vector<char*> remaining_args(args.begin() + 1, args.end());
 
   std::map<std::string, table_queries> table_queries_map;
   std::map<std::string, function_queries> function_queries_map;
   std::set<std::string> vertices;
+  std::smatch m;
   std::cout << "Reading paths passed as a command line arguments..." << std::endl;
   std::cout << "Only files that end with .sql or .bq are analyzed." << std::endl;
   for (const auto& path : remaining_args) {
     if (std::filesystem::is_regular_file(path)) {
       std::filesystem::path file_path(path);
+      std::string path_str = file_path.string();
+      if (regex_match(path_str, m, DEFAULT_EXCLUDES)) {
+        continue;
+      }
       absl::Status status = alphasql::UpdateIdentifierQueriesMapsAndVertices(file_path, table_queries_map,
                                                                              function_queries_map, vertices);
       if (!status.ok()) {
@@ -46,6 +54,10 @@ int main(int argc, char* argv[]) {
       std::filesystem::directory_options::skip_permission_denied), end;
     std::error_code err;
     for (; file_path != end; file_path.increment(err)) {
+      std::string path_str = file_path->path().string();
+      if (regex_match(path_str, m, DEFAULT_EXCLUDES)) {
+        continue;
+      }
       if (err) {
         std::cout << "WARNING: " << err << std::endl;
       }
