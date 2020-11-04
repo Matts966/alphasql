@@ -40,4 +40,4 @@ jobs:
       - name: Test the repository
         shell: bash
         run: |
-          make
+          make test
