@@ -67,7 +67,7 @@ void dropOwnedTable(SimpleCatalog* catalog, const std::string& name) {
       ++it;
     }
   }
-  CHECK(false) << "No table named " << name;
+  ZETASQL_CHECK(false) << "No table named " << name;
 }
 
 void dropOwnedTableIfExists(SimpleCatalog* catalog, const std::string& name) {
@@ -98,7 +98,7 @@ void dropOwnedFunction(SimpleCatalog* catalog, const std::string& full_name_with
       ++it;
     }
   }
-  CHECK(false) << "No function named " << full_name_without_group;
+  ZETASQL_CHECK(false) << "No function named " << full_name_without_group;
 }
 }
 
@@ -225,7 +225,7 @@ int main(int argc, char* argv[]) {
       "Usage: pipeline_type_checker [--json_schema_path=<path_to.json>] <dependency_graph.dot>\n";
   std::vector<char*> remaining_args = absl::ParseCommandLine(argc, argv);
   if (argc <= 1) {
-    LOG(QFATAL) << kUsage;
+    ZETASQL_LOG(QFATAL) << kUsage;
   }
 
   const std::string dot_path = absl::StrJoin(remaining_args.begin() + 1,

@@ -5,10 +5,6 @@ RETURNS FLOAT64 LANGUAGE js AS """
 """;
 -- comment1
 -- comment2
-CREATE FUNCTION divideByTwo(x FLOAT64)
-RETURNS FLOAT64 LANGUAGE js AS """
-     return x/2;
-""";
 WITH
   numbers AS (
     SELECT
