@@ -1,5 +1,7 @@
 name: test
 on: push
+env:
+  cache-version: v1
 jobs:
   linux:
     name: Test the repository on Linux
@@ -13,8 +15,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cache/bazel
-          key: ${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
-          restore-keys: ${{ runner.os }}-bazelisk-build-
+          key: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-
       - name: Setup
         run: |
           sudo apt-get update
@@ -36,8 +38,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /private/var/tmp/*bazel*
-          key: ${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
-          restore-keys: ${{ runner.os }}-bazelisk-build-
+          key: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-
       - name: Test the repository
         run: |
           make test
