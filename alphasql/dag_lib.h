@@ -22,10 +22,11 @@
 #include "zetasql/base/statusor.h"
 #include "zetasql/public/analyzer.h"
 #include "alphasql/identifier_resolver.h"
-#include "alphasql/function_name_resolver.h"
+#include "alphasql/identifier_resolver.h"
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/strings/str_join.h"
+#include "absl/strings/str_format.h"
 #include "boost/graph/graphviz.hpp"
 #include "boost/graph/depth_first_search.hpp"
 
@@ -37,27 +38,20 @@ ABSL_FLAG(std::string, external_required_tables_output_path, "",
           "Output path for external required tables.");
 
 struct table_queries {
-  std::vector<std::string> create;
+  std::string create;
+  std::string drop;
   std::vector<std::string> others;
 };
 
 struct function_queries {
-  std::vector<std::string> create;
+  std::string create;
+  std::string drop;
   std::vector<std::string> call;
 };
 
 namespace alphasql {
 
   using namespace zetasql;
-
-  zetasql_base::StatusOr<std::map<ResolvedNodeKind, TableNamesSet>> ExtractTableNamesFromSQL(const std::string& sql_file_path,
-                                                                     const AnalyzerOptions& analyzer_options,
-                                                                     TableNamesSet* table_names) {
-    std::unique_ptr<AnalyzerOptions> copy;
-    const AnalyzerOptions& options = GetAnalyzerOptions();
-    return identifier_resolver::GetNodeKindToTableNamesMap(
-      sql_file_path, options, table_names);
-  }
 
   absl::Status UpdateIdentifierQueriesMapsAndVertices(const std::filesystem::path& file_path,
                                                 std::map<std::string, table_queries>& table_queries_map,
@@ -67,51 +61,67 @@ namespace alphasql {
       return absl::OkStatus();
     }
     std::cout << "Reading " << file_path << std::endl;
-    const AnalyzerOptions options = GetAnalyzerOptions();
-
-    TableNamesSet table_names;
-    auto node_kind_to_table_names_or_status = ExtractTableNamesFromSQL(file_path.string(), options, &table_names);
-    if (!node_kind_to_table_names_or_status.ok()) {
-      return node_kind_to_table_names_or_status.status();
+    
+    const auto identifier_information_or_status = identifier_resolver::GetIdentifierInformation(file_path.string());
+    if (!identifier_information_or_status.ok()) {
+      return identifier_information_or_status.status();
     }
-    std::map<ResolvedNodeKind, TableNamesSet> node_kind_to_table_names = node_kind_to_table_names_or_status.value();
+    const auto identifier_information = identifier_information_or_status.value();
 
-    // Resolve file dependency from DML on DDL.
-    for (auto const& table_name : node_kind_to_table_names[RESOLVED_CREATE_TABLE_STMT]) {
+    // Resolve file dependency from table references on DDL.
+    for (auto const& table_name : identifier_information.table_information.created) {
       const std::string table_string = absl::StrJoin(table_name, ".");
-      table_queries_map[table_string].create.push_back(file_path);
-    }
-    for (auto const& table_name : node_kind_to_table_names[RESOLVED_CREATE_TABLE_AS_SELECT_STMT]) {
-      const std::string table_string = absl::StrJoin(table_name, ".");
-      table_queries_map[table_string].create.push_back(file_path);
+      if (table_queries_map[table_string].create != "") {
+        return absl::AlreadyExistsError(absl::StrFormat("Table %s already exists!", table_string));
+      }
+      table_queries_map[table_string].create = file_path;
     }
 
-    for (auto const& table_name : table_names) {
+    // for (auto const& table_name : identifier_information.table_information.dropped) {
+    //   const std::string table_string = absl::StrJoin(table_name, ".");
+    //   if (table_queries_map[table_string].drop != "") {
+    //     return absl::AlreadyExistsError(absl::StrFormat("Table %s dropped twice!", table_string));
+    //   }
+    //   table_queries_map[table_string].drop = file_path;
+    // }
+
+    // Currently resolve drop statements as reference.
+    for (auto const& table_name : identifier_information.table_information.dropped) {
       const std::string table_string = absl::StrJoin(table_name, ".");
       table_queries_map[table_string].others.push_back(file_path);
     }
 
-    // Resolve file dependency from SQL files calling functions on the callee.
-    auto function_information_or_status = function_name_resolver::GetFunctionInformation(file_path.string(), options);
-    if (!function_information_or_status.ok()) {
-      return function_information_or_status.status();
+    for (auto const& table_name : identifier_information.table_information.referenced) {
+      const std::string table_string = absl::StrJoin(table_name, ".");
+      table_queries_map[table_string].others.push_back(file_path);
     }
-    auto function_info = function_information_or_status.value();
 
-    // TODO(Matts966): Multiple function definitions leads to duplicate key errors
-    // and problematic, so emit an understandable error here is more helpful.
-    for (auto const& defined : function_info.defined) {
+    // Resolve file dependency from function calls on definition.
+    for (auto const& defined : identifier_information.function_information.defined) {
       const std::string function_name = absl::StrJoin(defined, ".");
-
-      std::cout << function_name << " defined in " << file_path << std::endl;
-
-      function_queries_map[function_name].create.push_back(file_path);
+      if (function_queries_map[function_name].create != "") {
+        return absl::AlreadyExistsError(absl::StrFormat("Function %s already exists!", function_name));
+      }
+      function_queries_map[function_name].create = file_path;
     }
-    for (auto const& called : function_info.called) {
+
+    // for (auto const& dropped : identifier_information.function_information.dropped) {
+    //   const std::string function_name = absl::StrJoin(dropped, ".");
+    //   if (function_queries_map[function_name].drop != "") {
+    //     return absl::AlreadyExistsError(absl::StrFormat("Function %s dropped twice!", function_name));
+    //   }
+    //   function_queries_map[function_name].drop = file_path;
+    // }
+
+    // Currently resolve drop statements as reference.
+    for (auto const& dropped : identifier_information.function_information.dropped) {
+      const std::string function_name = absl::StrJoin(dropped, ".");
+      function_queries_map[function_name].call.push_back(file_path);
+    }
+
+
+    for (auto const& called : identifier_information.function_information.called) {
       const std::string function_name = absl::StrJoin(called, ".");
-
-      std::cout << function_name << " called in " << file_path << std::endl;
-
       function_queries_map[function_name].call.push_back(file_path);
     }
 
@@ -122,18 +132,12 @@ namespace alphasql {
   }
 
   void UpdateEdges(std::vector<Edge>& depends_on,
-                   std::vector<std::string> dependents, std::vector<std::vector<std::string>> parents) {
-    if (!dependents.size()) return;
-    for (const auto& parent : parents) {
-      if (!parent.size()) continue;
-      for (const std::string& p : parent) {
-        for (const std::string& dep : dependents) {
-          if (dep != p) {
-            depends_on.push_back(std::make_pair(dep, p));
-          }
-        }
+                   std::vector<std::string> dependents, std::string parent) {
+    if (!dependents.size() || parent == "") return;
+    for (const std::string& dep : dependents) {
+      if (dep != parent) {
+        depends_on.push_back(std::make_pair(dep, parent));
       }
-      return;
     }
   }
 }

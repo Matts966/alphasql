@@ -40,7 +40,7 @@
 #include "zetasql/base/status.h"
 #include "zetasql/base/status_macros.h"
 #include "zetasql/base/statusor.h"
-#include "alphasql/function_name_resolver.h"
+#include "alphasql/identifier_resolver.h"
 
 
 namespace alphasql {
@@ -59,10 +59,9 @@ const AnalyzerOptions GetAnalyzerOptions() {
   return options;
 }
 
-namespace function_name_resolver {
+namespace identifier_resolver {
 
-zetasql_base::StatusOr<function_info> GetFunctionInformation(
-    const std::string& sql_file_path, const AnalyzerOptions& analyzer_options) {
+zetasql_base::StatusOr<identifier_info> GetIdentifierInformation(const std::string& sql_file_path) {
   const AnalyzerOptions options = GetAnalyzerOptions();
   std::unique_ptr<ParserOutput> parser_output;
 
@@ -72,27 +71,50 @@ zetasql_base::StatusOr<function_info> GetFunctionInformation(
 
   ZETASQL_RETURN_IF_ERROR(ParseScript(sql, options.GetParserOptions(),
                               options.error_message_mode(), &parser_output));
-  FunctionNameResolver resolver = FunctionNameResolver();
+  IdentifierResolver resolver = IdentifierResolver();
   parser_output->script()->Accept(&resolver, nullptr);
-  return resolver.function_information;
+  ZETASQL_RETURN_IF_ERROR(zetasql::ExtractTableNamesFromASTScript(*parser_output->script(),
+                          options, sql, &resolver.identifier_information.table_information.referenced));
+  return resolver.identifier_information;
 }
 
-// TODO:(Matts966) Check if this node is callee or caller and implement correctly
-// void FunctionNameResolver::visitASTTVF(const ASTTVF* node, void* data) {
-//   function_information.called.insert(node->name()->ToIdentifierVector());
-// }
-
-void FunctionNameResolver::visitASTFunctionCall(const ASTFunctionCall* node, void* data) {
-  function_information.called.insert(node->function()->ToIdentifierVector());
+void IdentifierResolver::visitASTDropStatement(const ASTDropStatement* node, void* data) {
+  if (node->schema_object_kind() == SchemaObjectKind::kTable) {
+    identifier_information.table_information.dropped.insert(node->name()->ToIdentifierVector());
+  }
   visitASTChildren(node, data);
 }
 
-void FunctionNameResolver::visitASTFunctionDeclaration(
-    const ASTFunctionDeclaration* node, void* data) {
-  function_information.defined.insert(node->name()->ToIdentifierVector());
+void IdentifierResolver::visitASTCreateTableStatement(const ASTCreateTableStatement* node,
+                                  void* data) {
+  if (node->scope() != ASTCreateStatement::TEMPORARY) {
+    identifier_information.table_information.created.insert(node->name()->ToIdentifierVector());
+  }
+  visitASTChildren(node, data);
 }
 
-void FunctionNameResolver::visitASTCreateFunctionStatement(
+// TODO:(Matts966) Check if this node is callee or caller and implement correctly
+// void IdentifierResolver::visitASTTVF(const ASTTVF* node, void* data) {
+//   function_information.called.insert(node->name()->ToIdentifierVector());
+// }
+
+void IdentifierResolver::visitASTDropFunctionStatement(const ASTDropFunctionStatement* node, void* data) {
+  // if (node->is_if_exists()) {}
+  identifier_information.function_information.dropped.insert(node->name()->ToIdentifierVector());
+  visitASTChildren(node, data);
+}
+
+void IdentifierResolver::visitASTFunctionCall(const ASTFunctionCall* node, void* data) {
+  identifier_information.function_information.called.insert(node->function()->ToIdentifierVector());
+  visitASTChildren(node, data);
+}
+
+void IdentifierResolver::visitASTFunctionDeclaration(
+    const ASTFunctionDeclaration* node, void* data) {
+  identifier_information.function_information.defined.insert(node->name()->ToIdentifierVector());
+}
+
+void IdentifierResolver::visitASTCreateFunctionStatement(
     const ASTCreateFunctionStatement* node, void* data) {
   if (node->is_temp()) {
     return;
@@ -103,7 +125,7 @@ void FunctionNameResolver::visitASTCreateFunctionStatement(
   }
 }
 
-void FunctionNameResolver::visitASTCreateTableFunctionStatement(
+void IdentifierResolver::visitASTCreateTableFunctionStatement(
     const ASTCreateTableFunctionStatement* node, void* data) {
   if (node->is_temp()) {
     return;
@@ -114,7 +136,7 @@ void FunctionNameResolver::visitASTCreateTableFunctionStatement(
   }
 }
 
-void FunctionNameResolver::visitASTCallStatement(
+void IdentifierResolver::visitASTCallStatement(
     const ASTCallStatement* node, void* data) {
   node->ChildrenAccept(this, data);
   // print("CALL");
@@ -127,5 +149,5 @@ void FunctionNameResolver::visitASTCallStatement(
   return;
 }
 
-}  // namespace function_name_resolver
+}  // namespace identifier_resolver
 }  // namespace alphasql

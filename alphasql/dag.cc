@@ -73,18 +73,14 @@ int main(int argc, char* argv[]) {
   std::vector<Edge> depends_on;
   std::vector<std::string> external_required_tables;
   for (auto const& [table_name, table_queries] : table_queries_map) {
-    alphasql::UpdateEdges(depends_on, table_queries.others, {
-      table_queries.create,
-    });
+    alphasql::UpdateEdges(depends_on, table_queries.others, table_queries.create);
     if (table_queries.create.empty()) {
       external_required_tables.push_back(table_name);
     }
   }
 
   for (auto const& [_, function_queries] : function_queries_map) {
-    alphasql::UpdateEdges(depends_on, function_queries.call, {
-      function_queries.create,
-    });
+    alphasql::UpdateEdges(depends_on, function_queries.call, function_queries.create);
   }
 
   const int nedges = depends_on.size();

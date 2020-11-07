@@ -32,18 +32,7 @@ cc_library(
 cc_library(
     name = "identifier_resolver",
     hdrs = ["identifier_resolver.h"],
-    deps = [
-        "@com_google_zetasql//zetasql/public:simple_catalog",
-        "@com_google_zetasql//zetasql/public:type",
-        "@boost//:property_tree",
-        "@com_google_absl//absl/strings",
-    ],
-)
-
-cc_library(
-    name = "function_name_resolver",
-    hdrs = ["function_name_resolver.h"],
-    srcs = ["function_name_resolver.cc"],
+    srcs = ["identifier_resolver.cc"],
     deps = [
         "@com_google_zetasql//zetasql/public:simple_catalog",
         "@com_google_zetasql//zetasql/public:type",
@@ -112,7 +101,6 @@ cc_library(
         "@com_google_absl//absl/strings",
         "@boost//:graph",
         ":identifier_resolver",
-        ":function_name_resolver",
     ],
 )
 
