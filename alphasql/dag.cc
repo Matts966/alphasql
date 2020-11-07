@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
       "Usage: dag --external_required_tables_output_path <filename> --output_path <filename> <directory or file paths of sql...>\n";
   std::vector<char*> args = absl::ParseCommandLine(argc, argv);
   if (argc <= 1) {
-    LOG(QFATAL) << kUsage;
+    ZETASQL_LOG(QFATAL) << kUsage;
   }
   std::vector<char*> remaining_args(args.begin() + 1, args.end());
 
