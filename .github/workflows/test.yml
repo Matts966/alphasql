@@ -40,6 +40,9 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.ref }}
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: Cache
         uses: actions/cache@v2
         with:
@@ -53,6 +56,6 @@ jobs:
         shell: bash
         run: |
           temp=$(mktemp -d)
-          wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alphasql_darwin_amd64.tar.gz \
-            && tar -zxvf $temp/alphasql_darwin_amd64.tar.gz -C /usr/local/bin --strip=1
+          wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alphasql_darwin_x86_64.tar.gz \
+            && tar -zxvf $temp/alphasql_darwin_x86_64.tar.gz -C /usr/local/bin --strip=1
           dag .
