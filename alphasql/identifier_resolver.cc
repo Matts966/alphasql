@@ -81,6 +81,7 @@ zetasql_base::StatusOr<identifier_info> GetIdentifierInformation(const std::stri
   //                         &resolver.identifier_information.table_information.referenced));
   table_name_resolver::GetTables(sql_file_path, options,
                                  &resolver.identifier_information.table_information.referenced);
+  // TODO: Filter temporary tables from referenced tables.
 
   return resolver.identifier_information;
 }
