@@ -41,6 +41,7 @@
 #include "zetasql/base/status_macros.h"
 #include "zetasql/base/statusor.h"
 #include "alphasql/identifier_resolver.h"
+#include "alphasql/table_name_resolver.h"
 
 
 namespace alphasql {
@@ -70,11 +71,17 @@ zetasql_base::StatusOr<identifier_info> GetIdentifierInformation(const std::stri
   std::string sql(std::istreambuf_iterator<char>(file), {});
 
   ZETASQL_RETURN_IF_ERROR(ParseScript(sql, options.GetParserOptions(),
-                              options.error_message_mode(), &parser_output));
+                          options.error_message_mode(), &parser_output));
   IdentifierResolver resolver = IdentifierResolver();
   parser_output->script()->Accept(&resolver, nullptr);
-  ZETASQL_RETURN_IF_ERROR(zetasql::ExtractTableNamesFromASTScript(*parser_output->script(),
-                          options, sql, &resolver.identifier_information.table_information.referenced));
+  // TODO: The below function call is not OK compared to GetTables, but more performant.
+  // Try to fix bugs and use FindTableNamesInScript.
+  // ZETASQL_RETURN_IF_ERROR(alphasql::table_name_resolver::FindTableNamesInScript(sql, 
+  //                         *parser_output->script(), options,
+  //                         &resolver.identifier_information.table_information.referenced));
+  table_name_resolver::GetTables(sql_file_path, options,
+                                 &resolver.identifier_information.table_information.referenced);
+
   return resolver.identifier_information;
 }
 
