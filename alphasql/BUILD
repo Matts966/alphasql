@@ -42,6 +42,18 @@ cc_library(
         "@com_google_zetasql//zetasql/analyzer",
         "@boost//:property_tree",
         "@com_google_absl//absl/strings",
+        ":table_name_resolver"
+    ],
+)
+
+cc_library(
+    name = "table_name_resolver",
+    hdrs = ["table_name_resolver.h"],
+    deps = [
+        "@com_google_zetasql//zetasql/public:simple_catalog",
+        "@com_google_zetasql//zetasql/public:type",
+        "@boost//:property_tree",
+        "@com_google_absl//absl/strings",
     ],
 )
 

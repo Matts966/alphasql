@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
   }
 
   const std::string output_path = absl::GetFlag(FLAGS_output_path);
-  if (output_path == "") {
+  if (output_path.empty()) {
     write_graphviz(std::cout, g, make_label_writer(get(vertex_name, g)));
   } else {
     if (std::filesystem::is_regular_file(output_path) || !std::filesystem::exists(output_path)) {
@@ -121,24 +121,22 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  if (!external_required_tables.empty()) {
-    const std::string external_required_tables_output_path = absl::GetFlag(FLAGS_external_required_tables_output_path);
-    if (external_required_tables_output_path == "") {
-      std::cout << "EXTERNAL REQUIRED TABLES:" << std::endl;
+  const std::string external_required_tables_output_path = absl::GetFlag(FLAGS_external_required_tables_output_path);
+  if (external_required_tables_output_path.empty()) {
+    std::cout << "EXTERNAL REQUIRED TABLES:" << std::endl;
+    for (const auto& required_table : external_required_tables) {
+      std::cout << required_table << std::endl;
+    }
+  } else {
+    if (std::filesystem::is_regular_file(external_required_tables_output_path)
+        || !std::filesystem::exists(external_required_tables_output_path)) {
+      std::ofstream out(external_required_tables_output_path);
       for (const auto& required_table : external_required_tables) {
-        std::cout << required_table << std::endl;
+        out << required_table << std::endl;
       }
     } else {
-      if (std::filesystem::is_regular_file(external_required_tables_output_path)
-          || !std::filesystem::exists(external_required_tables_output_path)) {
-        std::ofstream out(external_required_tables_output_path);
-        for (const auto& required_table : external_required_tables) {
-          out << required_table << std::endl;
-        }
-      } else {
-        std::cout << "external_required_tables_output_path is not a regular_file!" << std::endl;
-        return 1;
-      }
+      std::cout << "external_required_tables_output_path is not a regular_file!" << std::endl;
+      return 1;
     }
   }
 

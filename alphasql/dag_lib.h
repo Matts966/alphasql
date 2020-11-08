@@ -71,7 +71,7 @@ namespace alphasql {
     // Resolve file dependency from table references on DDL.
     for (auto const& table_name : identifier_information.table_information.created) {
       const std::string table_string = absl::StrJoin(table_name, ".");
-      if (table_queries_map[table_string].create != "") {
+      if (!table_queries_map[table_string].create.empty()) {
         return absl::AlreadyExistsError(absl::StrFormat("Table %s already exists!", table_string));
       }
       table_queries_map[table_string].create = file_path;
@@ -79,7 +79,7 @@ namespace alphasql {
 
     // for (auto const& table_name : identifier_information.table_information.dropped) {
     //   const std::string table_string = absl::StrJoin(table_name, ".");
-    //   if (table_queries_map[table_string].drop != "") {
+    //   if (!table_queries_map[table_string].drop.empty()) {
     //     return absl::AlreadyExistsError(absl::StrFormat("Table %s dropped twice!", table_string));
     //   }
     //   table_queries_map[table_string].drop = file_path;
@@ -99,7 +99,7 @@ namespace alphasql {
     // Resolve file dependency from function calls on definition.
     for (auto const& defined : identifier_information.function_information.defined) {
       const std::string function_name = absl::StrJoin(defined, ".");
-      if (function_queries_map[function_name].create != "") {
+      if (!function_queries_map[function_name].create.empty()) {
         return absl::AlreadyExistsError(absl::StrFormat("Function %s already exists!", function_name));
       }
       function_queries_map[function_name].create = file_path;
@@ -107,7 +107,7 @@ namespace alphasql {
 
     // for (auto const& dropped : identifier_information.function_information.dropped) {
     //   const std::string function_name = absl::StrJoin(dropped, ".");
-    //   if (function_queries_map[function_name].drop != "") {
+    //   if (!function_queries_map[function_name].drop.empty()) {
     //     return absl::AlreadyExistsError(absl::StrFormat("Function %s dropped twice!", function_name));
     //   }
     //   function_queries_map[function_name].drop = file_path;
@@ -133,7 +133,7 @@ namespace alphasql {
 
   void UpdateEdges(std::vector<Edge>& depends_on,
                    std::vector<std::string> dependents, std::string parent) {
-    if (!dependents.size() || parent == "") return;
+    if (!dependents.size() || parent.empty()) return;
     for (const std::string& dep : dependents) {
       if (dep != parent) {
         depends_on.push_back(std::make_pair(dep, parent));
