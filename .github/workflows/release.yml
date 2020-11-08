@@ -17,10 +17,10 @@ jobs:
         shell: bash
         run: |
           make
-          mkdir alphasql_darwin_amd64
-          mv ./bazel-bin/alphasql/dag ./alphasql_darwin_amd64/dag
-          mv ./bazel-bin/alphasql/pipeline_type_checker ./alphasql_darwin_amd64/pipeline_type_checker
-          tar -zcvf alphasql_darwin_amd64.tar.gz alphasql_darwin_amd64
+          mkdir alphasql_darwin_x86_64
+          mv ./bazel-bin/alphasql/dag ./alphasql_darwin_x86_64/dag
+          mv ./bazel-bin/alphasql/pipeline_type_checker ./alphasql_darwin_x86_64/pipeline_type_checker
+          sudo tar -zcvf alphasql_darwin_x86_64.tar.gz alphasql_darwin_x86_64
       - name: Get Release
         id: get
         uses: bruceadams/get-release@v1.2.0
@@ -30,15 +30,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.get.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: alphasql_darwin_amd64.tar.gz
-          asset_name: alphasql_darwin_amd64.tar.gz
+          asset_path: alphasql_darwin_x86_64.tar.gz
+          asset_name: alphasql_darwin_x86_64.tar.gz
           asset_content_type: application/tar+gzip
       - name: Test installation
         shell: bash
         run: |
           temp=$(mktemp -d)
-          wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alphasql_darwin_amd64.tar.gz \
-            && tar -zxvf $temp/alphasql_darwin_amd64.tar.gz -C /usr/local/bin --strip=1
+          wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alphasql_darwin_x86_64.tar.gz \
+            && sudo tar -zxvf $temp/alphasql_darwin_x86_64.tar.gz -C /usr/local/bin --strip=1
           dag .
 
   linux:
