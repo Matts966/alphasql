@@ -39,6 +39,13 @@ jobs:
           asset_path: alphasql_darwin_amd64.tar.gz
           asset_name: alphasql_darwin_amd64.tar.gz
           asset_content_type: application/tar+gzip
+      - name: Test installation
+        shell: bash
+        run: |
+          temp=$(mktemp -d)
+          wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alphasql_darwin_amd64.tar.gz \
+            && tar -zxvf $temp/alphasql_darwin_amd64.tar.gz -C /usr/local/bin --strip=1
+          dag .
 
   linux:
     name: Create artifacts on Linux
@@ -78,6 +85,13 @@ jobs:
           asset_path: alphasql_linux_x86_64.tar.gz
           asset_name: alphasql_linux_x86_64.tar.gz
           asset_content_type: application/tar+gzip
+      - name: Test installation
+        shell: bash
+        run: |
+          temp=$(mktemp -d)
+          wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alphasql_linux_x86_64.tar.gz \
+            && tar -zxvf $temp/alphasql_linux_x86_64.tar.gz -C /usr/local/bin --strip=1
+          dag .
 
   docker-hub:
     name: Push image to docker hub
@@ -98,6 +112,10 @@ jobs:
           tag_with_ref: true
           dockerfile: docker/Dockerfile
           cache_froms: matts966/alphasql:latest
+      - name: Test installation
+        shell: bash
+        run: |
+          docker run matts966:alphasql dag .
 
   docker-github:
     name: Push image to GitHub Packages
