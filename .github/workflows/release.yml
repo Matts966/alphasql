@@ -18,10 +18,11 @@ jobs:
         run: |
           make
           mkdir alphasql_darwin_x86_64
-          mv ./bazel-bin/alphasql/dag /usr/local/bin/
-          mv ./bazel-bin/alphasql/pipeline_type_checker /usr/local/bin/
+          mv ./bazel-bin/alphasql/alphadag /usr/local/bin/
+          mv ./bazel-bin/alphasql/alphacheck /usr/local/bin/
           cd /usr/local/bin/
-          sudo tar -zcvf alphasql_darwin_x86_64.tar.gz dag pipeline_type_checker
+          # ensure without path to prevent `cannot execute binary file` error.
+          sudo tar -zcvf alphasql_darwin_x86_64.tar.gz alphadag alphacheck
           cd -
           mv /usr/local/bin/alphasql_darwin_x86_64.tar.gz ./
       - name: Get Release
@@ -44,7 +45,7 @@ jobs:
           temp=$(mktemp -d)
           wget -P $temp "https://github.com/Matts966/alphasql/releases/download/${TAG}/alphasql_darwin_x86_64.tar.gz"
           sudo tar -zxvf $temp/alphasql_darwin_x86_64.tar.gz -C /usr/local/bin --strip=1
-          dag ./samples/sample
+          alphadag ./samples/sample
 
   linux:
     name: Create artifacts on Linux
@@ -62,8 +63,8 @@ jobs:
               --slave /usr/bin/g++ g++ /usr/bin/g++-9
             bazelisk build //...
             mkdir alphasql_linux_x86_64
-            mv ./bazel-bin/alphasql/dag ./alphasql_linux_x86_64/dag
-            mv ./bazel-bin/alphasql/pipeline_type_checker ./alphasql_linux_x86_64/pipeline_type_checker
+            mv ./bazel-bin/alphasql/alphadag ./alphasql_linux_x86_64/alphadag
+            mv ./bazel-bin/alphasql/alphacheck ./alphasql_linux_x86_64/alphacheck
             sudo tar -zcvf alphasql_linux_x86_64.tar.gz alphasql_linux_x86_64
       - name: Get Release
         id: get
@@ -86,7 +87,7 @@ jobs:
           temp=$(mktemp -d)
           wget -P $temp "https://github.com/Matts966/alphasql/releases/download/${TAG}/alphasql_linux_x86_64.tar.gz"
           sudo tar -zxvf $temp/alphasql_linux_x86_64.tar.gz -C /usr/local/bin --strip=1
-          dag ./samples/sample
+          alphadag ./samples/sample
 
   docker-hub:
     name: Push image to docker hub
@@ -110,7 +111,7 @@ jobs:
       - name: Test installation
         shell: bash
         run: |
-          docker run matts966/alphasql dag .
+          docker run matts966/alphasql alphadag .
 
   docker-github:
     name: Push image to GitHub Packages

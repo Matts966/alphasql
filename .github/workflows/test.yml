@@ -29,7 +29,7 @@ jobs:
           temp=$(mktemp -d)
           wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alphasql_linux_x86_64.tar.gz \
             && tar -zxvf $temp/alphasql_linux_x86_64.tar.gz -C /usr/local/bin --strip=1
-          dag .
+          alphadag .
           
 
   osx:
@@ -55,4 +55,4 @@ jobs:
           temp=$(mktemp -d)
           wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alphasql_darwin_x86_64.tar.gz \
             && tar -zxvf $temp/alphasql_darwin_x86_64.tar.gz -C /usr/local/bin --strip=1
-          dag .
+          alphadag .

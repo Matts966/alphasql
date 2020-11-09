@@ -1,6 +1,6 @@
 steps:
 - name: 'matts966/alphasql'
-  entrypoint: 'dag'
+  entrypoint: 'alphadag'
   volumes:
   - name: 'vol'
     path: '/vol'
@@ -17,7 +17,7 @@ steps:
     path: '/vol'
   entrypoint: './python_entrypoint.py'
 - name: 'matts966/alphasql'
-  entrypoint: 'pipeline_type_checker'
+  entrypoint: 'alphacheck'
   volumes:
   - name: 'vol'
     path: '/vol'

@@ -58,9 +58,9 @@ cc_library(
 )
 
 cc_binary(
-    name = "pipeline_type_checker",
+    name = "alphacheck",
     srcs = [
-        "pipeline_type_checker.cc",
+        "alphacheck.cc",
     ],
     deps = [
         ":json_schema_reader",
@@ -94,8 +94,8 @@ cc_binary(
 )
 
 cc_binary(
-    name = "dag",
-    srcs = ["dag.cc"],
+    name = "alphadag",
+    srcs = ["alphadag.cc"],
     deps = [
         ":dag_lib",
     ],
