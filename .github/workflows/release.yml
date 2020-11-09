@@ -18,9 +18,12 @@ jobs:
         run: |
           make
           mkdir alphasql_darwin_x86_64
-          mv ./bazel-bin/alphasql/dag ./alphasql_darwin_x86_64/dag
-          mv ./bazel-bin/alphasql/pipeline_type_checker ./alphasql_darwin_x86_64/pipeline_type_checker
-          sudo tar -zcvf alphasql_darwin_x86_64.tar.gz alphasql_darwin_x86_64
+          mv ./bazel-bin/alphasql/dag /user/local/bin/
+          mv ./bazel-bin/alphasql/pipeline_type_checker /user/local/bin/
+          cd /user/local/bin/
+          sudo tar -zcvf alphasql_darwin_x86_64.tar.gz dag pipeline_type_checker
+          cd -
+          mv /usr/local/bin/alphasql_darwin_x86_64.tar.gz ./
       - name: Get Release
         id: get
         uses: bruceadams/get-release@v1.2.0
