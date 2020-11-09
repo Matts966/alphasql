@@ -81,7 +81,23 @@ The image below is extracted from SQL set in [./samples/sample](./samples/sample
 
 ## Parallel Execution
 
-For BigQuery, the output DAG can be run parallely using [bq_jobrunner](https://github.com/tsintermax/bq_jobrunner) and Python.
+For BigQuery, the output DAG can be run parallely using 
+
+- [bq-airflow-dag-generator](https://pypi.org/project/bq-airflow-dag-generator)
+- [bq-jobrunner](https://github.com/tsintermax/bq_jobrunner)
+
+### bq-airflow-dag-generator
+
+`bq-airflow-dag-generator` as Python package can generate Airflow DAG by simple Python script.
+
+```Python
+dagpath = "/path/to/dag.dot"
+dag = generate_airflow_dag_by_dot_path(dagpath)
+```
+
+See [usage on README](https://github.com/Matts966/bq-airflow-dag-generator#usage) for more details.
+
+### bq-jobrunner
 
 ```Python
 from bq_jobrunner.bq_jobrunner import BQJobrunner
