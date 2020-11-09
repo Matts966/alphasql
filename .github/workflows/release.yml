@@ -113,7 +113,7 @@ jobs:
         env:
           TAG: ${{ github.event.release.tag_name }}
         run: |
-          docker run "matts966/alphasql${TAG}" alphadag .
+          docker run "matts966/alphasql:${TAG}" alphadag .
 
   docker-github:
     name: Push image to GitHub Packages
