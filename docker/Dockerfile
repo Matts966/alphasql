@@ -17,12 +17,12 @@ WORKDIR /work/alphasql
 
 RUN --mount=type=cache,target=/root/.cache \
     bazel build //alphasql:all && \
-    cp ./bazel-bin/alphasql/dag . && \
-    cp ./bazel-bin/alphasql/pipeline_type_checker .
+    cp ./bazel-bin/alphasql/alphadag . && \
+    cp ./bazel-bin/alphasql/alphacheck .
 
 
 FROM gcr.io/distroless/cc
-COPY --from=builder /work/alphasql/dag /usr/bin/dag
-COPY --from=builder /work/alphasql/pipeline_type_checker /usr/bin/pipeline_type_checker
+COPY --from=builder /work/alphasql/alphadag /usr/bin/alphadag
+COPY --from=builder /work/alphasql/alphacheck /usr/bin/alphacheck
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libstdc++.so.6 /usr/lib/x86_64-linux-gnu/libstdc++.so.6
 WORKDIR /home

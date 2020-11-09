@@ -7,21 +7,18 @@ AlphaSQL provides **Automatic Parallelization** for sets of SQL files and integr
 
 ## Features
 
-- [Docker Image](#docker-image)
-    - Use our AlphaSQL on Docker ；）
-- [Fast Binaries](#fast-binaries)
-    - For local use, binary installation is fast!
-- [Dependency Analysis](#extract-dag-from-sql-set)
-    - Extract DAG from your SQL file set.
+- [AlphaSQL](#alphasql)
+  - [Features](#features)
+  - [Docker Image](#docker-image)
+  - [Fast Binaries](#fast-binaries)
+  - [Extract DAG from SQL set](#extract-dag-from-sql-set)
     - [Sample DAG output](#sample-dag-output)
-- [Parallel Execution](#parallel-execution)
-    - Automatically parallelize your SQL file set.
-- [Schema Checker](#pipeline-level-type-check-for-sql-set)
-    - Eliminate syntax, type and schema errors from your datawarehouse.
+  - [Parallel Execution](#parallel-execution)
+  - [Pipeline level Type Check for SQL set](#pipeline-level-type-check-for-sql-set)
     - [Schema specification by JSON](#schema-specification-by-json)
-        - Input your lake schema in JSON.
-- [CI Example](#ci-example)
-    - Use our AlphaSQL to continuously check your datawarehouse on BigQuery using CloudBuild.
+  - [CI Example](#ci-example)
+  - [License](#license)
+  - [Sponsors](#sponsors)
 
 ## Docker Image
 
@@ -34,7 +31,7 @@ docker run --rm -v `pwd`:/home matts966/alphasql:latest [command]
 like
 
 ```bash
-docker run --rm -v `pwd`:/home matts966/alphasql:latest pipeline_type_checker ./samples/sample/dag.dot
+docker run --rm -v `pwd`:/home matts966/alphasql:latest alphacheck ./samples/sample/dag.dot
 ```
 
 Commands are installed in the PATH of the image.
@@ -57,14 +54,14 @@ wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alph
 
 ## Extract DAG from SQL set
 
-`dag` finds dependencies between table references and create table statements.
+`alphadag` finds dependencies between table references and create table statements.
 
 ```bash
 # To extract DAG from your SQL set
-$ dag --output_path ./samples/sample/dag.dot ./samples/sample/
+$ alphadag --output_path ./samples/sample/dag.dot ./samples/sample/
 
 # Or you can check the output in stdout by
-$ dag [paths]
+$ alphadag [paths]
 
 # with graphviz
 $ dot -Tpng samples/sample/dag.dot -o samples/sample/dag.png
@@ -109,7 +106,7 @@ Note that you should run type_checker in the same path as in extracting DAG.
 
 ```bash
 # to check type and schema of SQL set
-$ pipeline_type_checker ./samples/sample.dot
+$ alphacheck ./samples/sample.dot
 Analyzing "./samples/sample/create_datawarehouse3.sql"
 DDL analyzed, adding table to catalog...
 SUCCESS: analysis finished!
@@ -149,7 +146,7 @@ Successfully finished type check!
 If you change column `x`'s type in `./samples/sample/create_datawarehouse3.sql` to `STRING`, type checker reports error.
 
 ```bash
-$ pipeline_type_checker ./samples/sample/dag.dot
+$ alphacheck ./samples/sample/dag.dot
 Analyzing "./samples/sample/create_datawarehouse3.sql"
 DDL analyzed, adding table to catalog...
 SUCCESS: analysis finished!
@@ -169,13 +166,13 @@ You can specify external schemata (not created by queries in SQL set) by passing
 
 ```bash
 # with external schema
-$ pipeline_type_checker --json_schema_path ./samples/sample-schema.json ./samples/sample/dag.dot
+$ alphacheck --json_schema_path ./samples/sample-schema.json ./samples/sample/dag.dot
 ```
 
 You can extract required external tables by
 
 ```bash
-$ dag --external_required_tables_output_path ./required_tables.txt {./path/to/sqls}
+$ alphadag --external_required_tables_output_path ./required_tables.txt {./path/to/sqls}
 # and get schemata using bq command
 $ cat ./required_tables.txt | while read line
 do
@@ -202,7 +199,7 @@ JSON schema file should have only a top level map element keyed by string elemen
 
 ## CI Example
 
-The pipeline level type check above is also useful in CI context. The sample in [./samples/sample-ci](./samples/sample-ci) contains an example for extracting dag, retrieving schema and checking schema and type of SQL set quering bigquery public dataset. You can introduce the CI to your environment only by copying `cloudbuild_ci_sample.yaml` and `python_entrypoint.py` to your project.
+The pipeline level type check above is also useful in CI context. The sample in [./samples/sample-ci](./samples/sample-ci) contains an example for extracting DAG, retrieving schema and checking schema and type of SQL set quering bigquery public dataset. You can introduce the CI to your environment only by copying `cloudbuild_ci_sample.yaml` and `python_entrypoint.py` to your project.
 
 You can try the example CI with `gcloud` command by
 

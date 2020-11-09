@@ -1,7 +1,7 @@
 name: test
 on: push
 env:
-  cache-version: v1
+  cache-version: v1.0.0
 jobs:
   linux:
     name: Test the repository on Linux
@@ -23,14 +23,15 @@ jobs:
           sudo apt-get install --no-install-recommends -y gcc-9 g++-9
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 900 \
             --slave /usr/bin/g++ g++ /usr/bin/g++-9
+          bazelisk build //alphasql/...
           bazelisk test --test_output=errors //alphasql/...
       - name: Test installation
         run: |
           temp=$(mktemp -d)
           wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alphasql_linux_x86_64.tar.gz \
             && sudo tar -zxvf $temp/alphasql_linux_x86_64.tar.gz -C /usr/local/bin --strip=1
-          dag ./samples/sample
-          
+          alphadag ./samples/sample
+
 
   osx:
     name: Test the repository on Mac
@@ -55,4 +56,4 @@ jobs:
           temp=$(mktemp -d)
           wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alphasql_darwin_x86_64.tar.gz \
             && sudo tar -zxvf $temp/alphasql_darwin_x86_64.tar.gz -C /usr/local/bin --strip=1
-          dag ./samples/sample
+          alphadag ./samples/sample

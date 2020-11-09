@@ -22,7 +22,7 @@ std::regex DEFAULT_EXCLUDES(".*(.git/.*|.hg/.*|.svn/.*)");
 
 int main(int argc, char* argv[]) {
   const char kUsage[] =
-      "Usage: dag --external_required_tables_output_path <filename> --output_path <filename> <directory or file paths of sql...>\n";
+      "Usage: alphadag --external_required_tables_output_path <filename> --output_path <filename> <directory or file paths of sql...>\n";
   std::vector<char*> args = absl::ParseCommandLine(argc, argv);
   if (argc <= 1) {
     ZETASQL_LOG(QFATAL) << kUsage;
