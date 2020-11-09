@@ -110,8 +110,10 @@ jobs:
           cache_froms: matts966/alphasql:latest
       - name: Test installation
         shell: bash
+        env:
+          TAG: ${{ github.event.release.tag_name }}
         run: |
-          docker run matts966/alphasql alphadag .
+          docker run "matts966/alphasql${TAG}" alphadag .
 
   docker-github:
     name: Push image to GitHub Packages
