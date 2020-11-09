@@ -23,6 +23,7 @@ jobs:
           sudo apt-get install --no-install-recommends -y gcc-9 g++-9
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 900 \
             --slave /usr/bin/g++ g++ /usr/bin/g++-9
+          bazelisk build //alphasql/...
           bazelisk test --test_output=errors //alphasql/...
       - name: Test installation
         run: |
