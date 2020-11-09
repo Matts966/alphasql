@@ -17,10 +17,6 @@ jobs:
           path: ~/.cache/bazel
           key: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
           restore-keys: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-      
       - name: Setup
         run: |
           sudo apt-get update
@@ -50,6 +46,11 @@ jobs:
           path: /private/var/tmp/*bazel*
           key: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
           restore-keys: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-
+        
+      
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: Test the repository
         run: |
           make test
