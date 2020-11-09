@@ -1,7 +1,7 @@
 name: test
 on: push
 env:
-  cache-version: v1
+  cache-version: v1.0.0
 jobs:
   linux:
     name: Test the repository on Linux
