@@ -39,23 +39,9 @@ jobs:
           TAG: ${{ github.event.release.tag_name }}
         run: |
           temp=$(mktemp -d)
-          retry() {
-            MAX_RETRY=5
-            n=0
-            until [ $n -ge $MAX_RETRY ]
-            do
-                "$@" && break
-                n=$[$n+1]
-                sleep $[ ( $RANDOM % 15 )  + 1 ]s
-            done
-            if [ $n -ge $MAX_RETRY ]; then
-              echo "failed: ${@}" >&2
-              exit 1
-            fi
-          }
-          retry wget -P $temp "https://github.com/Matts966/alphasql/releases/download/${TAG}/alphasql_darwin_x86_64.tar.gz"
+          wget -P $temp "https://github.com/Matts966/alphasql/releases/download/${TAG}/alphasql_darwin_x86_64.tar.gz"
           sudo tar -zxvf $temp/alphasql_darwin_x86_64.tar.gz -C /usr/local/bin --strip=1
-          dag ./sample/sample
+          dag ./samples/sample
 
   linux:
     name: Create artifacts on Linux
@@ -75,7 +61,7 @@ jobs:
             mkdir alphasql_linux_x86_64
             mv ./bazel-bin/alphasql/dag ./alphasql_linux_x86_64/dag
             mv ./bazel-bin/alphasql/pipeline_type_checker ./alphasql_linux_x86_64/pipeline_type_checker
-            tar -zcvf alphasql_linux_x86_64.tar.gz alphasql_linux_x86_64
+            sudo tar -zcvf alphasql_linux_x86_64.tar.gz alphasql_linux_x86_64
       - name: Get Release
         id: get
         uses: bruceadams/get-release@v1.2.0
@@ -95,23 +81,9 @@ jobs:
           TAG: ${{ github.event.release.tag_name }}
         run: |
           temp=$(mktemp -d)
-          retry() {
-            MAX_RETRY=5
-            n=0
-            until [ $n -ge $MAX_RETRY ]
-            do
-                "$@" && break
-                n=$[$n+1]
-                sleep $[ ( $RANDOM % 15 )  + 1 ]s
-            done
-            if [ $n -ge $MAX_RETRY ]; then
-              echo "failed: ${@}" >&2
-              exit 1
-            fi
-          }
-          retry wget -P $temp "https://github.com/Matts966/alphasql/releases/download/${TAG}/alphasql_linux_x86_64.tar.gz"
+          wget -P $temp "https://github.com/Matts966/alphasql/releases/download/${TAG}/alphasql_linux_x86_64.tar.gz"
           sudo tar -zxvf $temp/alphasql_linux_x86_64.tar.gz -C /usr/local/bin --strip=1
-          dag ./sample/sample
+          dag ./samples/sample
 
   docker-hub:
     name: Push image to docker hub
