@@ -45,7 +45,7 @@ Commands are installed in the PATH of the image.
 # To install for MacOSX
 temp=$(mktemp -d)
 wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alphasql_darwin_x86_64.tar.gz \
-    && sudo tar -zxvf $temp/alphasql_darwin_x86_64.tar.gz -C /usr/local/bin --strip=1
+    && sudo tar -zxvf $temp/alphasql_darwin_x86_64.tar.gz -C /usr/local/bin
 ```
 
 ```bash
