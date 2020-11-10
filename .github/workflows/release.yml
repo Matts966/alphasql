@@ -108,6 +108,7 @@ jobs:
           tag_with_ref: true
           dockerfile: docker/Dockerfile
           cache_froms: matts966/alphasql:latest
+          tags: matts966/alphasql:latest
       - name: Test installation
         shell: bash
         env:
@@ -135,3 +136,4 @@ jobs:
           tag_with_ref: true
           dockerfile: docker/Dockerfile
           cache_froms: matts966/alphasql:latest
+          tags: matts966/alphasql:latest
