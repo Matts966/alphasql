@@ -222,7 +222,7 @@ bool GetExecutionPlan(const std::string dot_path, std::vector<std::string>& exec
 
 int main(int argc, char* argv[]) {
   const char kUsage[] =
-      "Usage: pipeline_type_checker [--json_schema_path=<path_to.json>] <dependency_graph.dot>\n";
+      "Usage: alphacheck [--json_schema_path=<path_to.json>] <dependency_graph.dot>\n";
   std::vector<char*> remaining_args = absl::ParseCommandLine(argc, argv);
   if (argc <= 1) {
     ZETASQL_LOG(QFATAL) << kUsage;
