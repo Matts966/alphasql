@@ -77,7 +77,7 @@ void AddColumnToTable(SimpleTable* table, const boost::property_tree::ptree::val
 }
 
 void UpdateCatalogFromJSON(const std::string& json_schema_path, SimpleCatalog* catalog) {
-  if (!std::filesystem::is_regular_file(json_schema_path)) {
+  if (!std::filesystem::is_regular_file(json_schema_path) & !std::filesystem::is_fifo(json_schema_path)) {
     std::cout << "ERROR: not a json file path " << json_schema_path << std::endl;
     return;
   }
