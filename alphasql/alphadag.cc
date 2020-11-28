@@ -114,10 +114,14 @@ int main(int argc, char* argv[]) {
     write_graphviz(std::cout, g, make_label_writer(get(vertex_name, g)));
   } else {
     if (std::filesystem::is_regular_file(output_path) || std::filesystem::is_fifo(output_path) || !std::filesystem::exists(output_path)) {
+      std::filesystem::path parent = std::filesystem::path(output_path).parent_path();
+      if (!std::filesystem::is_directory(parent)) {
+        std::filesystem::create_directories(parent);
+      }
       std::ofstream out(output_path);
       write_graphviz(out, g, make_label_writer(get(vertex_name, g)));
     } else {
-      std::cout << "output_path is not a regular_file!" << std::endl;
+      std::cout << "output_path is not a file!" << std::endl;
       return 1;
     }
   }
@@ -132,12 +136,16 @@ int main(int argc, char* argv[]) {
     if (std::filesystem::is_regular_file(external_required_tables_output_path)
         || std::filesystem::is_fifo(external_required_tables_output_path)
         || !std::filesystem::exists(external_required_tables_output_path)) {
+      std::filesystem::path parent = std::filesystem::path(external_required_tables_output_path).parent_path();
+      if (!std::filesystem::is_directory(parent)) {
+        std::filesystem::create_directories(parent);
+      }
       std::ofstream out(external_required_tables_output_path);
       for (const auto& required_table : external_required_tables) {
         out << required_table << std::endl;
       }
     } else {
-      std::cout << "external_required_tables_output_path is not a regular_file!" << std::endl;
+      std::cout << "external_required_tables_output_path is not a file!" << std::endl;
       return 1;
     }
   }
