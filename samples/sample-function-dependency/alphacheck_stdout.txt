@@ -1,0 +1,9 @@
+Analyzing "samples/sample-function-dependency/udf2.sql"
+Create Function Statement analyzed, adding function to catalog...
+SUCCESS: analysis finished!
+Analyzing "samples/sample-function-dependency/udf1.sql"
+Create Function Statement analyzed, adding function to catalog...
+SUCCESS: analysis finished!
+Analyzing "samples/sample-function-dependency/with-udf.sql"
+SUCCESS: analysis finished!
+Successfully finished type check!

@@ -1,0 +1,7 @@
+digraph G {
+0[label="samples/sample-undefined/create.sql"];
+1[label="samples/sample-undefined/insert.sql"];
+2[label="samples/sample-undefined/select.sql"];
+0->2 ;
+0->1 ;
+}

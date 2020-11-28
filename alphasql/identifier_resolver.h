@@ -81,6 +81,8 @@ class IdentifierResolver : public DefaultParseTreeVisitor {
   void visitASTDropStatement(const ASTDropStatement* node, void* data) override;
   void visitASTCreateTableStatement(const ASTCreateTableStatement* node,
                                     void* data) override;
+  void visitASTInsertStatement(const ASTInsertStatement* node, void* data) override;
+  void visitASTUpdateStatement(const ASTUpdateStatement* node, void* data) override;
 
   // Functions
   void visitASTDropFunctionStatement(
