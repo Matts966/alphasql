@@ -7,18 +7,25 @@ AlphaSQL provides **Automatic Parallelization** for sets of SQL files and integr
 
 ## Features
 
-- [AlphaSQL](#alphasql)
-  - [Features](#features)
-  - [Docker Image](#docker-image)
-  - [Fast Binaries](#fast-binaries)
-  - [Extract DAG from SQL set](#extract-dag-from-sql-set)
+You can quickly introduce AlphaSQL by [CI Example](#ci-example).
+
+- [Docker Image](#docker-image)
+    - Use our AlphaSQL on Docker ；）
+- [Fast Binaries](#fast-binaries)
+    - For local use, binary installation is fast!
+- [Dependency Analysis](#extract-dag-from-sql-set)
+    - Extract DAG from your SQL file set.
     - [Sample DAG output](#sample-dag-output)
-  - [Parallel Execution](#parallel-execution)
-  - [Pipeline level Type Check for SQL set](#pipeline-level-type-check-for-sql-set)
+- [Parallel Execution](#parallel-execution)
+    - Automatically parallelize your SQL file set.
+    - Integrate with Airflow.
+- [Schema Checker](#pipeline-level-type-check-for-sql-set)
+    - Eliminate syntax, type and schema errors from your datawarehouse.
     - [Schema specification by JSON](#schema-specification-by-json)
-  - [CI Example](#ci-example)
-  - [License](#license)
-  - [Sponsors](#sponsors)
+        - Input your lake schema in JSON.
+- [CI Example](#ci-example)
+    - Use our AlphaSQL to continuously check your datawarehouse on BigQuery using CloudBuild.
+    - Supports `_TABLE_SUFFIX`.
 
 ## Docker Image
 
@@ -223,7 +230,10 @@ You can try the example CI with `gcloud` command by
 (cd ./samples/sample-ci && gcloud builds submit --config=cloudbuild_ci_sample.yaml .)
 ```
 
-This example does not execute actual BigQuery.
+This example 
+
+- Supports `_TABLE_SUFFIX` feature!
+- Does not execute actual BigQuery and very cheap!
 
 ## License
 
