@@ -10,16 +10,15 @@ osx:
 
 .PHONY: sample
 sample: osx
-	color() { \
-		set -o pipefail; "$$@" 2>&1>&3|sed $$'s,.*,\e[31m&\e[m,'>&2; \
-	} 3>&1 && \
 	ls -d samples/*/ | while read sample_path; do \
 		echo ""; \
 		alphadag $$sample_path --output_path $$sample_path/dag.dot \
-		--external_required_tables_output_path $$sample_path/external_tables.txt; \
+			--external_required_tables_output_path $$sample_path/external_tables.txt \
+		 	> $$sample_path/alphadag_stdout.txt 2> $$sample_path/alphadag_stderr.txt; \
 		dot -Tpng $$sample_path/dag.dot -o $$sample_path/dag.png; \
-		color alphacheck $$sample_path/dag.dot \
-			--json_schema_path ./samples/sample-schema.json; \
+		alphacheck $$sample_path/dag.dot \
+			--json_schema_path ./samples/sample-schema.json \
+			> $$sample_path/alphacheck_stdout.txt 2> $$sample_path/alphacheck_stderr.txt; \
 	done;
 
 .PHONY: test

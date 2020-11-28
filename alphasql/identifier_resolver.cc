@@ -106,6 +106,48 @@ void IdentifierResolver::visitASTCreateTableStatement(const ASTCreateTableStatem
 //   function_information.called.insert(node->name()->ToIdentifierVector());
 // }
 
+// Check INSERT and UPDATE statement to emit warnings for side effects.
+void IdentifierResolver::visitASTInsertStatement(const ASTInsertStatement* node, void* data) {
+  const auto status_or_path = node->GetTargetPathForNonNested();
+  if (!status_or_path.ok()) {
+    std::cout << "Path expression can't be extracted" << std::endl;
+    std::cout << status_or_path.status() << std::endl;
+    return;
+  }
+  const auto path_expr = status_or_path.value();
+  const std::string path_str = absl::StrJoin(path_expr->ToIdentifierVector(), ".");
+  for (const auto& created_table : identifier_information.table_information.created) {
+    if (absl::StrJoin(created_table, ".") == path_str) {
+      visitASTChildren(node, data);
+      return;
+    }
+  }
+  std::cout << "Warning!!! the target of INSERT statement " << path_str << " is not created in the same script!!!" << std::endl;
+  std::cout << "See https://github.com/Matts966/alphasql/issues/5#issuecomment-735209829 for more details." << std::endl;
+  visitASTChildren(node, data);
+}
+
+void IdentifierResolver::visitASTUpdateStatement(const ASTUpdateStatement* node, void* data) {
+  const auto status_or_path = node->GetTargetPathForNonNested();
+  if (!status_or_path.ok()) {
+    std::cout << "Path expression can't be extracted!" << std::endl;
+    std::cout << status_or_path.status() << std::endl;
+    return;
+  }
+  const auto path_expr = status_or_path.value();
+  const std::string path_str = absl::StrJoin(path_expr->ToIdentifierVector(), ".");
+  for (const auto& created_table : identifier_information.table_information.created) {
+    if (absl::StrJoin(created_table, ".") == path_str) {
+      visitASTChildren(node, data);
+      return;
+    }
+  }
+  std::cout << "Warning!!! the target of UPDATE statement " << path_str << " is not created in the same script!!!" << std::endl;
+  std::cout << "See https://github.com/Matts966/alphasql/issues/5#issuecomment-735209829 for more details." << std::endl;
+  visitASTChildren(node, data);
+}
+
+
 void IdentifierResolver::visitASTDropFunctionStatement(const ASTDropFunctionStatement* node, void* data) {
   // if (node->is_if_exists()) {}
   identifier_information.function_information.dropped.insert(node->name()->ToIdentifierVector());
