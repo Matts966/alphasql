@@ -81,7 +81,18 @@ zetasql_base::StatusOr<identifier_info> GetIdentifierInformation(const std::stri
   //                         &resolver.identifier_information.table_information.referenced));
   table_name_resolver::GetTables(sql_file_path, options,
                                  &resolver.identifier_information.table_information.referenced);
-  // TODO: Filter temporary tables from referenced tables.
+
+  // Filter temporary tables from referenced tables because they are local.
+  for (const auto& temporary_table : resolver.temporary_tables) {
+    auto referenced_it = resolver.identifier_information.table_information.referenced.begin();
+    while (referenced_it != resolver.identifier_information.table_information.referenced.end()) {
+      if (absl::StrJoin(*referenced_it, ".") == temporary_table) {
+        referenced_it = resolver.identifier_information.table_information.referenced.erase(referenced_it);
+      } else {
+        ++referenced_it;
+      }
+    }
+  }
 
   return resolver.identifier_information;
 }
@@ -94,10 +105,16 @@ void IdentifierResolver::visitASTDropStatement(const ASTDropStatement* node, voi
 }
 
 void IdentifierResolver::visitASTCreateTableStatement(const ASTCreateTableStatement* node,
-                                  void* data) {
-  if (node->scope() != ASTCreateStatement::TEMPORARY) {
-    identifier_information.table_information.created.insert(node->name()->ToIdentifierVector());
+                                                      void* data) {
+  const auto& name_vector = node->name()->ToIdentifierVector();
+  if (node->scope() == ASTCreateStatement::TEMPORARY) {
+    const std::string path_str = absl::StrJoin(name_vector, ".");
+    temporary_tables.insert(path_str);
+    visitASTChildren(node, data);
+    return;
   }
+
+  identifier_information.table_information.created.insert(name_vector);
   visitASTChildren(node, data);
 }
 
@@ -112,6 +129,7 @@ void IdentifierResolver::visitASTInsertStatement(const ASTInsertStatement* node,
   if (!status_or_path.ok()) {
     std::cout << "Path expression can't be extracted" << std::endl;
     std::cout << status_or_path.status() << std::endl;
+    visitASTChildren(node, data);
     return;
   }
   const auto path_expr = status_or_path.value();
@@ -132,6 +150,7 @@ void IdentifierResolver::visitASTUpdateStatement(const ASTUpdateStatement* node,
   if (!status_or_path.ok()) {
     std::cout << "Path expression can't be extracted!" << std::endl;
     std::cout << status_or_path.status() << std::endl;
+    visitASTChildren(node, data);
     return;
   }
   const auto path_expr = status_or_path.value();

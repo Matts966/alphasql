@@ -63,6 +63,7 @@ class IdentifierResolver : public DefaultParseTreeVisitor {
   ~IdentifierResolver() override {}
 
   identifier_info identifier_information;
+  std::set<std::string> temporary_tables;
 
   void defaultVisit(const ASTNode* node, void* data) override {
     visitASTChildren(node, data);
