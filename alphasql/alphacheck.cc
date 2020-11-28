@@ -225,7 +225,8 @@ int main(int argc, char* argv[]) {
       "Usage: alphacheck [--json_schema_path=<path_to.json>] <dependency_graph.dot>\n";
   std::vector<char*> remaining_args = absl::ParseCommandLine(argc, argv);
   if (argc <= 1) {
-    ZETASQL_LOG(QFATAL) << kUsage;
+    std::cout << kUsage;
+    return 1;
   }
 
   const std::string dot_path = absl::StrJoin(remaining_args.begin() + 1,

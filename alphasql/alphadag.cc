@@ -25,7 +25,8 @@ int main(int argc, char* argv[]) {
       "Usage: alphadag --external_required_tables_output_path <filename> --output_path <filename> <directory or file paths of sql...>\n";
   std::vector<char*> args = absl::ParseCommandLine(argc, argv);
   if (argc <= 1) {
-    ZETASQL_LOG(QFATAL) << kUsage;
+    std::cout << kUsage;
+    return 1;
   }
   std::vector<char*> remaining_args(args.begin() + 1, args.end());
 
