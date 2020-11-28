@@ -201,9 +201,6 @@ bool GetExecutionPlan(const std::string dot_path, std::vector<std::string>& exec
   Graph g;
   dynamic_properties dp(ignore_other_properties);
   dp.property("label", get(vertex_name, g));
-  if (!std::filesystem::is_regular_file(dot_path)) {
-    return false;
-  }
   std::filesystem::path file_path(dot_path);
   std::ifstream file(file_path, std::ios::in);
   if (!boost::read_graphviz(file, g, dp)) {
@@ -231,7 +228,8 @@ int main(int argc, char* argv[]) {
 
   const std::string dot_path = absl::StrJoin(remaining_args.begin() + 1,
   remaining_args.end(), " ");
-  if (!std::filesystem::is_regular_file(dot_path)) {
+
+  if (!std::filesystem::is_regular_file(dot_path) && !std::filesystem::is_fifo(dot_path)) {
     std::cout << "ERROR: not a file " << dot_path << std::endl;
     return 1;
   }

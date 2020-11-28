@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) {
   if (output_path.empty()) {
     write_graphviz(std::cout, g, make_label_writer(get(vertex_name, g)));
   } else {
-    if (std::filesystem::is_regular_file(output_path) || !std::filesystem::exists(output_path)) {
+    if (std::filesystem::is_regular_file(output_path) || std::filesystem::is_fifo(output_path) || !std::filesystem::exists(output_path)) {
       std::ofstream out(output_path);
       write_graphviz(out, g, make_label_writer(get(vertex_name, g)));
     } else {
@@ -130,6 +130,7 @@ int main(int argc, char* argv[]) {
     }
   } else {
     if (std::filesystem::is_regular_file(external_required_tables_output_path)
+        || std::filesystem::is_fifo(external_required_tables_output_path)
         || !std::filesystem::exists(external_required_tables_output_path)) {
       std::ofstream out(external_required_tables_output_path);
       for (const auto& required_table : external_required_tables) {
