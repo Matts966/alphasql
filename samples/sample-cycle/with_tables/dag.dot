@@ -1,0 +1,10 @@
+digraph G {
+0 [label="samples/sample-cycle/create_table1.sql", shape="", type=query];
+1 [label="samples/sample-cycle/create_table2.sql", shape="", type=query];
+2 [label=table1, shape=box, type=table];
+3 [label=table2, shape=box, type=table];
+0->2 ;
+1->3 ;
+2->1 ;
+3->0 ;
+}

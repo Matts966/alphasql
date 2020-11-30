@@ -1,0 +1,9 @@
+digraph G {
+0 [label="samples/sample-undefined/create.sql", shape="", type=query];
+1 [label="samples/sample-undefined/insert.sql", shape="", type=query];
+2 [label="samples/sample-undefined/select.sql", shape="", type=query];
+3 [label=table_undefined, shape=box, type=table];
+0->3 ;
+3->2 ;
+3->1 ;
+}

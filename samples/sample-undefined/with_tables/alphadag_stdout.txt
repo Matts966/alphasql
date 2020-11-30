@@ -1,0 +1,7 @@
+Reading paths passed as a command line arguments...
+Only files that end with .sql or .bq are analyzed.
+Reading "samples/sample-undefined/select.sql"
+Reading "samples/sample-undefined/insert.sql"
+Warning!!! the target of INSERT statement table_undefined is not created in the same script!!!
+This script is not idempotent. See https://github.com/Matts966/alphasql/issues/5#issuecomment-735209829 for more details.
+Reading "samples/sample-undefined/create.sql"

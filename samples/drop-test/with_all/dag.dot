@@ -1,0 +1,5 @@
+digraph G {
+0 [label="samples/drop-test/create-and-drop.sql", shape="", type=query];
+1 [label=table, shape=box, type=table];
+0->1 ;
+}
