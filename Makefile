@@ -12,6 +12,15 @@ osx:
 sample: osx
 	ls -d samples/*/ | while read sample_path; do \
 		echo ""; \
+		alphadag --with_functions $$sample_path --output_path $$sample_path/with_funtcions/dag.dot \
+			--external_required_tables_output_path $$sample_path/with_funtcions/external_tables.txt \
+		 	> $$sample_path/with_funtcions/alphadag_stdout.txt 2> $$sample_path/with_funtcions/alphadag_stderr.txt; \
+		alphadag --with_tables $$sample_path --output_path $$sample_path/with_tables/dag.dot \
+			--external_required_tables_output_path $$sample_path/with_tables/external_tables.txt \
+		 	> $$sample_path/with_tables/alphadag_stdout.txt 2> $$sample_path/with_tables/alphadag_stderr.txt; \
+		alphadag --with_tables --with_functions $$sample_path --output_path $$sample_path/with_all/dag.dot \
+			--external_required_tables_output_path $$sample_path/with_all/external_tables.txt \
+		 	> $$sample_path/with_all/alphadag_stdout.txt 2> $$sample_path/with_all/alphadag_stderr.txt; \
 		alphadag $$sample_path --output_path $$sample_path/dag.dot \
 			--external_required_tables_output_path $$sample_path/external_tables.txt \
 		 	> $$sample_path/alphadag_stdout.txt 2> $$sample_path/alphadag_stderr.txt; \
