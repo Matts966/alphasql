@@ -16,6 +16,7 @@
 
 #include <filesystem>
 #include <regex>
+#include "absl/flags/flag.h"
 #include "alphasql/dag_lib.h"
 
 std::regex DEFAULT_EXCLUDES(".*(.git/.*|.hg/.*|.svn/.*)");
@@ -155,6 +156,10 @@ int main(int argc, char* argv[]) {
   depth_first_search(g, visitor(vis));
   if (has_cycle) {
     std::cout << "Warning!!! There are cycles in your dependency graph!!! " << std::endl;
+    const bool warning_as_error = absl::GetFlag(FLAGS_warning_as_error);
+    if (warning_as_error) {
+      exit(1);
+    }
   }
 
   return 0;

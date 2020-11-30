@@ -43,6 +43,8 @@
 #include "alphasql/identifier_resolver.h"
 #include "alphasql/table_name_resolver.h"
 
+ABSL_FLAG(bool, warning_as_error, false,
+          "Raise error when emitting warning.");
 
 namespace alphasql {
 
@@ -141,7 +143,11 @@ void IdentifierResolver::visitASTInsertStatement(const ASTInsertStatement* node,
     }
   }
   std::cout << "Warning!!! the target of INSERT statement " << path_str << " is not created in the same script!!!" << std::endl;
-  std::cout << "See https://github.com/Matts966/alphasql/issues/5#issuecomment-735209829 for more details." << std::endl;
+  std::cout << "This script is not idempotent. See https://github.com/Matts966/alphasql/issues/5#issuecomment-735209829 for more details." << std::endl;
+  const bool warning_as_error = absl::GetFlag(FLAGS_warning_as_error);
+  if (warning_as_error) {
+    exit(1);
+  }
   visitASTChildren(node, data);
 }
 
@@ -162,7 +168,11 @@ void IdentifierResolver::visitASTUpdateStatement(const ASTUpdateStatement* node,
     }
   }
   std::cout << "Warning!!! the target of UPDATE statement " << path_str << " is not created in the same script!!!" << std::endl;
-  std::cout << "See https://github.com/Matts966/alphasql/issues/5#issuecomment-735209829 for more details." << std::endl;
+  std::cout << "This script is not idempotent. See https://github.com/Matts966/alphasql/issues/5#issuecomment-735209829 for more details." << std::endl;
+  const bool warning_as_error = absl::GetFlag(FLAGS_warning_as_error);
+  if (warning_as_error) {
+    exit(1);
+  }
   visitASTChildren(node, data);
 }
 

@@ -24,8 +24,11 @@
 #include "zetasql/parser/parse_tree.h"
 #include "zetasql/parser/parse_tree_visitor.h"
 #include "zetasql/public/analyzer.h"
+#include "absl/flags/flag.h"
 #include "absl/strings/string_view.h"
 #include "absl/types/span.h"
+
+ABSL_DECLARE_FLAG(bool, warning_as_error);
 
 namespace alphasql {
 

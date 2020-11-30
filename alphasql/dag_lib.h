@@ -22,7 +22,6 @@
 #include "zetasql/base/statusor.h"
 #include "zetasql/public/analyzer.h"
 #include "alphasql/identifier_resolver.h"
-#include "alphasql/identifier_resolver.h"
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/strings/str_join.h"
