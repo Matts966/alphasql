@@ -87,11 +87,17 @@ namespace alphasql {
     // Currently resolve drop statements as reference.
     for (auto const& table_name : identifier_information.table_information.dropped) {
       const std::string table_string = absl::StrJoin(table_name, ".");
+      if (table_queries_map[table_string].create == file_path) {
+        continue;
+      }
       table_queries_map[table_string].others.push_back(file_path);
     }
 
     for (auto const& table_name : identifier_information.table_information.referenced) {
       const std::string table_string = absl::StrJoin(table_name, ".");
+      if (table_queries_map[table_string].create == file_path) {
+        continue;
+      }
       table_queries_map[table_string].others.push_back(file_path);
     }
 
@@ -115,12 +121,18 @@ namespace alphasql {
     // Currently resolve drop statements as reference.
     for (auto const& dropped : identifier_information.function_information.dropped) {
       const std::string function_name = absl::StrJoin(dropped, ".");
+      if (function_queries_map[function_name].create == file_path) {
+        continue;
+      }
       function_queries_map[function_name].call.push_back(file_path);
     }
 
 
     for (auto const& called : identifier_information.function_information.called) {
       const std::string function_name = absl::StrJoin(called, ".");
+      if (function_queries_map[function_name].create == file_path) {
+        continue;
+      }
       function_queries_map[function_name].call.push_back(file_path);
     }
 
@@ -134,9 +146,7 @@ namespace alphasql {
                    std::vector<std::string> dependents, std::string parent) {
     if (!dependents.size() || parent.empty()) return;
     for (const std::string& dep : dependents) {
-      if (dep != parent) {
-        depends_on.push_back(std::make_pair(dep, parent));
-      }
+      depends_on.push_back(std::make_pair(dep, parent));
     }
   }
 }

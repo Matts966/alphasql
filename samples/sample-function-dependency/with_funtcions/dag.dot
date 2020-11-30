@@ -1,0 +1,12 @@
+digraph G {
+0 [label="samples/sample-function-dependency/udf1.sql", shape="", type=query];
+1 [label="samples/sample-function-dependency/udf2.sql", shape="", type=query];
+2 [label="samples/sample-function-dependency/with-udf.sql", shape="", type=query];
+3 [label=divideByTwo, shape=cds, type=function];
+4 [label=multiplyInputs, shape=cds, type=function];
+0->4 ;
+1->3 ;
+3->2 ;
+3->0 ;
+4->2 ;
+}

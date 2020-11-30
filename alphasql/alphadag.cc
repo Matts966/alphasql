@@ -21,6 +21,12 @@
 
 std::regex DEFAULT_EXCLUDES(".*(.git/.*|.hg/.*|.svn/.*)");
 
+ABSL_FLAG(bool, with_tables, false,
+          "Show DAG with tables.");
+
+ABSL_FLAG(bool, with_functions, false,
+          "Show DAG with functions.");
+
 int main(int argc, char* argv[]) {
   const char kUsage[] =
       "Usage: alphadag --external_required_tables_output_path <filename> --output_path <filename> <directory or file paths of sql...>\n";
@@ -74,29 +80,65 @@ int main(int argc, char* argv[]) {
 
   std::vector<Edge> depends_on;
   std::vector<std::string> external_required_tables;
+  std::set<std::string> table_vertices;
+  const bool with_tables = absl::GetFlag(FLAGS_with_tables);
   for (auto const& [table_name, table_queries] : table_queries_map) {
-    alphasql::UpdateEdges(depends_on, table_queries.others, table_queries.create);
+    if (with_tables) {
+      alphasql::UpdateEdges(depends_on, table_queries.others, table_name);
+      alphasql::UpdateEdges(depends_on, {table_name}, table_queries.create);
+      table_vertices.insert(table_name);
+    } else {
+      alphasql::UpdateEdges(depends_on, table_queries.others, table_queries.create);
+    }
     if (table_queries.create.empty()) {
       external_required_tables.push_back(table_name);
     }
   }
 
-  for (auto const& [_, function_queries] : function_queries_map) {
-    alphasql::UpdateEdges(depends_on, function_queries.call, function_queries.create);
+  const bool with_functions = absl::GetFlag(FLAGS_with_functions);
+  std::set<std::string> function_vertices;
+  for (auto const& [function_name, function_queries] : function_queries_map) {
+    if (with_functions && !function_queries.create.empty()) { // Skip default functions
+      alphasql::UpdateEdges(depends_on, function_queries.call, function_name);
+      alphasql::UpdateEdges(depends_on, {function_name}, function_queries.create);
+      function_vertices.insert(function_name);
+    } else {
+      alphasql::UpdateEdges(depends_on, function_queries.call, function_queries.create);
+    }
   }
 
   const int nedges = depends_on.size();
 
   using namespace boost;
 
-  typedef adjacency_list<vecS, vecS, directedS, property<vertex_name_t, std::string>> Graph;
-  Graph g(vertices.size());
+  struct vertex_info_t { 
+    std::string label; 
+    std::string shape;
+    std::string type;
+  };
+  typedef adjacency_list<vecS, vecS, directedS, vertex_info_t> Graph;
+  Graph g(vertices.size() + table_vertices.size() + function_vertices.size());
 
   std::map<std::string, Graph::vertex_descriptor> indexes;
   // fills the property 'vertex_name_t' of the vertices
   int i = 0;
   for (const auto& vertice : vertices) {
-    put(vertex_name_t(), g, i, vertice); // set the property of a vertex
+    g[i].label = vertice; // set the property of a vertex
+    g[i].type = "query";
+    indexes[vertice] = vertex(i, g);     // retrives the associated vertex descriptor
+    ++i;
+  }
+  for (const auto& vertice : table_vertices) {
+    g[i].label = vertice; // set the property of a vertex
+    g[i].type = "table";
+    g[i].shape = "box";
+    indexes[vertice] = vertex(i, g);     // retrives the associated vertex descriptor
+    ++i;
+  }
+  for (const auto& vertice : function_vertices) {
+    g[i].label = vertice; // set the property of a vertex
+    g[i].type = "function";
+    g[i].shape = "cds";
     indexes[vertice] = vertex(i, g);     // retrives the associated vertex descriptor
     ++i;
   }
@@ -110,9 +152,14 @@ int main(int argc, char* argv[]) {
     add_edge(indexes[depends_on[i].second], indexes[depends_on[i].first], g);
   }
 
+  boost::dynamic_properties dp;
+  dp.property("shape", get(&vertex_info_t::shape, g));
+  dp.property("type", get(&vertex_info_t::type, g));
+  dp.property("label", get(&vertex_info_t::label, g));
+  dp.property("node_id", get(boost::vertex_index, g));
   const std::string output_path = absl::GetFlag(FLAGS_output_path);
   if (output_path.empty()) {
-    write_graphviz(std::cout, g, make_label_writer(get(vertex_name, g)));
+    write_graphviz_dp(std::cout, g, dp);
   } else {
     if (std::filesystem::is_regular_file(output_path) || std::filesystem::is_fifo(output_path) || !std::filesystem::exists(output_path)) {
       std::filesystem::path parent = std::filesystem::path(output_path).parent_path();
@@ -120,7 +167,7 @@ int main(int argc, char* argv[]) {
         std::filesystem::create_directories(parent);
       }
       std::ofstream out(output_path);
-      write_graphviz(out, g, make_label_writer(get(vertex_name, g)));
+      write_graphviz_dp(out, g, dp);
     } else {
       std::cout << "output_path is not a file!" << std::endl;
       return 1;
