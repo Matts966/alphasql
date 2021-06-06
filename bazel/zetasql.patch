@@ -1,15 +1,28 @@
+diff --git zetasql/analyzer/BUILD zetasql/analyzer/BUILD
+index 91c73c6..57e5609 100644
+--- zetasql/analyzer/BUILD
++++ zetasql/analyzer/BUILD
+@@ -18,7 +18,7 @@ load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+ load(":builddefs.bzl", "gen_analyzer_test")
+
+ package(
+-    default_visibility = ["//zetasql/base:zetasql_implementation"],
++    default_visibility = ["//visibility:public"],
+ )
+
+ filegroup(
 diff --git zetasql/base/BUILD zetasql/base/BUILD
 index 75c8e3e..7874e07 100644
 --- zetasql/base/BUILD
 +++ zetasql/base/BUILD
 @@ -17,7 +17,7 @@
  licenses(["notice"])  # Apache v2.0
- 
+
  package(
 -    default_visibility = [":zetasql_implementation"],
 +    default_visibility = ["//visibility:public"],
  )
- 
+
  package_group(
 diff --git zetasql/parser/BUILD zetasql/parser/BUILD
 index 5c3c636..5404163 100644
@@ -17,10 +30,38 @@ index 5c3c636..5404163 100644
 +++ zetasql/parser/BUILD
 @@ -20,7 +20,7 @@ load("//bazel:bison.bzl", "genyacc")
  load("//bazel:flex.bzl", "genlex")
- 
+
  package(
 -    default_visibility = ["//zetasql/base:zetasql_implementation"],
 +    default_visibility = ["//visibility:public"],
  )
- 
+
  genrule(
+
+--- zetasql/public/simple_catalog.h
++++ zetasql/public/simple_catalog.h
+@@ -55,6 +55,11 @@ class SimpleTableProto;
+ //
+ // This class is thread-safe.
+ class SimpleCatalog : public EnumerableCatalog {
++  friend void dropOwnedTable(SimpleCatalog* catalog, const std::string& name);
++  friend void dropOwnedTableIfExists(SimpleCatalog* catalog, const std::string& name);
++  friend void dropOwnedFunction(SimpleCatalog* catalog, const std::string& full_name_without_group);
++
++
+  public:
+   // Construct a Catalog with catalog name <name>.
+   //
+
+diff --git zetasql/public/sql_formatter.cc zetasql/public/sql_formatter.cc
+index 26e52ed..28e8928 100644
+--- zetasql/public/sql_formatter.cc
++++ zetasql/public/sql_formatter.cc
+@@ -72,6 +72,7 @@ absl::Status FormatSql(const std::string& sql, std::string* formatted_sql) {
+       std::vector<ParseToken> parse_tokens;
+       ParseTokenOptions options;
+       options.stop_at_end_of_statement = true;
++      options.include_comments = true;
+       const int statement_start = location.byte_position();
+       const absl::Status token_status =
+           GetParseTokens(options, &location, &parse_tokens);
