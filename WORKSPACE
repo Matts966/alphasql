@@ -22,7 +22,7 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
     name = "com_google_zetasql",
-    commit = "2020.10.1",
+    commit = "dd883180de6387ad80bcf7534b5aae8191e66621",
     remote = "https://github.com/google/zetasql",
     patches = ["@com_github_Matts966_alphasql//bazel:zetasql.patch"],
 )

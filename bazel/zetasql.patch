@@ -1,16 +1,5 @@
---- zetasql/analyzer/BUILD
-+++ zetasql/analyzer/BUILD
-@@ -14,7 +14,7 @@
- # limitations under the License.
- #
-
- package(
--    default_visibility = ["//zetasql/base:zetasql_implementation"],
-+    default_visibility = ["//visibility:public"],
- )
- 
- cc_library(
-
+diff --git zetasql/base/BUILD zetasql/base/BUILD
+index 75c8e3e..7874e07 100644
 --- zetasql/base/BUILD
 +++ zetasql/base/BUILD
 @@ -17,7 +17,7 @@
@@ -22,19 +11,11 @@
  )
  
  package_group(
-
---- zetasql/common/BUILD
-+++ zetasql/common/BUILD
-@@ -14,4 +14,4 @@
- # limitations under the License.
- 
- package(
--    default_visibility = ["//zetasql/base:zetasql_implementation"],
-+    default_visibility = ["//visibility:public"],
-
+diff --git zetasql/parser/BUILD zetasql/parser/BUILD
+index 5c3c636..5404163 100644
 --- zetasql/parser/BUILD
 +++ zetasql/parser/BUILD
-@@ -17,7 +17,7 @@ load("//bazel:bison.bzl", "genyacc")
+@@ -20,7 +20,7 @@ load("//bazel:bison.bzl", "genyacc")
  load("//bazel:flex.bzl", "genlex")
  
  package(
@@ -43,30 +24,3 @@
  )
  
  genrule(
-
---- zetasql/public/simple_catalog.h
-+++ zetasql/public/simple_catalog.h
-@@ -55,6 +55,11 @@ class SimpleTableProto;
- //
- // This class is thread-safe.
- class SimpleCatalog : public EnumerableCatalog {
-+  friend void dropOwnedTable(SimpleCatalog* catalog, const std::string& name);
-+  friend void dropOwnedTableIfExists(SimpleCatalog* catalog, const std::string& name);
-+  friend void dropOwnedFunction(SimpleCatalog* catalog, const std::string& full_name_without_group);
-+
-+
-  public:
-   // Construct a Catalog with catalog name <name>.
-   //
-
---- zetasql/resolved_ast/BUILD
-+++ zetasql/resolved_ast/BUILD
-@@ -16,7 +16,7 @@
- 
- load("//zetasql/resolved_ast:build_rules.bzl", "gen_resolved_ast_files")
- 
--package(default_visibility = ["//zetasql/base:zetasql_implementation"])
-+package(default_visibility = ["//visibility:public"])
- 
- py_binary(
-     name = "gen_resolved_ast",

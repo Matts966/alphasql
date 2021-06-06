@@ -39,7 +39,6 @@ cc_library(
         "@com_google_zetasql//zetasql/public:analyzer",
         "@com_google_zetasql//zetasql/public:language_options",
         "@com_google_zetasql//zetasql/parser:parser",
-        "@com_google_zetasql//zetasql/analyzer",
         "@boost//:property_tree",
         "@com_google_absl//absl/strings",
         ":table_name_resolver"
@@ -106,7 +105,7 @@ cc_library(
     name = "dag_lib",
     hdrs = ["dag_lib.h"],
     deps = [
-        "@com_google_zetasql//zetasql/analyzer",
+        "@com_google_zetasql//zetasql/public:analyzer",
         "@com_google_zetasql//zetasql/resolved_ast",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/flags:parse",
