@@ -37,9 +37,10 @@ cc_library(
         "@com_google_zetasql//zetasql/public:simple_catalog",
         "@com_google_zetasql//zetasql/public:type",
         "@com_google_zetasql//zetasql/public:analyzer",
+        "@com_google_zetasql//zetasql/analyzer:analyzer_impl",
+        "@com_google_zetasql//zetasql/analyzer:resolver",
         "@com_google_zetasql//zetasql/public:language_options",
         "@com_google_zetasql//zetasql/parser:parser",
-        "@com_google_zetasql//zetasql/analyzer",
         "@boost//:property_tree",
         "@com_google_absl//absl/strings",
         ":table_name_resolver"
@@ -71,6 +72,7 @@ cc_binary(
         "@com_google_zetasql//zetasql/base:status",
         "@com_google_zetasql//zetasql/base:statusor",
         "@com_google_zetasql//zetasql/public:analyzer",
+        "@com_google_zetasql//zetasql/analyzer:analyzer_impl",
         "@com_google_zetasql//zetasql/public:catalog",
         "@com_google_zetasql//zetasql/public:evaluator",
         "@com_google_zetasql//zetasql/public:evaluator_table_iterator",
@@ -106,7 +108,7 @@ cc_library(
     name = "dag_lib",
     hdrs = ["dag_lib.h"],
     deps = [
-        "@com_google_zetasql//zetasql/analyzer",
+        "@com_google_zetasql//zetasql/analyzer:analyzer_impl",
         "@com_google_zetasql//zetasql/resolved_ast",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/flags:parse",
