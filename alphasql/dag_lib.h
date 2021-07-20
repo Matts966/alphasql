@@ -154,11 +154,10 @@ namespace alphasql {
     return absl::OkStatus();
   }
 
-  void UpdateEdgesWithoutSelf(std::vector<Edge>& depends_on,
+  void UpdateEdges(std::vector<Edge>& depends_on,
                    std::vector<std::string> dependents, std::string parent) {
     if (!dependents.size() || parent.empty()) return;
     for (const std::string& dep : dependents) {
-      if (dep == parent) continue;
       depends_on.push_back(std::make_pair(dep, parent));
     }
   }

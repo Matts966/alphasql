@@ -90,40 +90,58 @@ int main(int argc, char* argv[]) {
     if (side_effect_first) {
       auto inserts_it = table_queries.inserts.begin();
       while (inserts_it != table_queries.inserts.end()) {
+        // Prevent self reference
+        auto others_it = table_queries.others.begin();
+        while (others_it != table_queries.others.end()) {
+          if (*others_it == *inserts_it) {
+            others_it = table_queries.others.erase(others_it);
+          } else {
+            ++others_it;
+          }
+        }
         if (*inserts_it == table_queries.create) {
           inserts_it = table_queries.inserts.erase(inserts_it);
         } else {
-          alphasql::UpdateEdgesWithoutSelf(depends_on, table_queries.others, *inserts_it);
+          alphasql::UpdateEdges(depends_on, table_queries.others, *inserts_it);
           ++inserts_it;
         }
       }
       auto updates_it = table_queries.updates.begin();
       while (updates_it != table_queries.updates.end()) {
+        // Prevent self reference
+        auto others_it = table_queries.others.begin();
+        while (others_it != table_queries.others.end()) {
+          if (*others_it == *updates_it) {
+            others_it = table_queries.others.erase(others_it);
+          } else {
+            ++others_it;
+          }
+        }
         if (*updates_it == table_queries.create) {
           updates_it = table_queries.updates.erase(updates_it);
         } else {
-          alphasql::UpdateEdgesWithoutSelf(depends_on, table_queries.others, *updates_it);
+          alphasql::UpdateEdges(depends_on, table_queries.others, *updates_it);
           ++updates_it;
         }
       }
       if (with_tables) {
-        alphasql::UpdateEdgesWithoutSelf(depends_on, table_queries.inserts, table_name);
-        alphasql::UpdateEdgesWithoutSelf(depends_on, table_queries.updates, table_name);
-        alphasql::UpdateEdgesWithoutSelf(depends_on, table_queries.others, table_name);
-        alphasql::UpdateEdgesWithoutSelf(depends_on, {table_name}, table_queries.create);
+        alphasql::UpdateEdges(depends_on, table_queries.inserts, table_name);
+        alphasql::UpdateEdges(depends_on, table_queries.updates, table_name);
+        alphasql::UpdateEdges(depends_on, table_queries.others, table_name);
+        alphasql::UpdateEdges(depends_on, {table_name}, table_queries.create);
         table_vertices.insert(table_name);
       } else {
-        alphasql::UpdateEdgesWithoutSelf(depends_on, table_queries.inserts, table_queries.create);
-        alphasql::UpdateEdgesWithoutSelf(depends_on, table_queries.updates, table_queries.create);
-        alphasql::UpdateEdgesWithoutSelf(depends_on, table_queries.others, table_queries.create);
+        alphasql::UpdateEdges(depends_on, table_queries.inserts, table_queries.create);
+        alphasql::UpdateEdges(depends_on, table_queries.updates, table_queries.create);
+        alphasql::UpdateEdges(depends_on, table_queries.others, table_queries.create);
       }
     } else {
       if (with_tables) {
-        alphasql::UpdateEdgesWithoutSelf(depends_on, table_queries.others, table_name);
-        alphasql::UpdateEdgesWithoutSelf(depends_on, {table_name}, table_queries.create);
+        alphasql::UpdateEdges(depends_on, table_queries.others, table_name);
+        alphasql::UpdateEdges(depends_on, {table_name}, table_queries.create);
         table_vertices.insert(table_name);
       } else {
-        alphasql::UpdateEdgesWithoutSelf(depends_on, table_queries.others, table_queries.create);
+        alphasql::UpdateEdges(depends_on, table_queries.others, table_queries.create);
       }
     }
     if (table_queries.create.empty()) {
@@ -135,11 +153,11 @@ int main(int argc, char* argv[]) {
   std::set<std::string> function_vertices;
   for (auto const& [function_name, function_queries] : function_queries_map) {
     if (with_functions && !function_queries.create.empty()) { // Skip default functions
-      alphasql::UpdateEdgesWithoutSelf(depends_on, function_queries.call, function_name);
-      alphasql::UpdateEdgesWithoutSelf(depends_on, {function_name}, function_queries.create);
+      alphasql::UpdateEdges(depends_on, function_queries.call, function_name);
+      alphasql::UpdateEdges(depends_on, {function_name}, function_queries.create);
       function_vertices.insert(function_name);
     } else {
-      alphasql::UpdateEdgesWithoutSelf(depends_on, function_queries.call, function_queries.create);
+      alphasql::UpdateEdges(depends_on, function_queries.call, function_queries.create);
     }
   }
 
