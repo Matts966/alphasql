@@ -7,7 +7,6 @@ digraph G {
 5 [label="dataset.main", shape=box, type=table];
 0->2 ;
 0->3 ;
-0->1 ;
 1->4 ;
 1->2 ;
 1->3 ;

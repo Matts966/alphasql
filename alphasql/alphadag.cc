@@ -88,9 +88,9 @@ int main(int argc, char* argv[]) {
   const bool side_effect_first = absl::GetFlag(FLAGS_side_effect_first);
   for (auto& [table_name, table_queries] : table_queries_map) {
     if (side_effect_first) {
+      // Prevent self reference
       auto inserts_it = table_queries.inserts.begin();
       while (inserts_it != table_queries.inserts.end()) {
-        // Prevent self reference
         auto others_it = table_queries.others.begin();
         while (others_it != table_queries.others.end()) {
           if (*others_it == *inserts_it) {
@@ -102,9 +102,11 @@ int main(int argc, char* argv[]) {
         if (*inserts_it == table_queries.create) {
           inserts_it = table_queries.inserts.erase(inserts_it);
         } else {
-          alphasql::UpdateEdges(depends_on, table_queries.others, *inserts_it);
           ++inserts_it;
         }
+      }
+      for (const auto& insert : table_queries.inserts) {
+        alphasql::UpdateEdges(depends_on, table_queries.others, insert);
       }
       auto updates_it = table_queries.updates.begin();
       while (updates_it != table_queries.updates.end()) {
@@ -120,9 +122,11 @@ int main(int argc, char* argv[]) {
         if (*updates_it == table_queries.create) {
           updates_it = table_queries.updates.erase(updates_it);
         } else {
-          alphasql::UpdateEdges(depends_on, table_queries.others, *updates_it);
           ++updates_it;
         }
+      }
+      for (const auto& update : table_queries.updates) {
+        alphasql::UpdateEdges(depends_on, table_queries.others, update);
       }
       if (with_tables) {
         alphasql::UpdateEdges(depends_on, table_queries.inserts, table_name);
@@ -134,47 +138,47 @@ int main(int argc, char* argv[]) {
         alphasql::UpdateEdges(depends_on, table_queries.inserts, table_queries.create);
         alphasql::UpdateEdges(depends_on, table_queries.updates, table_queries.create);
         alphasql::UpdateEdges(depends_on, table_queries.others, table_queries.create);
-      }
-    } else {
-      if (with_tables) {
-        alphasql::UpdateEdges(depends_on, table_queries.others, table_name);
-        alphasql::UpdateEdges(depends_on, {table_name}, table_queries.create);
-        table_vertices.insert(table_name);
+        }
       } else {
-        alphasql::UpdateEdges(depends_on, table_queries.others, table_queries.create);
+        if (with_tables) {
+          alphasql::UpdateEdges(depends_on, table_queries.others, table_name);
+          alphasql::UpdateEdges(depends_on, {table_name}, table_queries.create);
+          table_vertices.insert(table_name);
+        } else {
+          alphasql::UpdateEdges(depends_on, table_queries.others, table_queries.create);
+        }
+      }
+      if (table_queries.create.empty()) {
+        external_required_tables.push_back(table_name);
       }
     }
-    if (table_queries.create.empty()) {
-      external_required_tables.push_back(table_name);
+
+    const bool with_functions = absl::GetFlag(FLAGS_with_functions);
+    std::set<std::string> function_vertices;
+    for (auto const& [function_name, function_queries] : function_queries_map) {
+      if (with_functions && !function_queries.create.empty()) { // Skip default functions
+        alphasql::UpdateEdges(depends_on, function_queries.call, function_name);
+        alphasql::UpdateEdges(depends_on, {function_name}, function_queries.create);
+        function_vertices.insert(function_name);
+      } else {
+        alphasql::UpdateEdges(depends_on, function_queries.call, function_queries.create);
+      }
     }
-  }
 
-  const bool with_functions = absl::GetFlag(FLAGS_with_functions);
-  std::set<std::string> function_vertices;
-  for (auto const& [function_name, function_queries] : function_queries_map) {
-    if (with_functions && !function_queries.create.empty()) { // Skip default functions
-      alphasql::UpdateEdges(depends_on, function_queries.call, function_name);
-      alphasql::UpdateEdges(depends_on, {function_name}, function_queries.create);
-      function_vertices.insert(function_name);
-    } else {
-      alphasql::UpdateEdges(depends_on, function_queries.call, function_queries.create);
-    }
-  }
+    const int nedges = depends_on.size();
 
-  const int nedges = depends_on.size();
+    using namespace boost;
 
-  using namespace boost;
+    struct vertex_info_t {
+      std::string label;
+      std::string shape;
+      std::string type;
+    };
+    typedef adjacency_list<vecS, vecS, directedS, vertex_info_t> Graph;
+    Graph g(vertices.size() + table_vertices.size() + function_vertices.size());
 
-  struct vertex_info_t {
-    std::string label;
-    std::string shape;
-    std::string type;
-  };
-  typedef adjacency_list<vecS, vecS, directedS, vertex_info_t> Graph;
-  Graph g(vertices.size() + table_vertices.size() + function_vertices.size());
-
-  std::map<std::string, Graph::vertex_descriptor> indexes;
-  // fills the property 'vertex_name_t' of the vertices
+    std::map<std::string, Graph::vertex_descriptor> indexes;
+    // fills the property 'vertex_name_t' of the vertices
   int i = 0;
   for (const auto& vertice : vertices) {
     g[i].label = vertice; // set the property of a vertex
