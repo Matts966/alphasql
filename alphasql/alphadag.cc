@@ -27,9 +27,12 @@ ABSL_FLAG(bool, with_tables, false,
 ABSL_FLAG(bool, with_functions, false,
           "Show DAG with functions.");
 
+ABSL_FLAG(bool, side_effect_first, false,
+          "Resolve side effects before references.");
+
 int main(int argc, char* argv[]) {
   const char kUsage[] =
-      "Usage: alphadag --external_required_tables_output_path <filename> --output_path <filename> <directory or file paths of sql...>\n";
+      "Usage: alphadag [--warning_as_error] [--with_tables] [--with_functions] [--side_effect_first] --external_required_tables_output_path <filename> --output_path <filename> <directory or file paths of sql...>\n";
   std::vector<char*> args = absl::ParseCommandLine(argc, argv);
   if (argc <= 1) {
     std::cout << kUsage;
@@ -82,13 +85,52 @@ int main(int argc, char* argv[]) {
   std::vector<std::string> external_required_tables;
   std::set<std::string> table_vertices;
   const bool with_tables = absl::GetFlag(FLAGS_with_tables);
-  for (auto const& [table_name, table_queries] : table_queries_map) {
-    if (with_tables) {
-      alphasql::UpdateEdges(depends_on, table_queries.others, table_name);
-      alphasql::UpdateEdges(depends_on, {table_name}, table_queries.create);
-      table_vertices.insert(table_name);
+  const bool side_effect_first = absl::GetFlag(FLAGS_side_effect_first);
+  for (auto& [table_name, table_queries] : table_queries_map) {
+    if (side_effect_first) {
+      for (const auto& insert : table_queries.inserts) {
+        // Prevent self reference
+        auto others_it = table_queries.others.begin();
+        while (others_it != table_queries.others.end()) {
+          if (*others_it == insert) {
+            others_it = table_queries.others.erase(others_it);
+          } else {
+            ++others_it;
+          }
+        }
+
+        alphasql::UpdateEdges(depends_on, table_queries.others, insert);
+      }
+      for (const auto& update : table_queries.updates) {
+        // Prevent self reference
+        auto others_it = table_queries.others.begin();
+        while (others_it != table_queries.others.end()) {
+          if (*others_it == update) {
+            others_it = table_queries.others.erase(others_it);
+          } else {
+            ++others_it;
+          }
+        }
+
+        alphasql::UpdateEdges(depends_on, table_queries.others, update);
+      }
+      if (with_tables) {
+        alphasql::UpdateEdges(depends_on, table_queries.inserts, table_name);
+        alphasql::UpdateEdges(depends_on, table_queries.updates, table_name);
+        alphasql::UpdateEdges(depends_on, {table_name}, table_queries.create);
+        table_vertices.insert(table_name);
+      } else {
+        alphasql::UpdateEdges(depends_on, table_queries.inserts, table_queries.create);
+        alphasql::UpdateEdges(depends_on, table_queries.updates, table_queries.create);
+      }
     } else {
-      alphasql::UpdateEdges(depends_on, table_queries.others, table_queries.create);
+      if (with_tables) {
+        alphasql::UpdateEdges(depends_on, table_queries.others, table_name);
+        alphasql::UpdateEdges(depends_on, {table_name}, table_queries.create);
+        table_vertices.insert(table_name);
+      } else {
+        alphasql::UpdateEdges(depends_on, table_queries.others, table_queries.create);
+      }
     }
     if (table_queries.create.empty()) {
       external_required_tables.push_back(table_name);
@@ -111,8 +153,8 @@ int main(int argc, char* argv[]) {
 
   using namespace boost;
 
-  struct vertex_info_t { 
-    std::string label; 
+  struct vertex_info_t {
+    std::string label;
     std::string shape;
     std::string type;
   };

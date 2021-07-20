@@ -78,7 +78,7 @@ zetasql_base::StatusOr<identifier_info> GetIdentifierInformation(const std::stri
   parser_output->script()->Accept(&resolver, nullptr);
   // TODO: The below function call is not OK compared to GetTables, but more performant.
   // Try to fix bugs and use FindTableNamesInScript.
-  // ZETASQL_RETURN_IF_ERROR(alphasql::table_name_resolver::FindTableNamesInScript(sql, 
+  // ZETASQL_RETURN_IF_ERROR(alphasql::table_name_resolver::FindTableNamesInScript(sql,
   //                         *parser_output->script(), options,
   //                         &resolver.identifier_information.table_information.referenced));
   table_name_resolver::GetTables(sql_file_path, options,
@@ -134,8 +134,11 @@ void IdentifierResolver::visitASTInsertStatement(const ASTInsertStatement* node,
     visitASTChildren(node, data);
     return;
   }
-  const auto path_expr = status_or_path.value();
-  const std::string path_str = absl::StrJoin(path_expr->ToIdentifierVector(), ".");
+
+  const auto path = status_or_path.value()->ToIdentifierVector();
+  identifier_information.table_information.inserted.insert(path);
+
+  const std::string path_str = absl::StrJoin(path, ".");
   for (const auto& created_table : identifier_information.table_information.created) {
     if (absl::StrJoin(created_table, ".") == path_str) {
       visitASTChildren(node, data);
@@ -159,8 +162,11 @@ void IdentifierResolver::visitASTUpdateStatement(const ASTUpdateStatement* node,
     visitASTChildren(node, data);
     return;
   }
-  const auto path_expr = status_or_path.value();
-  const std::string path_str = absl::StrJoin(path_expr->ToIdentifierVector(), ".");
+
+  const auto path = status_or_path.value()->ToIdentifierVector();
+  identifier_information.table_information.updated.insert(path);
+
+  const std::string path_str = absl::StrJoin(path, ".");
   for (const auto& created_table : identifier_information.table_information.created) {
     if (absl::StrJoin(created_table, ".") == path_str) {
       visitASTChildren(node, data);

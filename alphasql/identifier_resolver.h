@@ -43,6 +43,8 @@ struct table_info {
   std::set<std::vector<std::string>> created;
   std::set<std::vector<std::string>> referenced;
   std::set<std::vector<std::string>> dropped;
+  std::set<std::vector<std::string>> inserted;
+  std::set<std::vector<std::string>> updated;
 };
 
 struct function_info {

@@ -1,0 +1,14 @@
+digraph G {
+0 [label="samples/sample/create_datawarehouse1.sql", shape="", type=query];
+1 [label="samples/sample/create_datawarehouse2.sql", shape="", type=query];
+2 [label="samples/sample/create_datawarehouse3.sql", shape="", type=query];
+3 [label="samples/sample/create_interim1.sql", shape="", type=query];
+4 [label="samples/sample/create_interim2.sql", shape="", type=query];
+5 [label="samples/sample/create_interim3.sql", shape="", type=query];
+6 [label="samples/sample/create_mart.sql", shape="", type=query];
+7 [label="samples/sample/test_mart1.sql", shape="", type=query];
+8 [label="samples/sample/test_mart2.sql", shape="", type=query];
+9 [label="samples/sample/test_mart3.sql", shape="", type=query];
+3->6 ;
+3->3 ;
+}

@@ -39,6 +39,8 @@ ABSL_FLAG(std::string, external_required_tables_output_path, "",
 struct table_queries {
   std::string create;
   std::string drop;
+  std::vector<std::string> inserts;
+  std::vector<std::string> updates;
   std::vector<std::string> others;
 };
 
@@ -60,7 +62,7 @@ namespace alphasql {
       return absl::OkStatus();
     }
     std::cout << "Reading " << file_path << std::endl;
-    
+
     const auto identifier_information_or_status = identifier_resolver::GetIdentifierInformation(file_path.string());
     if (!identifier_information_or_status.ok()) {
       return identifier_information_or_status.status();
@@ -99,6 +101,16 @@ namespace alphasql {
         continue;
       }
       table_queries_map[table_string].others.push_back(file_path);
+    }
+
+    for (auto const& table_name : identifier_information.table_information.inserted) {
+      const std::string table_string = absl::StrJoin(table_name, ".");
+      table_queries_map[table_string].inserts.push_back(file_path);
+    }
+
+    for (auto const& table_name : identifier_information.table_information.updated) {
+      const std::string table_string = absl::StrJoin(table_name, ".");
+      table_queries_map[table_string].updates.push_back(file_path);
     }
 
     // Resolve file dependency from function calls on definition.

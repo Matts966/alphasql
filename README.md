@@ -16,6 +16,8 @@ You can quickly introduce AlphaSQL by [CI Example](#ci-example).
 - [Dependency Analysis](#extract-dag-from-sql-set)
     - Extract DAG from your SQL file set.
     - [Sample DAG output](#sample-dag-output)
+    - [Side effect first](#side-effect-first)
+    - [With tables and functions](#with-tables-and-functions)
 - [Parallel Execution](#parallel-execution)
     - Automatically parallelize your SQL file set.
     - Integrate with Airflow.
@@ -86,9 +88,21 @@ The image below is extracted from SQL set in [./samples/sample](./samples/sample
 
 ![dag.dot](samples/sample/dag.png)
 
+### Side effect first
+
+You can resolve side effects such as `INSERT` and `UPDATE` statements before simple references.
+
+![dag.dot](./samples/sample-undefined/side_effect_first/dag.png)
+
+### With tables and functions
+
+You can extract dependencies containing tables and functions by `--with_tables` and `--with_functions` options.
+
+![dag.dot](./samples/sample/with_all/dag.png)
+
 ## Parallel Execution
 
-For BigQuery, the output DAG can be run parallely using 
+For BigQuery, the output DAG can be run parallely using
 
 - [bq-airflow-dag-generator](https://pypi.org/project/bq-airflow-dag-generator)
 - [bq-jobrunner](https://github.com/tsintermax/bq_jobrunner)
@@ -230,7 +244,7 @@ You can try the example CI with `gcloud` command by
 (cd ./samples/sample-ci && gcloud builds submit --config=cloudbuild_ci_sample.yaml .)
 ```
 
-This example 
+This example
 
 - Supports `_TABLE_SUFFIX` feature!
 - Does not execute actual BigQuery and very cheap!

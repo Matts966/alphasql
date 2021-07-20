@@ -1184,7 +1184,7 @@ absl::Status FindTableNamesInScript(absl::string_view sql,
 }
 
 absl::Status GetTables(const std::string& sql_file_path,
-                       const AnalyzerOptions& analyzer_options, 
+                       const AnalyzerOptions& analyzer_options,
                        TableNamesSet* table_names) {
   std::unique_ptr<ParserOutput> parser_output;
 
