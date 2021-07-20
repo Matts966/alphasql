@@ -89,6 +89,7 @@ int main(int argc, char* argv[]) {
   for (auto& [table_name, table_queries] : table_queries_map) {
     if (side_effect_first) {
       for (const auto& insert : table_queries.inserts) {
+        if (insert == table_queries.create) continue;
         // Prevent self reference
         auto others_it = table_queries.others.begin();
         while (others_it != table_queries.others.end()) {
@@ -102,6 +103,7 @@ int main(int argc, char* argv[]) {
         alphasql::UpdateEdges(depends_on, table_queries.others, insert);
       }
       for (const auto& update : table_queries.updates) {
+        if (update == table_queries.create) continue;
         // Prevent self reference
         auto others_it = table_queries.others.begin();
         while (others_it != table_queries.others.end()) {
@@ -117,11 +119,13 @@ int main(int argc, char* argv[]) {
       if (with_tables) {
         alphasql::UpdateEdges(depends_on, table_queries.inserts, table_name);
         alphasql::UpdateEdges(depends_on, table_queries.updates, table_name);
+        alphasql::UpdateEdges(depends_on, table_queries.others, table_name);
         alphasql::UpdateEdges(depends_on, {table_name}, table_queries.create);
         table_vertices.insert(table_name);
       } else {
         alphasql::UpdateEdges(depends_on, table_queries.inserts, table_queries.create);
         alphasql::UpdateEdges(depends_on, table_queries.updates, table_queries.create);
+        alphasql::UpdateEdges(depends_on, table_queries.others, table_queries.create);
       }
     } else {
       if (with_tables) {

@@ -3,5 +3,6 @@ digraph G {
 1 [label="samples/sample-undefined/insert.sql", shape="", type=query];
 2 [label="samples/sample-undefined/select.sql", shape="", type=query];
 0->1 ;
+0->2 ;
 1->2 ;
 }
