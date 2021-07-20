@@ -1,0 +1,9 @@
+digraph G {
+0 [label="samples/mutasions-and-query/mutation1.sql", shape="", type=query];
+1 [label="samples/mutasions-and-query/mutation2.sql", shape="", type=query];
+2 [label="samples/mutasions-and-query/mutation3.sql", shape="", type=query];
+3 [label="samples/mutasions-and-query/query1.sql", shape="", type=query];
+4 [label="samples/mutasions-and-query/query2.sql", shape="", type=query];
+5 [label="samples/mutasions-and-query/query3.sql", shape="", type=query];
+2->3 ;
+}

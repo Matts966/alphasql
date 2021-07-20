@@ -1,0 +1,14 @@
+Analyzing "samples/mutasions-and-query/query3.sql"
+DDL analyzed, adding table to catalog...
+SUCCESS: analysis finished!
+Analyzing "samples/mutasions-and-query/query2.sql"
+DDL analyzed, adding table to catalog...
+SUCCESS: analysis finished!
+Analyzing "samples/mutasions-and-query/mutation3.sql"
+ERROR: INVALID_ARGUMENT: UPDATE must have a WHERE clause [at samples/mutasions-and-query/mutation3.sql:1:1]
+catalog:
+	query_result2
+	query_result3
+	tablename2
+	dataset.main
+	tablename1

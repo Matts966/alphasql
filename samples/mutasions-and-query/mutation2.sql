@@ -1,0 +1,4 @@
+INSERT INTO tablename1
+VALUES (1);
+INSERT INTO tablename2
+VALUES (1);

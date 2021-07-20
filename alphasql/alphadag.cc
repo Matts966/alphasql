@@ -105,12 +105,8 @@ int main(int argc, char* argv[]) {
           ++inserts_it;
         }
       }
-      for (const auto& insert : table_queries.inserts) {
-        alphasql::UpdateEdges(depends_on, table_queries.others, insert);
-      }
       auto updates_it = table_queries.updates.begin();
       while (updates_it != table_queries.updates.end()) {
-        // Prevent self reference
         auto others_it = table_queries.others.begin();
         while (others_it != table_queries.others.end()) {
           if (*others_it == *updates_it) {
@@ -124,6 +120,10 @@ int main(int argc, char* argv[]) {
         } else {
           ++updates_it;
         }
+      }
+
+      for (const auto& insert : table_queries.inserts) {
+        alphasql::UpdateEdges(depends_on, table_queries.others, insert);
       }
       for (const auto& update : table_queries.updates) {
         alphasql::UpdateEdges(depends_on, table_queries.others, update);

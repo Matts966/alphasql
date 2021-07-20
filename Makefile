@@ -6,7 +6,9 @@ build-and-check: test
 osx:
 	CC=g++ bazelisk build //alphasql:all
 	sudo cp ./bazel-bin/alphasql/alphadag /usr/local/bin
+	sudo chmod +x /usr/local/bin/alphadag
 	sudo cp ./bazel-bin/alphasql/alphacheck /usr/local/bin
+	sudo chmod +x /usr/local/bin/alphacheck
 
 .PHONY: samples
 samples: without_options with_functions with_tables with_all side_effect_first side_effect_first_with_tables
@@ -27,10 +29,10 @@ without_options: osx
 with_functions: osx
 	find samples -mindepth 1 -maxdepth 1 -type d | while read sample_path; do \
 	  mkdir -p $$sample_path/with_functions; \
-		alphadag --with_functions $$sample_path --output_path $$sample_path/with_funtcions/dag.dot \
-      --external_required_tables_output_path $$sample_path/with_funtcions/external_tables.txt \
-      > $$sample_path/with_funtcions/alphadag_stdout.txt 2> $$sample_path/with_funtcions/alphadag_stderr.txt; \
-		dot -Tpng $$sample_path/with_funtcions/dag.dot -o $$sample_path/with_funtcions/dag.png; \
+		alphadag --with_functions $$sample_path --output_path $$sample_path/with_functions/dag.dot \
+      --external_required_tables_output_path $$sample_path/with_functions/external_tables.txt \
+      > $$sample_path/with_functions/alphadag_stdout.txt 2> $$sample_path/with_functions/alphadag_stderr.txt; \
+		dot -Tpng $$sample_path/with_functions/dag.dot -o $$sample_path/with_functions/dag.png; \
 	done;
 
 .PHONY: with_tables
