@@ -1,4 +1,4 @@
 INSERT INTO tablename1
-VALUES (1);
+VALUES ("ok");
 INSERT INTO tablename2
-VALUES (1);
+VALUES ("ok", 5);
