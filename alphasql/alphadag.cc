@@ -88,11 +88,23 @@ int main(int argc, char* argv[]) {
   const bool side_effect_first = absl::GetFlag(FLAGS_side_effect_first);
   for (auto& [table_name, table_queries] : table_queries_map) {
     if (side_effect_first) {
-      for (const auto& insert : table_queries.inserts) {
-        alphasql::UpdateEdgesWithoutSelf(depends_on, table_queries.others, insert);
+      auto inserts_it = table_queries.inserts.begin();
+      while (inserts_it != table_queries.inserts.end()) {
+        if (*inserts_it == table_queries.create) {
+          inserts_it = table_queries.inserts.erase(inserts_it);
+        } else {
+          alphasql::UpdateEdgesWithoutSelf(depends_on, table_queries.others, *inserts_it);
+          ++inserts_it;
+        }
       }
-      for (const auto& update : table_queries.updates) {
-        alphasql::UpdateEdgesWithoutSelf(depends_on, table_queries.others, update);
+      auto updates_it = table_queries.updates.begin();
+      while (updates_it != table_queries.updates.end()) {
+        if (*updates_it == table_queries.create) {
+          updates_it = table_queries.updates.erase(updates_it);
+        } else {
+          alphasql::UpdateEdgesWithoutSelf(depends_on, table_queries.others, *updates_it);
+          ++updates_it;
+        }
       }
       if (with_tables) {
         alphasql::UpdateEdgesWithoutSelf(depends_on, table_queries.inserts, table_name);

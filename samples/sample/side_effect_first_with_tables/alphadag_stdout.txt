@@ -10,4 +10,3 @@ Reading "samples/sample/create_datawarehouse1.sql"
 Reading "samples/sample/create_datawarehouse3.sql"
 Reading "samples/sample/create_datawarehouse2.sql"
 Reading "samples/sample/create_mart.sql"
-Warning!!! There are cycles in your dependency graph!!! 
