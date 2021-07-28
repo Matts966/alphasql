@@ -90,7 +90,7 @@ The image below is extracted from SQL set in [./samples/sample](./samples/sample
 
 ### Side effect first
 
-You can resolve side effects such as `INSERT` and `UPDATE` statements before simple references.
+You can resolve side effects such as `INSERT` and `UPDATE` statements before simple references by the `--side_effect_first` option.
 
 ![dag.dot](./samples/sample-undefined/side_effect_first/dag.png)
 
