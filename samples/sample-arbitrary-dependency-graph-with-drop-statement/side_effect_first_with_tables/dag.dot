@@ -5,15 +5,11 @@ digraph G {
 3 [label="samples/sample-arbitrary-dependency-graph-with-drop-statement/select2.sql", shape="", type=query];
 4 [label="dataset.dependency", shape=box, type=table];
 5 [label="dataset.main", shape=box, type=table];
-0->2 ;
-0->3 ;
+0->5 ;
 1->4 ;
-1->2 ;
-1->3 ;
+1->5 ;
 4->2 ;
 4->3 ;
-5->0 ;
-5->1 ;
 5->2 ;
 5->3 ;
 }

@@ -12,18 +12,15 @@ digraph G {
 10 [label=tablename1, shape=box, type=table];
 11 [label=tablename2, shape=box, type=table];
 12 [label=warehouse, shape=box, type=table];
-0->4 ;
-1->4 ;
-1->5 ;
+0->10 ;
+1->10 ;
+1->11 ;
+2->6 ;
 2->12 ;
 3->7 ;
 4->8 ;
 5->9 ;
-6->2 ;
-10->1 ;
-10->0 ;
 10->4 ;
-11->1 ;
 11->5 ;
 12->3 ;
 }

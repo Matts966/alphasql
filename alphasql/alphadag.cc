@@ -125,19 +125,27 @@ int main(int argc, char *argv[]) {
         }
       }
 
-      for (const auto &insert : table_queries.inserts) {
-        alphasql::UpdateEdges(depends_on, table_queries.others, insert);
-      }
-      for (const auto &update : table_queries.updates) {
-        alphasql::UpdateEdges(depends_on, table_queries.others, update);
-      }
       if (with_tables) {
-        alphasql::UpdateEdges(depends_on, table_queries.inserts, table_name);
-        alphasql::UpdateEdges(depends_on, table_queries.updates, table_name);
         alphasql::UpdateEdges(depends_on, table_queries.others, table_name);
+        alphasql::UpdateEdges(depends_on, table_queries.inserts,
+                              table_queries.create);
+        alphasql::UpdateEdges(depends_on, table_queries.updates,
+                              table_queries.create);
+        for (const auto &insert : table_queries.inserts) {
+          alphasql::UpdateEdges(depends_on, {table_name}, insert);
+        }
+        for (const auto &update : table_queries.updates) {
+          alphasql::UpdateEdges(depends_on, {table_name}, update);
+        }
         alphasql::UpdateEdges(depends_on, {table_name}, table_queries.create);
         table_vertices.insert(table_name);
       } else {
+        for (const auto &insert : table_queries.inserts) {
+          alphasql::UpdateEdges(depends_on, table_queries.others, insert);
+        }
+        for (const auto &update : table_queries.updates) {
+          alphasql::UpdateEdges(depends_on, table_queries.others, update);
+        }
         alphasql::UpdateEdges(depends_on, table_queries.inserts,
                               table_queries.create);
         alphasql::UpdateEdges(depends_on, table_queries.updates,
