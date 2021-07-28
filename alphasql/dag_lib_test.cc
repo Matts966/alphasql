@@ -23,10 +23,12 @@ namespace {
 
 using namespace boost;
 
-typedef adjacency_list<vecS, vecS, directedS, property<vertex_name_t, std::string>> Graph;
+typedef adjacency_list<vecS, vecS, directedS,
+                       property<vertex_name_t, std::string>>
+    Graph;
 bool has_cycle = false;
 
-TEST(cycle_detector, cycle) {  
+TEST(cycle_detector, cycle) {
   Graph g1(2);
   add_edge(0, 1, g1);
   add_edge(1, 0, g1);
@@ -73,5 +75,5 @@ TEST(cycle_detector, acycle) {
   ASSERT_FALSE(has_cycle);
 }
 
-}
-}
+} // namespace
+} // namespace alphasql

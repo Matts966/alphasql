@@ -17,16 +17,16 @@
 #ifndef ALPHASQL_IDENTIFIER_RESOLVER_H_
 #define ALPHASQL_IDENTIFIER_RESOLVER_H_
 
-#include <string>
 #include <filesystem>
+#include <string>
 
+#include "absl/flags/flag.h"
+#include "absl/strings/string_view.h"
+#include "absl/types/span.h"
 #include "zetasql/base/logging.h"
 #include "zetasql/parser/parse_tree.h"
 #include "zetasql/parser/parse_tree_visitor.h"
 #include "zetasql/public/analyzer.h"
-#include "absl/flags/flag.h"
-#include "absl/strings/string_view.h"
-#include "absl/types/span.h"
 
 ABSL_DECLARE_FLAG(bool, warning_as_error);
 
@@ -58,53 +58,55 @@ struct identifier_info {
   table_info table_information;
 };
 
-zetasql_base::StatusOr<identifier_info> GetIdentifierInformation(const std::string& sql_file_path);
+zetasql_base::StatusOr<identifier_info>
+GetIdentifierInformation(const std::string &sql_file_path);
 
 class IdentifierResolver : public DefaultParseTreeVisitor {
- public:
+public:
   explicit IdentifierResolver() {}
-  IdentifierResolver(const IdentifierResolver&) = delete;
-  IdentifierResolver& operator=(const IdentifierResolver&) = delete;
+  IdentifierResolver(const IdentifierResolver &) = delete;
+  IdentifierResolver &operator=(const IdentifierResolver &) = delete;
   ~IdentifierResolver() override {}
 
   identifier_info identifier_information;
   std::set<std::string> temporary_tables;
 
-  void defaultVisit(const ASTNode* node, void* data) override {
+  void defaultVisit(const ASTNode *node, void *data) override {
     visitASTChildren(node, data);
   }
 
-  void visitASTChildren(const ASTNode* node, void* data) {
+  void visitASTChildren(const ASTNode *node, void *data) {
     node->ChildrenAccept(this, data);
   }
 
-  void visit(const ASTNode* node, void* data) override {
+  void visit(const ASTNode *node, void *data) override {
     visitASTChildren(node, data);
   }
 
   // Visitor implementation.
   // Tables
-  void visitASTDropStatement(const ASTDropStatement* node, void* data) override;
-  void visitASTCreateTableStatement(const ASTCreateTableStatement* node,
-                                    void* data) override;
-  void visitASTInsertStatement(const ASTInsertStatement* node, void* data) override;
-  void visitASTUpdateStatement(const ASTUpdateStatement* node, void* data) override;
+  void visitASTDropStatement(const ASTDropStatement *node, void *data) override;
+  void visitASTCreateTableStatement(const ASTCreateTableStatement *node,
+                                    void *data) override;
+  void visitASTInsertStatement(const ASTInsertStatement *node,
+                               void *data) override;
+  void visitASTUpdateStatement(const ASTUpdateStatement *node,
+                               void *data) override;
 
   // Functions
-  void visitASTDropFunctionStatement(
-      const ASTDropFunctionStatement* node, void* data) override;
-  void visitASTFunctionCall(const ASTFunctionCall* node, void* data) override;
-  void visitASTFunctionDeclaration(
-      const ASTFunctionDeclaration* node, void* data) override;
-  void visitASTCreateFunctionStatement(const ASTCreateFunctionStatement* node,
-                                       void* data) override;
+  void visitASTDropFunctionStatement(const ASTDropFunctionStatement *node,
+                                     void *data) override;
+  void visitASTFunctionCall(const ASTFunctionCall *node, void *data) override;
+  void visitASTFunctionDeclaration(const ASTFunctionDeclaration *node,
+                                   void *data) override;
+  void visitASTCreateFunctionStatement(const ASTCreateFunctionStatement *node,
+                                       void *data) override;
   void visitASTCreateTableFunctionStatement(
-      const ASTCreateTableFunctionStatement* node, void* data) override;
-  void visitASTCallStatement(const ASTCallStatement* node,
-                             void* data) override;
+      const ASTCreateTableFunctionStatement *node, void *data) override;
+  void visitASTCallStatement(const ASTCallStatement *node, void *data) override;
 };
 
-}  // namespace alphasql
-}  // namespace identifier_resolver
+} // namespace identifier_resolver
+} // namespace alphasql
 
-#endif  // ALPHASQL_identifier_resolver_H_
+#endif // ALPHASQL_identifier_resolver_H_
