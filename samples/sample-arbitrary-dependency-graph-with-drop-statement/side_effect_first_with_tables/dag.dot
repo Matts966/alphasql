@@ -1,0 +1,15 @@
+digraph G {
+0 [label="samples/sample-arbitrary-dependency-graph-with-drop-statement/insert.sql", shape="", type=query];
+1 [label="samples/sample-arbitrary-dependency-graph-with-drop-statement/insert_before_reference.sql", shape="", type=query];
+2 [label="samples/sample-arbitrary-dependency-graph-with-drop-statement/select.sql", shape="", type=query];
+3 [label="samples/sample-arbitrary-dependency-graph-with-drop-statement/select2.sql", shape="", type=query];
+4 [label="dataset.dependency", shape=box, type=table];
+5 [label="dataset.main", shape=box, type=table];
+0->5 ;
+1->4 ;
+1->5 ;
+4->2 ;
+4->3 ;
+5->2 ;
+5->3 ;
+}

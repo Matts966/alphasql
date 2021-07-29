@@ -1,0 +1,2 @@
+CREATE OR REPLACE TABLE query_result3 AS
+SELECT * FROM tablename2;

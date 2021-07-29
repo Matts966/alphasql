@@ -1,0 +1,26 @@
+digraph G {
+0 [label="samples/mutasions-and-query/mutation1.sql", shape="", type=query];
+1 [label="samples/mutasions-and-query/mutation2.sql", shape="", type=query];
+2 [label="samples/mutasions-and-query/mutation3.sql", shape="", type=query];
+3 [label="samples/mutasions-and-query/query1.sql", shape="", type=query];
+4 [label="samples/mutasions-and-query/query2.sql", shape="", type=query];
+5 [label="samples/mutasions-and-query/query3.sql", shape="", type=query];
+6 [label="dataset.main", shape=box, type=table];
+7 [label=query_result1, shape=box, type=table];
+8 [label=query_result2, shape=box, type=table];
+9 [label=query_result3, shape=box, type=table];
+10 [label=tablename1, shape=box, type=table];
+11 [label=tablename2, shape=box, type=table];
+12 [label=warehouse, shape=box, type=table];
+0->10 ;
+1->10 ;
+1->11 ;
+2->6 ;
+2->12 ;
+3->7 ;
+4->8 ;
+5->9 ;
+10->4 ;
+11->5 ;
+12->3 ;
+}
