@@ -16,6 +16,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
+          brew install graphviz
           make
           mkdir alphasql_darwin_x86_64
           mv ./bazel-bin/alphasql/alphadag /usr/local/bin/
