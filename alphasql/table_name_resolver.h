@@ -25,6 +25,8 @@
 #include "zetasql/resolved_ast/resolved_ast.h"
 #include "zetasql/resolved_ast/resolved_node_kind.pb.h"
 
+#include "alphasql/common_lib.h"
+
 // TODO This implementation probably doesn't cover all edge cases for
 // table name extraction.  It should be tested more and tuned for the final
 // name scoping rules once those are implemented in the full resolver.
@@ -654,6 +656,26 @@ absl::Status TableNameResolver::FindInStatement(const ASTStatement *statement) {
       return FindInExpressionsUnder(stmt->sql(), /*visible_aliases=*/{});
     }
     break;
+
+  // Diffs
+  case AST_BEGIN_END_BLOCK: {
+    const ASTBeginEndBlock *stmt = statement->GetAs<ASTBeginEndBlock>();
+    for (const ASTStatement *statement :
+         stmt->statement_list_node()->statement_list()) {
+      ZETASQL_RETURN_IF_ERROR(FindInStatement(statement));
+    }
+    if (stmt->handler_list() != nullptr) {
+      for (const ASTExceptionHandler *handler :
+           stmt->handler_list()->exception_handler_list()) {
+        for (const ASTStatement *statement :
+             handler->statement_list()->statement_list()) {
+          ZETASQL_RETURN_IF_ERROR(FindInStatement(statement));
+        }
+      }
+    }
+    return absl::OkStatus();
+  }
+
   default:
     break;
   }
@@ -855,8 +877,8 @@ absl::Status TableNameResolver::FindInQuery(const ASTQuery *query,
             absl::AsciiStrToLower(with_entry->alias()->GetAsString());
       }
     } else {
-      // In WITH without RECURSIVE, entries can only access with aliases defined
-      // in prior entries.
+      // In WITH without RECURSIVE, entries can only access with aliases
+      // defined in prior entries.
       for (const ASTWithClauseEntry *with_entry :
            query->with_clause()->with()) {
         ZETASQL_RETURN_IF_ERROR(
@@ -1001,12 +1023,12 @@ absl::Status
 TableNameResolver::FindInTVF(const ASTTVF *tvf,
                              const AliasSet &external_visible_aliases,
                              AliasSet *local_visible_aliases) {
-  // The 'tvf' here is the TVF parse node. Each TVF argument may be a scalar, a
-  // relation, or a TABLE clause. We've parsed all of the TVF arguments as
-  // expressions by this point, so the FindInExpressionsUnder call will descend
-  // into the relation arguments as expression subqueries. For TABLE clause
-  // arguments, we add each named table to the set of referenced table names in
-  // a separate step.
+  // The 'tvf' here is the TVF parse node. Each TVF argument may be a scalar,
+  // a relation, or a TABLE clause. We've parsed all of the TVF arguments as
+  // expressions by this point, so the FindInExpressionsUnder call will
+  // descend into the relation arguments as expression subqueries. For TABLE
+  // clause arguments, we add each named table to the set of referenced table
+  // names in a separate step.
   //
   // Note about correlation: if a TVF argument is a scalar, it should resolve
   // like a correlated subquery and be able to see 'local_visible_aliases'. On
@@ -1078,9 +1100,9 @@ absl::Status TableNameResolver::FindInTablePathExpression(
     std::vector<std::string> path = path_expr->ToIdentifierVector();
     ZETASQL_RET_CHECK(!path.empty());
 
-    // Single identifiers are always table names, not range variable references,
-    // but could be WITH table references or references to TVF arguments that
-    // should be ignored.
+    // Single identifiers are always table names, not range variable
+    // references, but could be WITH table references or references to TVF
+    // arguments that should be ignored.
     //
     // For paths, check if the first identifier is a known alias.  This allows
     // us to ignore correlated alias references like:
@@ -1192,33 +1214,19 @@ absl::Status GetTables(const std::string &sql_file_path,
                        const AnalyzerOptions &analyzer_options,
                        TableNamesSet *table_names) {
   std::unique_ptr<ParserOutput> parser_output;
-
   std::filesystem::path file_path(sql_file_path);
   std::ifstream file(file_path, std::ios::in);
   std::string sql(std::istreambuf_iterator<char>(file), {});
-
-  ParseResumeLocation location =
-      ParseResumeLocation::FromStringView(sql_file_path, sql);
-  bool at_end_of_input = false;
+  ZETASQL_RETURN_IF_ERROR(alphasql::ParseScript(
+      sql, analyzer_options.GetParserOptions(),
+      analyzer_options.error_message_mode(), &parser_output, file_path));
 
   auto resolver = alphasql::table_name_resolver::TableNameResolver(
       sql, &analyzer_options, nullptr, nullptr, table_names, nullptr);
 
-  while (!at_end_of_input) {
-    auto status =
-        ParseNextStatement(&location, analyzer_options.GetParserOptions(),
-                           &parser_output, &at_end_of_input);
-
-    if (parser_output == nullptr) {
-      return ConvertInternalErrorLocationAndAdjustErrorString(
-          analyzer_options.error_message_mode(), sql, status);
-    }
-
-    status = resolver.FindInStatement(parser_output->statement());
-    if (!status.ok()) {
-      return ConvertInternalErrorLocationAndAdjustErrorString(
-          analyzer_options.error_message_mode(), sql, status);
-    }
+  auto statements = parser_output->script()->statement_list_node();
+  for (const ASTStatement *statement : statements->statement_list()) {
+    ZETASQL_RETURN_IF_ERROR(resolver.FindInStatement(statement));
   }
 
   return absl::OkStatus();
