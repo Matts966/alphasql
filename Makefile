@@ -77,3 +77,14 @@ side_effect_first_with_tables: osx
 .PHONY: test
 test: osx
 	CC=g++ bazelisk test //alphasql:all
+
+.PHONY: proto
+proto: proto/type.proto
+	protoc -I=proto --cpp_out=alphasql/proto proto/*.proto
+
+proto/type.proto:
+	svn export --force https://github.com/google/zetasql/branches/master/zetasql/public/type.proto proto/
+
+.PHONY: proto-clean
+proto-clean:
+	rm proto/type.proto

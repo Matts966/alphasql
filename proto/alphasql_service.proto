@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+import "type.proto";
+
+message File {
+  string name = 1;
+  string content = 2;
+}
+
+message AlphaDAGRequest {
+  bool warning_as_error = 1;
+  bool with_tables = 2;
+  bool with_functions = 3;
+  bool side_effect_first = 4;
+  repeated File files = 5;
+}
+
+message AlphaDAGResponse {
+  repeated string external_required_tables = 1;
+  repeated string dag_dot_string = 2;
+  optional string error = 3;
+}
+
+message Column {
+  string column_name = 1;
+  oneof type {
+    zetasql.TypeProto type = 2;
+    string bigquery_type = 3;
+  };
+}
+
+message TableSchema {
+  string table_name = 1;
+  repeated Column columns = 2;
+}
+
+message AlphaCheckRequest {
+  repeated TableSchema external_required_tables_schema = 1;
+  string dag_dot_string = 2;
+  repeated File files = 3;
+}
+
+message AlphaCheckResponse {
+  optional string error = 1;
+}
+
+service AlphaSQL {
+  // Extract DAG from SQL files
+  rpc AlphaDAG(AlphaDAGRequest)
+  returns (AlphaDAGResponse) {}
+
+  // Validate DAG
+  rpc AlphaCheck(AlphaCheckRequest)
+  returns (AlphaCheckResponse) {}
+}
