@@ -21,11 +21,35 @@ message AlphaDAGResponse {
   optional string error = 3;
 }
 
+enum SupportedType {
+  STRING = 1;
+  INTEGER = 2;
+  INT64 = 3;
+  BOOLEAN = 4;
+  BOOL = 5;
+  FLOAT64 = 6;
+  FLOAT = 7;
+  NUMERIC = 8;
+  BYTES = 9;
+  TIMESTAMP = 10;
+  TIME = 11;
+  DATETIME = 12;
+  DATE = 13;
+  GEOGRAPHY = 14;
+}
+
+enum Mode {
+  REPEATED = 1;
+  NULLABLE = 2;
+  REQUIRED = 3;
+}
+
 message Column {
-  string column_name = 1;
+  string name = 1;
+  Mode mode = 4;
+  zetasql.TypeProto zetasql_type = 2;
   oneof type {
-    zetasql.TypeProto type = 2;
-    string bigquery_type = 3;
+    SupportedType type = 3;
   };
 }
 
