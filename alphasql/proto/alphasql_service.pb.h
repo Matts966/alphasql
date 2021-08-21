@@ -30,6 +30,7 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
+#include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "type.pb.h"
 // @@protoc_insertion_point(includes)
@@ -47,7 +48,7 @@ struct TableStruct_alphasql_5fservice_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[7]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[9]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -72,9 +73,15 @@ extern ColumnDefaultTypeInternal _Column_default_instance_;
 class File;
 struct FileDefaultTypeInternal;
 extern FileDefaultTypeInternal _File_default_instance_;
+class GenericColumn;
+struct GenericColumnDefaultTypeInternal;
+extern GenericColumnDefaultTypeInternal _GenericColumn_default_instance_;
 class TableSchema;
 struct TableSchemaDefaultTypeInternal;
 extern TableSchemaDefaultTypeInternal _TableSchema_default_instance_;
+class ZetaSQLColumn;
+struct ZetaSQLColumnDefaultTypeInternal;
+extern ZetaSQLColumnDefaultTypeInternal _ZetaSQLColumn_default_instance_;
 PROTOBUF_NAMESPACE_OPEN
 template<> ::AlphaCheckRequest* Arena::CreateMaybeMessage<::AlphaCheckRequest>(Arena*);
 template<> ::AlphaCheckResponse* Arena::CreateMaybeMessage<::AlphaCheckResponse>(Arena*);
@@ -82,9 +89,75 @@ template<> ::AlphaDAGRequest* Arena::CreateMaybeMessage<::AlphaDAGRequest>(Arena
 template<> ::AlphaDAGResponse* Arena::CreateMaybeMessage<::AlphaDAGResponse>(Arena*);
 template<> ::Column* Arena::CreateMaybeMessage<::Column>(Arena*);
 template<> ::File* Arena::CreateMaybeMessage<::File>(Arena*);
+template<> ::GenericColumn* Arena::CreateMaybeMessage<::GenericColumn>(Arena*);
 template<> ::TableSchema* Arena::CreateMaybeMessage<::TableSchema>(Arena*);
+template<> ::ZetaSQLColumn* Arena::CreateMaybeMessage<::ZetaSQLColumn>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 
+enum SupportedType : int {
+  STRING = 0,
+  INTEGER = 1,
+  INT64 = 2,
+  BOOLEAN = 3,
+  BOOL = 4,
+  FLOAT64 = 5,
+  FLOAT = 6,
+  NUMERIC = 7,
+  BYTES = 8,
+  TIMESTAMP = 9,
+  TIME = 10,
+  DATETIME = 11,
+  DATE = 12,
+  GEOGRAPHY = 13,
+  RECORD = 14,
+  SupportedType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  SupportedType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool SupportedType_IsValid(int value);
+constexpr SupportedType SupportedType_MIN = STRING;
+constexpr SupportedType SupportedType_MAX = RECORD;
+constexpr int SupportedType_ARRAYSIZE = SupportedType_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* SupportedType_descriptor();
+template<typename T>
+inline const std::string& SupportedType_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, SupportedType>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function SupportedType_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    SupportedType_descriptor(), enum_t_value);
+}
+inline bool SupportedType_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, SupportedType* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<SupportedType>(
+    SupportedType_descriptor(), name, value);
+}
+enum Mode : int {
+  REPEATED = 0,
+  NULLABLE = 1,
+  REQUIRED = 2,
+  Mode_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  Mode_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool Mode_IsValid(int value);
+constexpr Mode Mode_MIN = REPEATED;
+constexpr Mode Mode_MAX = REQUIRED;
+constexpr int Mode_ARRAYSIZE = Mode_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Mode_descriptor();
+template<typename T>
+inline const std::string& Mode_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, Mode>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function Mode_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    Mode_descriptor(), enum_t_value);
+}
+inline bool Mode_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Mode* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Mode>(
+    Mode_descriptor(), name, value);
+}
 // ===================================================================
 
 class File final :
@@ -755,40 +828,60 @@ class Column final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kColumnNameFieldNumber = 1,
+    kFieldsFieldNumber = 4,
+    kNameFieldNumber = 1,
     kTypeFieldNumber = 2,
+    kModeFieldNumber = 3,
   };
-  // string column_name = 1;
-  void clear_column_name();
-  const std::string& column_name() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_column_name(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_column_name();
-  PROTOBUF_MUST_USE_RESULT std::string* release_column_name();
-  void set_allocated_column_name(std::string* column_name);
+  // repeated .Column fields = 4;
+  int fields_size() const;
   private:
-  const std::string& _internal_column_name() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_column_name(const std::string& value);
-  std::string* _internal_mutable_column_name();
+  int _internal_fields_size() const;
+  public:
+  void clear_fields();
+  ::Column* mutable_fields(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Column >*
+      mutable_fields();
+  private:
+  const ::Column& _internal_fields(int index) const;
+  ::Column* _internal_add_fields();
+  public:
+  const ::Column& fields(int index) const;
+  ::Column* add_fields();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Column >&
+      fields() const;
+
+  // string name = 1;
+  void clear_name();
+  const std::string& name() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_name(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_name();
+  PROTOBUF_MUST_USE_RESULT std::string* release_name();
+  void set_allocated_name(std::string* name);
+  private:
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string& value);
+  std::string* _internal_mutable_name();
   public:
 
-  // .zetasql.TypeProto type = 2;
-  bool has_type() const;
-  private:
-  bool _internal_has_type() const;
-  public:
+  // .SupportedType type = 2;
   void clear_type();
-  const ::zetasql::TypeProto& type() const;
-  PROTOBUF_MUST_USE_RESULT ::zetasql::TypeProto* release_type();
-  ::zetasql::TypeProto* mutable_type();
-  void set_allocated_type(::zetasql::TypeProto* type);
+  ::SupportedType type() const;
+  void set_type(::SupportedType value);
   private:
-  const ::zetasql::TypeProto& _internal_type() const;
-  ::zetasql::TypeProto* _internal_mutable_type();
+  ::SupportedType _internal_type() const;
+  void _internal_set_type(::SupportedType value);
   public:
-  void unsafe_arena_set_allocated_type(
-      ::zetasql::TypeProto* type);
-  ::zetasql::TypeProto* unsafe_arena_release_type();
+
+  // .Mode mode = 3;
+  void clear_mode();
+  ::Mode mode() const;
+  void set_mode(::Mode value);
+  private:
+  ::Mode _internal_mode() const;
+  void _internal_set_mode(::Mode value);
+  public:
 
   // @@protoc_insertion_point(class_scope:Column)
  private:
@@ -797,9 +890,362 @@ class Column final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr column_name_;
-  ::zetasql::TypeProto* type_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Column > fields_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
+  int type_;
+  int mode_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_alphasql_5fservice_2eproto;
+};
+// -------------------------------------------------------------------
+
+class ZetaSQLColumn final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:ZetaSQLColumn) */ {
+ public:
+  inline ZetaSQLColumn() : ZetaSQLColumn(nullptr) {}
+  ~ZetaSQLColumn() override;
+  explicit constexpr ZetaSQLColumn(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  ZetaSQLColumn(const ZetaSQLColumn& from);
+  ZetaSQLColumn(ZetaSQLColumn&& from) noexcept
+    : ZetaSQLColumn() {
+    *this = ::std::move(from);
+  }
+
+  inline ZetaSQLColumn& operator=(const ZetaSQLColumn& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ZetaSQLColumn& operator=(ZetaSQLColumn&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ZetaSQLColumn& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ZetaSQLColumn* internal_default_instance() {
+    return reinterpret_cast<const ZetaSQLColumn*>(
+               &_ZetaSQLColumn_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    4;
+
+  friend void swap(ZetaSQLColumn& a, ZetaSQLColumn& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ZetaSQLColumn* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ZetaSQLColumn* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline ZetaSQLColumn* New() const final {
+    return new ZetaSQLColumn();
+  }
+
+  ZetaSQLColumn* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<ZetaSQLColumn>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const ZetaSQLColumn& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const ZetaSQLColumn& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ZetaSQLColumn* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "ZetaSQLColumn";
+  }
+  protected:
+  explicit ZetaSQLColumn(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kNameFieldNumber = 1,
+    kZetasqlTypeFieldNumber = 2,
+  };
+  // string name = 1;
+  void clear_name();
+  const std::string& name() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_name(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_name();
+  PROTOBUF_MUST_USE_RESULT std::string* release_name();
+  void set_allocated_name(std::string* name);
+  private:
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string& value);
+  std::string* _internal_mutable_name();
+  public:
+
+  // .zetasql.TypeProto zetasql_type = 2;
+  bool has_zetasql_type() const;
+  private:
+  bool _internal_has_zetasql_type() const;
+  public:
+  void clear_zetasql_type();
+  const ::zetasql::TypeProto& zetasql_type() const;
+  PROTOBUF_MUST_USE_RESULT ::zetasql::TypeProto* release_zetasql_type();
+  ::zetasql::TypeProto* mutable_zetasql_type();
+  void set_allocated_zetasql_type(::zetasql::TypeProto* zetasql_type);
+  private:
+  const ::zetasql::TypeProto& _internal_zetasql_type() const;
+  ::zetasql::TypeProto* _internal_mutable_zetasql_type();
+  public:
+  void unsafe_arena_set_allocated_zetasql_type(
+      ::zetasql::TypeProto* zetasql_type);
+  ::zetasql::TypeProto* unsafe_arena_release_zetasql_type();
+
+  // @@protoc_insertion_point(class_scope:ZetaSQLColumn)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
+  ::zetasql::TypeProto* zetasql_type_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_alphasql_5fservice_2eproto;
+};
+// -------------------------------------------------------------------
+
+class GenericColumn final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:GenericColumn) */ {
+ public:
+  inline GenericColumn() : GenericColumn(nullptr) {}
+  ~GenericColumn() override;
+  explicit constexpr GenericColumn(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  GenericColumn(const GenericColumn& from);
+  GenericColumn(GenericColumn&& from) noexcept
+    : GenericColumn() {
+    *this = ::std::move(from);
+  }
+
+  inline GenericColumn& operator=(const GenericColumn& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GenericColumn& operator=(GenericColumn&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const GenericColumn& default_instance() {
+    return *internal_default_instance();
+  }
+  enum ColumnCase {
+    kColumns = 2,
+    kZetasqlColumns = 3,
+    COLUMN_NOT_SET = 0,
+  };
+
+  static inline const GenericColumn* internal_default_instance() {
+    return reinterpret_cast<const GenericColumn*>(
+               &_GenericColumn_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    5;
+
+  friend void swap(GenericColumn& a, GenericColumn& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(GenericColumn* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GenericColumn* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline GenericColumn* New() const final {
+    return new GenericColumn();
+  }
+
+  GenericColumn* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<GenericColumn>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const GenericColumn& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const GenericColumn& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(GenericColumn* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "GenericColumn";
+  }
+  protected:
+  explicit GenericColumn(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kColumnsFieldNumber = 2,
+    kZetasqlColumnsFieldNumber = 3,
+  };
+  // .Column columns = 2;
+  bool has_columns() const;
+  private:
+  bool _internal_has_columns() const;
+  public:
+  void clear_columns();
+  const ::Column& columns() const;
+  PROTOBUF_MUST_USE_RESULT ::Column* release_columns();
+  ::Column* mutable_columns();
+  void set_allocated_columns(::Column* columns);
+  private:
+  const ::Column& _internal_columns() const;
+  ::Column* _internal_mutable_columns();
+  public:
+  void unsafe_arena_set_allocated_columns(
+      ::Column* columns);
+  ::Column* unsafe_arena_release_columns();
+
+  // .ZetaSQLColumn zetasql_columns = 3;
+  bool has_zetasql_columns() const;
+  private:
+  bool _internal_has_zetasql_columns() const;
+  public:
+  void clear_zetasql_columns();
+  const ::ZetaSQLColumn& zetasql_columns() const;
+  PROTOBUF_MUST_USE_RESULT ::ZetaSQLColumn* release_zetasql_columns();
+  ::ZetaSQLColumn* mutable_zetasql_columns();
+  void set_allocated_zetasql_columns(::ZetaSQLColumn* zetasql_columns);
+  private:
+  const ::ZetaSQLColumn& _internal_zetasql_columns() const;
+  ::ZetaSQLColumn* _internal_mutable_zetasql_columns();
+  public:
+  void unsafe_arena_set_allocated_zetasql_columns(
+      ::ZetaSQLColumn* zetasql_columns);
+  ::ZetaSQLColumn* unsafe_arena_release_zetasql_columns();
+
+  void clear_column();
+  ColumnCase column_case() const;
+  // @@protoc_insertion_point(class_scope:GenericColumn)
+ private:
+  class _Internal;
+  void set_has_columns();
+  void set_has_zetasql_columns();
+
+  inline bool has_column() const;
+  inline void clear_has_column();
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  union ColumnUnion {
+    constexpr ColumnUnion() : _constinit_{} {}
+      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
+    ::Column* columns_;
+    ::ZetaSQLColumn* zetasql_columns_;
+  } column_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
+
   friend struct ::TableStruct_alphasql_5fservice_2eproto;
 };
 // -------------------------------------------------------------------
@@ -848,7 +1294,7 @@ class TableSchema final :
                &_TableSchema_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    6;
 
   friend void swap(TableSchema& a, TableSchema& b) {
     a.Swap(&b);
@@ -922,22 +1368,22 @@ class TableSchema final :
     kColumnsFieldNumber = 2,
     kTableNameFieldNumber = 1,
   };
-  // repeated .Column columns = 2;
+  // repeated .GenericColumn columns = 2;
   int columns_size() const;
   private:
   int _internal_columns_size() const;
   public:
   void clear_columns();
-  ::Column* mutable_columns(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Column >*
+  ::GenericColumn* mutable_columns(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::GenericColumn >*
       mutable_columns();
   private:
-  const ::Column& _internal_columns(int index) const;
-  ::Column* _internal_add_columns();
+  const ::GenericColumn& _internal_columns(int index) const;
+  ::GenericColumn* _internal_add_columns();
   public:
-  const ::Column& columns(int index) const;
-  ::Column* add_columns();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Column >&
+  const ::GenericColumn& columns(int index) const;
+  ::GenericColumn* add_columns();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::GenericColumn >&
       columns() const;
 
   // string table_name = 1;
@@ -961,7 +1407,7 @@ class TableSchema final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Column > columns_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::GenericColumn > columns_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr table_name_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_alphasql_5fservice_2eproto;
@@ -1012,7 +1458,7 @@ class AlphaCheckRequest final :
                &_AlphaCheckRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    7;
 
   friend void swap(AlphaCheckRequest& a, AlphaCheckRequest& b) {
     a.Swap(&b);
@@ -1196,7 +1642,7 @@ class AlphaCheckResponse final :
                &_AlphaCheckResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    8;
 
   friend void swap(AlphaCheckResponse& a, AlphaCheckResponse& b) {
     a.Swap(&b);
@@ -1742,85 +2188,215 @@ inline void AlphaDAGResponse::set_allocated_error(std::string* error) {
 
 // Column
 
-// string column_name = 1;
-inline void Column::clear_column_name() {
-  column_name_.ClearToEmpty();
+// string name = 1;
+inline void Column::clear_name() {
+  name_.ClearToEmpty();
 }
-inline const std::string& Column::column_name() const {
-  // @@protoc_insertion_point(field_get:Column.column_name)
-  return _internal_column_name();
+inline const std::string& Column::name() const {
+  // @@protoc_insertion_point(field_get:Column.name)
+  return _internal_name();
 }
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
-void Column::set_column_name(ArgT0&& arg0, ArgT... args) {
+void Column::set_name(ArgT0&& arg0, ArgT... args) {
  
- column_name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:Column.column_name)
+ name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:Column.name)
 }
-inline std::string* Column::mutable_column_name() {
-  std::string* _s = _internal_mutable_column_name();
-  // @@protoc_insertion_point(field_mutable:Column.column_name)
+inline std::string* Column::mutable_name() {
+  std::string* _s = _internal_mutable_name();
+  // @@protoc_insertion_point(field_mutable:Column.name)
   return _s;
 }
-inline const std::string& Column::_internal_column_name() const {
-  return column_name_.Get();
+inline const std::string& Column::_internal_name() const {
+  return name_.Get();
 }
-inline void Column::_internal_set_column_name(const std::string& value) {
+inline void Column::_internal_set_name(const std::string& value) {
   
-  column_name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+  name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
-inline std::string* Column::_internal_mutable_column_name() {
+inline std::string* Column::_internal_mutable_name() {
   
-  return column_name_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+  return name_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
 }
-inline std::string* Column::release_column_name() {
-  // @@protoc_insertion_point(field_release:Column.column_name)
-  return column_name_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+inline std::string* Column::release_name() {
+  // @@protoc_insertion_point(field_release:Column.name)
+  return name_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
 }
-inline void Column::set_allocated_column_name(std::string* column_name) {
-  if (column_name != nullptr) {
+inline void Column::set_allocated_name(std::string* name) {
+  if (name != nullptr) {
     
   } else {
     
   }
-  column_name_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), column_name,
+  name_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name,
       GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set_allocated:Column.column_name)
+  // @@protoc_insertion_point(field_set_allocated:Column.name)
 }
 
-// .zetasql.TypeProto type = 2;
-inline bool Column::_internal_has_type() const {
-  return this != internal_default_instance() && type_ != nullptr;
+// .SupportedType type = 2;
+inline void Column::clear_type() {
+  type_ = 0;
 }
-inline bool Column::has_type() const {
-  return _internal_has_type();
+inline ::SupportedType Column::_internal_type() const {
+  return static_cast< ::SupportedType >(type_);
 }
-inline const ::zetasql::TypeProto& Column::_internal_type() const {
-  const ::zetasql::TypeProto* p = type_;
-  return p != nullptr ? *p : reinterpret_cast<const ::zetasql::TypeProto&>(
-      ::zetasql::_TypeProto_default_instance_);
-}
-inline const ::zetasql::TypeProto& Column::type() const {
+inline ::SupportedType Column::type() const {
   // @@protoc_insertion_point(field_get:Column.type)
   return _internal_type();
 }
-inline void Column::unsafe_arena_set_allocated_type(
-    ::zetasql::TypeProto* type) {
-  if (GetArenaForAllocation() == nullptr) {
-    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(type_);
-  }
-  type_ = type;
-  if (type) {
+inline void Column::_internal_set_type(::SupportedType value) {
+  
+  type_ = value;
+}
+inline void Column::set_type(::SupportedType value) {
+  _internal_set_type(value);
+  // @@protoc_insertion_point(field_set:Column.type)
+}
+
+// .Mode mode = 3;
+inline void Column::clear_mode() {
+  mode_ = 0;
+}
+inline ::Mode Column::_internal_mode() const {
+  return static_cast< ::Mode >(mode_);
+}
+inline ::Mode Column::mode() const {
+  // @@protoc_insertion_point(field_get:Column.mode)
+  return _internal_mode();
+}
+inline void Column::_internal_set_mode(::Mode value) {
+  
+  mode_ = value;
+}
+inline void Column::set_mode(::Mode value) {
+  _internal_set_mode(value);
+  // @@protoc_insertion_point(field_set:Column.mode)
+}
+
+// repeated .Column fields = 4;
+inline int Column::_internal_fields_size() const {
+  return fields_.size();
+}
+inline int Column::fields_size() const {
+  return _internal_fields_size();
+}
+inline void Column::clear_fields() {
+  fields_.Clear();
+}
+inline ::Column* Column::mutable_fields(int index) {
+  // @@protoc_insertion_point(field_mutable:Column.fields)
+  return fields_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Column >*
+Column::mutable_fields() {
+  // @@protoc_insertion_point(field_mutable_list:Column.fields)
+  return &fields_;
+}
+inline const ::Column& Column::_internal_fields(int index) const {
+  return fields_.Get(index);
+}
+inline const ::Column& Column::fields(int index) const {
+  // @@protoc_insertion_point(field_get:Column.fields)
+  return _internal_fields(index);
+}
+inline ::Column* Column::_internal_add_fields() {
+  return fields_.Add();
+}
+inline ::Column* Column::add_fields() {
+  ::Column* _add = _internal_add_fields();
+  // @@protoc_insertion_point(field_add:Column.fields)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Column >&
+Column::fields() const {
+  // @@protoc_insertion_point(field_list:Column.fields)
+  return fields_;
+}
+
+// -------------------------------------------------------------------
+
+// ZetaSQLColumn
+
+// string name = 1;
+inline void ZetaSQLColumn::clear_name() {
+  name_.ClearToEmpty();
+}
+inline const std::string& ZetaSQLColumn::name() const {
+  // @@protoc_insertion_point(field_get:ZetaSQLColumn.name)
+  return _internal_name();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void ZetaSQLColumn::set_name(ArgT0&& arg0, ArgT... args) {
+ 
+ name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:ZetaSQLColumn.name)
+}
+inline std::string* ZetaSQLColumn::mutable_name() {
+  std::string* _s = _internal_mutable_name();
+  // @@protoc_insertion_point(field_mutable:ZetaSQLColumn.name)
+  return _s;
+}
+inline const std::string& ZetaSQLColumn::_internal_name() const {
+  return name_.Get();
+}
+inline void ZetaSQLColumn::_internal_set_name(const std::string& value) {
+  
+  name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* ZetaSQLColumn::_internal_mutable_name() {
+  
+  return name_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* ZetaSQLColumn::release_name() {
+  // @@protoc_insertion_point(field_release:ZetaSQLColumn.name)
+  return name_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void ZetaSQLColumn::set_allocated_name(std::string* name) {
+  if (name != nullptr) {
     
   } else {
     
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Column.type)
+  name_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name,
+      GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set_allocated:ZetaSQLColumn.name)
 }
-inline ::zetasql::TypeProto* Column::release_type() {
+
+// .zetasql.TypeProto zetasql_type = 2;
+inline bool ZetaSQLColumn::_internal_has_zetasql_type() const {
+  return this != internal_default_instance() && zetasql_type_ != nullptr;
+}
+inline bool ZetaSQLColumn::has_zetasql_type() const {
+  return _internal_has_zetasql_type();
+}
+inline const ::zetasql::TypeProto& ZetaSQLColumn::_internal_zetasql_type() const {
+  const ::zetasql::TypeProto* p = zetasql_type_;
+  return p != nullptr ? *p : reinterpret_cast<const ::zetasql::TypeProto&>(
+      ::zetasql::_TypeProto_default_instance_);
+}
+inline const ::zetasql::TypeProto& ZetaSQLColumn::zetasql_type() const {
+  // @@protoc_insertion_point(field_get:ZetaSQLColumn.zetasql_type)
+  return _internal_zetasql_type();
+}
+inline void ZetaSQLColumn::unsafe_arena_set_allocated_zetasql_type(
+    ::zetasql::TypeProto* zetasql_type) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(zetasql_type_);
+  }
+  zetasql_type_ = zetasql_type;
+  if (zetasql_type) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:ZetaSQLColumn.zetasql_type)
+}
+inline ::zetasql::TypeProto* ZetaSQLColumn::release_zetasql_type() {
   
-  ::zetasql::TypeProto* temp = type_;
-  type_ = nullptr;
+  ::zetasql::TypeProto* temp = zetasql_type_;
+  zetasql_type_ = nullptr;
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
@@ -1832,48 +2408,209 @@ inline ::zetasql::TypeProto* Column::release_type() {
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
   return temp;
 }
-inline ::zetasql::TypeProto* Column::unsafe_arena_release_type() {
-  // @@protoc_insertion_point(field_release:Column.type)
+inline ::zetasql::TypeProto* ZetaSQLColumn::unsafe_arena_release_zetasql_type() {
+  // @@protoc_insertion_point(field_release:ZetaSQLColumn.zetasql_type)
   
-  ::zetasql::TypeProto* temp = type_;
-  type_ = nullptr;
+  ::zetasql::TypeProto* temp = zetasql_type_;
+  zetasql_type_ = nullptr;
   return temp;
 }
-inline ::zetasql::TypeProto* Column::_internal_mutable_type() {
+inline ::zetasql::TypeProto* ZetaSQLColumn::_internal_mutable_zetasql_type() {
   
-  if (type_ == nullptr) {
+  if (zetasql_type_ == nullptr) {
     auto* p = CreateMaybeMessage<::zetasql::TypeProto>(GetArenaForAllocation());
-    type_ = p;
+    zetasql_type_ = p;
   }
-  return type_;
+  return zetasql_type_;
 }
-inline ::zetasql::TypeProto* Column::mutable_type() {
-  ::zetasql::TypeProto* _msg = _internal_mutable_type();
-  // @@protoc_insertion_point(field_mutable:Column.type)
+inline ::zetasql::TypeProto* ZetaSQLColumn::mutable_zetasql_type() {
+  ::zetasql::TypeProto* _msg = _internal_mutable_zetasql_type();
+  // @@protoc_insertion_point(field_mutable:ZetaSQLColumn.zetasql_type)
   return _msg;
 }
-inline void Column::set_allocated_type(::zetasql::TypeProto* type) {
+inline void ZetaSQLColumn::set_allocated_zetasql_type(::zetasql::TypeProto* zetasql_type) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   if (message_arena == nullptr) {
-    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(type_);
+    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(zetasql_type_);
   }
-  if (type) {
+  if (zetasql_type) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
             ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(type));
+                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(zetasql_type));
     if (message_arena != submessage_arena) {
-      type = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, type, submessage_arena);
+      zetasql_type = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, zetasql_type, submessage_arena);
     }
     
   } else {
     
   }
-  type_ = type;
-  // @@protoc_insertion_point(field_set_allocated:Column.type)
+  zetasql_type_ = zetasql_type;
+  // @@protoc_insertion_point(field_set_allocated:ZetaSQLColumn.zetasql_type)
 }
 
+// -------------------------------------------------------------------
+
+// GenericColumn
+
+// .Column columns = 2;
+inline bool GenericColumn::_internal_has_columns() const {
+  return column_case() == kColumns;
+}
+inline bool GenericColumn::has_columns() const {
+  return _internal_has_columns();
+}
+inline void GenericColumn::set_has_columns() {
+  _oneof_case_[0] = kColumns;
+}
+inline void GenericColumn::clear_columns() {
+  if (_internal_has_columns()) {
+    if (GetArenaForAllocation() == nullptr) {
+      delete column_.columns_;
+    }
+    clear_has_column();
+  }
+}
+inline ::Column* GenericColumn::release_columns() {
+  // @@protoc_insertion_point(field_release:GenericColumn.columns)
+  if (_internal_has_columns()) {
+    clear_has_column();
+      ::Column* temp = column_.columns_;
+    if (GetArenaForAllocation() != nullptr) {
+      temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+    }
+    column_.columns_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::Column& GenericColumn::_internal_columns() const {
+  return _internal_has_columns()
+      ? *column_.columns_
+      : reinterpret_cast< ::Column&>(::_Column_default_instance_);
+}
+inline const ::Column& GenericColumn::columns() const {
+  // @@protoc_insertion_point(field_get:GenericColumn.columns)
+  return _internal_columns();
+}
+inline ::Column* GenericColumn::unsafe_arena_release_columns() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:GenericColumn.columns)
+  if (_internal_has_columns()) {
+    clear_has_column();
+    ::Column* temp = column_.columns_;
+    column_.columns_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void GenericColumn::unsafe_arena_set_allocated_columns(::Column* columns) {
+  clear_column();
+  if (columns) {
+    set_has_columns();
+    column_.columns_ = columns;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:GenericColumn.columns)
+}
+inline ::Column* GenericColumn::_internal_mutable_columns() {
+  if (!_internal_has_columns()) {
+    clear_column();
+    set_has_columns();
+    column_.columns_ = CreateMaybeMessage< ::Column >(GetArenaForAllocation());
+  }
+  return column_.columns_;
+}
+inline ::Column* GenericColumn::mutable_columns() {
+  ::Column* _msg = _internal_mutable_columns();
+  // @@protoc_insertion_point(field_mutable:GenericColumn.columns)
+  return _msg;
+}
+
+// .ZetaSQLColumn zetasql_columns = 3;
+inline bool GenericColumn::_internal_has_zetasql_columns() const {
+  return column_case() == kZetasqlColumns;
+}
+inline bool GenericColumn::has_zetasql_columns() const {
+  return _internal_has_zetasql_columns();
+}
+inline void GenericColumn::set_has_zetasql_columns() {
+  _oneof_case_[0] = kZetasqlColumns;
+}
+inline void GenericColumn::clear_zetasql_columns() {
+  if (_internal_has_zetasql_columns()) {
+    if (GetArenaForAllocation() == nullptr) {
+      delete column_.zetasql_columns_;
+    }
+    clear_has_column();
+  }
+}
+inline ::ZetaSQLColumn* GenericColumn::release_zetasql_columns() {
+  // @@protoc_insertion_point(field_release:GenericColumn.zetasql_columns)
+  if (_internal_has_zetasql_columns()) {
+    clear_has_column();
+      ::ZetaSQLColumn* temp = column_.zetasql_columns_;
+    if (GetArenaForAllocation() != nullptr) {
+      temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+    }
+    column_.zetasql_columns_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::ZetaSQLColumn& GenericColumn::_internal_zetasql_columns() const {
+  return _internal_has_zetasql_columns()
+      ? *column_.zetasql_columns_
+      : reinterpret_cast< ::ZetaSQLColumn&>(::_ZetaSQLColumn_default_instance_);
+}
+inline const ::ZetaSQLColumn& GenericColumn::zetasql_columns() const {
+  // @@protoc_insertion_point(field_get:GenericColumn.zetasql_columns)
+  return _internal_zetasql_columns();
+}
+inline ::ZetaSQLColumn* GenericColumn::unsafe_arena_release_zetasql_columns() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:GenericColumn.zetasql_columns)
+  if (_internal_has_zetasql_columns()) {
+    clear_has_column();
+    ::ZetaSQLColumn* temp = column_.zetasql_columns_;
+    column_.zetasql_columns_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void GenericColumn::unsafe_arena_set_allocated_zetasql_columns(::ZetaSQLColumn* zetasql_columns) {
+  clear_column();
+  if (zetasql_columns) {
+    set_has_zetasql_columns();
+    column_.zetasql_columns_ = zetasql_columns;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:GenericColumn.zetasql_columns)
+}
+inline ::ZetaSQLColumn* GenericColumn::_internal_mutable_zetasql_columns() {
+  if (!_internal_has_zetasql_columns()) {
+    clear_column();
+    set_has_zetasql_columns();
+    column_.zetasql_columns_ = CreateMaybeMessage< ::ZetaSQLColumn >(GetArenaForAllocation());
+  }
+  return column_.zetasql_columns_;
+}
+inline ::ZetaSQLColumn* GenericColumn::mutable_zetasql_columns() {
+  ::ZetaSQLColumn* _msg = _internal_mutable_zetasql_columns();
+  // @@protoc_insertion_point(field_mutable:GenericColumn.zetasql_columns)
+  return _msg;
+}
+
+inline bool GenericColumn::has_column() const {
+  return column_case() != COLUMN_NOT_SET;
+}
+inline void GenericColumn::clear_has_column() {
+  _oneof_case_[0] = COLUMN_NOT_SET;
+}
+inline GenericColumn::ColumnCase GenericColumn::column_case() const {
+  return GenericColumn::ColumnCase(_oneof_case_[0]);
+}
 // -------------------------------------------------------------------
 
 // TableSchema
@@ -1924,7 +2661,7 @@ inline void TableSchema::set_allocated_table_name(std::string* table_name) {
   // @@protoc_insertion_point(field_set_allocated:TableSchema.table_name)
 }
 
-// repeated .Column columns = 2;
+// repeated .GenericColumn columns = 2;
 inline int TableSchema::_internal_columns_size() const {
   return columns_.size();
 }
@@ -1934,31 +2671,31 @@ inline int TableSchema::columns_size() const {
 inline void TableSchema::clear_columns() {
   columns_.Clear();
 }
-inline ::Column* TableSchema::mutable_columns(int index) {
+inline ::GenericColumn* TableSchema::mutable_columns(int index) {
   // @@protoc_insertion_point(field_mutable:TableSchema.columns)
   return columns_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Column >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::GenericColumn >*
 TableSchema::mutable_columns() {
   // @@protoc_insertion_point(field_mutable_list:TableSchema.columns)
   return &columns_;
 }
-inline const ::Column& TableSchema::_internal_columns(int index) const {
+inline const ::GenericColumn& TableSchema::_internal_columns(int index) const {
   return columns_.Get(index);
 }
-inline const ::Column& TableSchema::columns(int index) const {
+inline const ::GenericColumn& TableSchema::columns(int index) const {
   // @@protoc_insertion_point(field_get:TableSchema.columns)
   return _internal_columns(index);
 }
-inline ::Column* TableSchema::_internal_add_columns() {
+inline ::GenericColumn* TableSchema::_internal_add_columns() {
   return columns_.Add();
 }
-inline ::Column* TableSchema::add_columns() {
-  ::Column* _add = _internal_add_columns();
+inline ::GenericColumn* TableSchema::add_columns() {
+  ::GenericColumn* _add = _internal_add_columns();
   // @@protoc_insertion_point(field_add:TableSchema.columns)
   return _add;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Column >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::GenericColumn >&
 TableSchema::columns() const {
   // @@protoc_insertion_point(field_list:TableSchema.columns)
   return columns_;
@@ -2171,9 +2908,28 @@ inline void AlphaCheckResponse::set_allocated_error(std::string* error) {
 
 // -------------------------------------------------------------------
 
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 
 // @@protoc_insertion_point(namespace_scope)
 
+
+PROTOBUF_NAMESPACE_OPEN
+
+template <> struct is_proto_enum< ::SupportedType> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::SupportedType>() {
+  return ::SupportedType_descriptor();
+}
+template <> struct is_proto_enum< ::Mode> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::Mode>() {
+  return ::Mode_descriptor();
+}
+
+PROTOBUF_NAMESPACE_CLOSE
 
 // @@protoc_insertion_point(global_scope)
 

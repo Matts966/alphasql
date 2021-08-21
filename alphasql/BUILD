@@ -19,6 +19,14 @@ package(
 )
 
 cc_library(
+    name = "alphasql_service_cc_proto",
+    hdrs = ["proto/alphasql_service.pb.h"],
+    deps = [
+        "@com_github_google_protobuf//protobuf_lite",
+    ],
+)
+
+cc_library(
     name = "json_schema_reader",
     hdrs = ["json_schema_reader.h"],
     deps = [
@@ -26,6 +34,7 @@ cc_library(
         "@com_google_zetasql//zetasql/public:type",
         "@boost//:property_tree",
         "@com_google_absl//absl/strings",
+        ":alphasql_service_cc_proto"
     ],
 )
 

@@ -22,40 +22,57 @@ message AlphaDAGResponse {
 }
 
 enum SupportedType {
-  STRING = 1;
-  INTEGER = 2;
-  INT64 = 3;
-  BOOLEAN = 4;
-  BOOL = 5;
-  FLOAT64 = 6;
-  FLOAT = 7;
-  NUMERIC = 8;
-  BYTES = 9;
-  TIMESTAMP = 10;
-  TIME = 11;
-  DATETIME = 12;
-  DATE = 13;
-  GEOGRAPHY = 14;
+  STRING = 0;
+  INTEGER = 1;
+  INT64 = 2;
+  BOOLEAN = 3;
+  BOOL = 4;
+  FLOAT64 = 5;
+  FLOAT = 6;
+  NUMERIC = 7;
+  BYTES = 8;
+  TIMESTAMP = 9;
+  TIME = 10;
+  DATETIME = 11;
+  DATE = 12;
+  GEOGRAPHY = 13;
+  RECORD = 14;
 }
 
 enum Mode {
-  REPEATED = 1;
-  NULLABLE = 2;
-  REQUIRED = 3;
+  REPEATED = 0;
+  NULLABLE = 1;
+  REQUIRED = 2;
 }
+
+/* import "google/protobuf/any.proto"; */
 
 message Column {
   string name = 1;
-  Mode mode = 4;
-  zetasql.TypeProto zetasql_type = 2;
-  oneof type {
-    SupportedType type = 3;
-  };
+  SupportedType type = 2;
+  Mode mode = 3;
+  // For record types
+  repeated Column fields = 4;
+  /* optional string description = 6; */
+  /* optional google.protobuf.Any policyTags = 7; */
 }
+
+message ZetaSQLColumn {
+  string name = 1;
+  zetasql.TypeProto zetasql_type = 2;
+}
+
+message GenericColumn {
+  oneof column {
+    Column columns = 2;
+    ZetaSQLColumn zetasql_columns = 3;
+  }
+}
+
 
 message TableSchema {
   string table_name = 1;
-  repeated Column columns = 2;
+  repeated GenericColumn columns = 2;
 }
 
 message AlphaCheckRequest {
@@ -71,9 +88,9 @@ message AlphaCheckResponse {
 service AlphaSQL {
   // Extract DAG from SQL files
   rpc AlphaDAG(AlphaDAGRequest)
-  returns (AlphaDAGResponse) {}
+    returns (AlphaDAGResponse) {}
 
   // Validate DAG
   rpc AlphaCheck(AlphaCheckRequest)
-  returns (AlphaCheckResponse) {}
+    returns (AlphaCheckResponse) {}
 }

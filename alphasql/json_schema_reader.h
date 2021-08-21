@@ -20,50 +20,83 @@
 #include "zetasql/base/statusor.h"
 #include "zetasql/public/simple_catalog.h"
 #include "zetasql/public/types/type_factory.h"
+#include "alphasql/proto/alphasql_service.pb.h"
 #include <boost/foreach.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <iostream>
 #include <string>
 #include <tuple>
+#include <google/protobuf/util/json_util.h>
 
 namespace zetasql {
 
-std::map<std::string, TypeKind> FromBigQueryTypeToZetaSQLTypeMap = {
-    {"STRING", TYPE_STRING},     {"INT64", TYPE_INT64},
-    {"INTEGER", TYPE_INT64},     {"BOOL", TYPE_BOOL},
-    {"BOOLEAN", TYPE_BOOL},      {"FLOAT64", TYPE_FLOAT},
-    {"FLOAT", TYPE_FLOAT},       {"NUMERIC", TYPE_NUMERIC},
-    {"BYTES", TYPE_BYTES},       {"TIMESTAMP", TYPE_TIMESTAMP},
-    {"DATE", TYPE_DATE},         {"TIME", TYPE_TIME},
-    {"DATETIME", TYPE_DATETIME}, {"GEOGRAPHY", TYPE_GEOGRAPHY},
+std::map<SupportedType, TypeKind> FromBigQueryTypeToZetaSQLTypeMap = {
+    {SupportedType.STRING, TYPE_STRING},     {SupportedType.INT64, TYPE_INT64},
+    {SupportedType.INTEGER, TYPE_INT64},     {SupportedType.BOOL, TYPE_BOOL},
+    {SupportedType.BOOLEAN, TYPE_BOOL},      {SupportedType.FLOAT64, TYPE_FLOAT},
+    {SupportedType.FLOAT, TYPE_FLOAT},       {SupportedType.NUMERIC, TYPE_NUMERIC},
+    {SupportedType.BYTES, TYPE_BYTES},       {SupportedType.TIMESTAMP, TYPE_TIMESTAMP},
+    {SupportedType.DATE, TYPE_DATE},         {SupportedType.TIME, TYPE_TIME},
+    {SupportedType.DATETIME, TYPE_DATETIME}, {SupportedType.GEOGRAPHY, TYPE_GEOGRAPHY},
 };
+
+// TODO: Handle return statuses of type:: functions
+void ConvertSupportedTypeToZetaSQLType(zetasql::Type **zetasql_type, SupportedType *type) {
+  if (type.mode() == Mode.REPEATED && type.type() != Mode.RECORD) {
+    // Array types
+    *zetasql_type = types::ArrayTypeFromSimpleTypeKind(
+        FromBigQueryTypeToZetaSQLTypeMap[type.type()]);
+    return;
+  }
+  if (type.type() != Mode.RECORD) {
+    *zetasql_type = types::TypeFromSimpleTypeKind(
+        FromBigQueryTypeToZetaSQLTypeMap[type.type()]);
+    return;
+  }
+  // Struct types
+  const vector<zetasql::StructField> fields;
+  for (const auto& field : type.fields()) {
+    fields.push_back(zetasql::StructField(field.name(), FromBigQueryTypeToZetaSQLTypeMap[field.type()]));
+  }
+  if (type.type() != Mode.REPEATED) {
+    types::MakeStructTypeFromVector(fields, zetasql_type);
+    return;
+  }
+  const zetasql::Type *element_type;
+  types::MakeStructTypeFromVector(fields, &element_type);
+  types::MakeArrayType(element_type, zetasql_type);
+}
 
 void AddColumnToTable(SimpleTable *table,
                       const boost::property_tree::ptree::value_type field) {
-  std::string mode = field.second.get<std::string>("mode");
-  std::string type_string = field.second.get<std::string>("type");
-  mode = absl::AsciiStrToUpper(mode);
-  type_string = absl::AsciiStrToUpper(type_string);
-
-  if (FromBigQueryTypeToZetaSQLTypeMap.count(type_string) == 0) {
-    std::cout << "ERROR: unsupported type " + type_string + "\n" << std::endl;
+  using namespace google::protobuf::util;
+  Field fieldMsg;
+  const auto status = util::JsonStringToMessage(
+        field.first, &fieldMsg, util::JsonParseOptions(true, true));
+  if (!status.ok()) {
+    std::cout << "ERROR: " << status << std::endl;
     throw;
   }
+  /* std::string mode = field.second.get<std::string>("mode"); */
+  /* std::string type_string = field.second.get<std::string>("type"); */
+  /* mode = absl::AsciiStrToUpper(mode); */
+  /* type_string = absl::AsciiStrToUpper(type_string); */
+
+  /* if (FromBigQueryTypeToZetaSQLTypeMap.count(type_string) == 0) { */
+  /*   std::cout << "ERROR: unsupported type " + type_string + "\n" << std::endl; */
+  /*   throw; */
+  /* } */
 
   const zetasql::Type *zetasql_type;
 
-  // TODO(Matts966): Implement Struct types
-  if (mode == "REPEATED" && type_string != "RECORD") {
-    // Array types
-    zetasql_type = types::ArrayTypeFromSimpleTypeKind(
-        FromBigQueryTypeToZetaSQLTypeMap[type_string]);
+  if (fieldMsg.has_type()) {
+    ConvertSupportedTypeToZetaSQLType(&zetasql_type, &fieldMsg.type());
   } else {
-    zetasql_type = types::TypeFromSimpleTypeKind(
-        FromBigQueryTypeToZetaSQLTypeMap[type_string]);
+    zetasql_type = &fieldMsg.zetasql_type();
   }
 
   if (zetasql_type == nullptr) {
-    std::cout << "ERROR: unsupported type " + type_string + "\n" << std::endl;
+    std::cout << "ERROR: invalid field " << fieldMsg << std::endl;
     throw;
   }
 
