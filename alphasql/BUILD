@@ -18,6 +18,8 @@ package(
     default_visibility = ["//:__subpackages__"],
 )
 
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
 cc_library(
     name = "alphasql_service_cc_proto",
     hdrs = ["proto/alphasql_service.pb.h"],
