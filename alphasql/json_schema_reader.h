@@ -15,99 +15,108 @@
 //
 
 #include "absl/strings/ascii.h"
+#include "alphasql/proto/alphasql_service.pb.h"
 #include "zetasql/base/status.h"
 #include "zetasql/base/status_macros.h"
 #include "zetasql/base/statusor.h"
 #include "zetasql/public/simple_catalog.h"
 #include "zetasql/public/types/type_factory.h"
-#include "alphasql/proto/alphasql_service.pb.h"
 #include <boost/foreach.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <google/protobuf/util/json_util.h>
 #include <iostream>
 #include <string>
 #include <tuple>
-#include <google/protobuf/util/json_util.h>
+#include <vector>
 
-namespace zetasql {
+namespace alphasql {
 
-std::map<SupportedType, TypeKind> FromBigQueryTypeToZetaSQLTypeMap = {
-    {SupportedType.STRING, TYPE_STRING},     {SupportedType.INT64, TYPE_INT64},
-    {SupportedType.INTEGER, TYPE_INT64},     {SupportedType.BOOL, TYPE_BOOL},
-    {SupportedType.BOOLEAN, TYPE_BOOL},      {SupportedType.FLOAT64, TYPE_FLOAT},
-    {SupportedType.FLOAT, TYPE_FLOAT},       {SupportedType.NUMERIC, TYPE_NUMERIC},
-    {SupportedType.BYTES, TYPE_BYTES},       {SupportedType.TIMESTAMP, TYPE_TIMESTAMP},
-    {SupportedType.DATE, TYPE_DATE},         {SupportedType.TIME, TYPE_TIME},
-    {SupportedType.DATETIME, TYPE_DATETIME}, {SupportedType.GEOGRAPHY, TYPE_GEOGRAPHY},
+std::map<SupportedType, zetasql::TypeKind> FromBigQueryTypeToZetaSQLTypeMap = {
+    {STRING, zetasql::TYPE_STRING},     {INT64, zetasql::TYPE_INT64},
+    {INTEGER, zetasql::TYPE_INT64},     {BOOL, zetasql::TYPE_BOOL},
+    {BOOLEAN, zetasql::TYPE_BOOL},      {FLOAT64, zetasql::TYPE_FLOAT},
+    {FLOAT, zetasql::TYPE_FLOAT},       {NUMERIC, zetasql::TYPE_NUMERIC},
+    {BYTES, zetasql::TYPE_BYTES},       {TIMESTAMP, zetasql::TYPE_TIMESTAMP},
+    {DATE, zetasql::TYPE_DATE},         {TIME, zetasql::TYPE_TIME},
+    {DATETIME, zetasql::TYPE_DATETIME}, {GEOGRAPHY, zetasql::TYPE_GEOGRAPHY},
 };
 
+static zetasql::TypeFactory tf;
+
 // TODO: Handle return statuses of type:: functions
-void ConvertSupportedTypeToZetaSQLType(zetasql::Type **zetasql_type, SupportedType *type) {
-  if (type.mode() == Mode.REPEATED && type.type() != Mode.RECORD) {
+void ConvertSupportedTypeToZetaSQLType(const zetasql::Type **zetasql_type,
+                                       const Column *column) {
+  if (column->mode() == REPEATED && column->type() != RECORD) {
     // Array types
-    *zetasql_type = types::ArrayTypeFromSimpleTypeKind(
-        FromBigQueryTypeToZetaSQLTypeMap[type.type()]);
+    *zetasql_type = zetasql::types::ArrayTypeFromSimpleTypeKind(
+        FromBigQueryTypeToZetaSQLTypeMap[column->type()]);
     return;
   }
-  if (type.type() != Mode.RECORD) {
-    *zetasql_type = types::TypeFromSimpleTypeKind(
-        FromBigQueryTypeToZetaSQLTypeMap[type.type()]);
+  if (column->type() != RECORD) {
+    *zetasql_type = zetasql::types::TypeFromSimpleTypeKind(
+        FromBigQueryTypeToZetaSQLTypeMap[column->type()]);
     return;
   }
   // Struct types
-  const vector<zetasql::StructField> fields;
-  for (const auto& field : type.fields()) {
-    fields.push_back(zetasql::StructField(field.name(), FromBigQueryTypeToZetaSQLTypeMap[field.type()]));
+  std::vector<zetasql::StructField> fields;
+  for (const auto &field : column->fields()) {
+    const zetasql::Type *field_type;
+    ConvertSupportedTypeToZetaSQLType(&field_type, &field);
+    fields.push_back(zetasql::StructField(field.name(), field_type));
   }
-  if (type.type() != Mode.REPEATED) {
-    types::MakeStructTypeFromVector(fields, zetasql_type);
+  if (column->mode() != REPEATED) {
+    const auto status = tf.MakeStructTypeFromVector(fields, zetasql_type);
+    if (!status.ok()) {
+      std::cout << "ERROR converting record " << column->name() << ": "
+                << status << std::endl;
+    }
     return;
   }
   const zetasql::Type *element_type;
-  types::MakeStructTypeFromVector(fields, &element_type);
-  types::MakeArrayType(element_type, zetasql_type);
+  auto status = tf.MakeStructTypeFromVector(fields, &element_type);
+  if (!status.ok()) {
+    std::cout << "ERROR converting repeated record " << column->name() << ": "
+              << status << std::endl;
+  }
+
+  status = tf.MakeArrayType(element_type, zetasql_type);
+  if (!status.ok()) {
+    std::cout << "ERROR converting repeated record " << column->name() << ": "
+              << status << std::endl;
+  }
 }
 
-void AddColumnToTable(SimpleTable *table,
-                      const boost::property_tree::ptree::value_type field) {
-  using namespace google::protobuf::util;
-  Field fieldMsg;
-  const auto status = util::JsonStringToMessage(
-        field.first, &fieldMsg, util::JsonParseOptions(true, true));
+void AddColumnToTable(zetasql::SimpleTable *table, const std::string field) {
+  Column column_msg;
+  google::protobuf::util::JsonParseOptions jsonParseOptions;
+  jsonParseOptions.ignore_unknown_fields = true;
+  const auto status = google::protobuf::util::JsonStringToMessage(
+      field, &column_msg, jsonParseOptions);
   if (!status.ok()) {
     std::cout << "ERROR: " << status << std::endl;
     throw;
   }
-  /* std::string mode = field.second.get<std::string>("mode"); */
-  /* std::string type_string = field.second.get<std::string>("type"); */
-  /* mode = absl::AsciiStrToUpper(mode); */
-  /* type_string = absl::AsciiStrToUpper(type_string); */
-
-  /* if (FromBigQueryTypeToZetaSQLTypeMap.count(type_string) == 0) { */
-  /*   std::cout << "ERROR: unsupported type " + type_string + "\n" << std::endl; */
-  /*   throw; */
-  /* } */
 
   const zetasql::Type *zetasql_type;
 
-  if (fieldMsg.has_type()) {
-    ConvertSupportedTypeToZetaSQLType(&zetasql_type, &fieldMsg.type());
-  } else {
-    zetasql_type = &fieldMsg.zetasql_type();
-  }
+  ConvertSupportedTypeToZetaSQLType(&zetasql_type, &column_msg);
 
   if (zetasql_type == nullptr) {
-    std::cout << "ERROR: invalid field " << fieldMsg << std::endl;
+    std::string message;
+    google::protobuf::util::MessageToJsonString(column_msg, &message);
+    std::cout << "ERROR: invalid column " << message << std::endl;
     throw;
   }
 
-  std::unique_ptr<SimpleColumn> column(new SimpleColumn(
-      table->Name(), field.second.get<std::string>("name"), zetasql_type));
-  table->AddColumn(column.release(), true);
+  std::unique_ptr<zetasql::SimpleColumn> zetasql_column(
+      new zetasql::SimpleColumn(table->Name(), column_msg.name(),
+                                zetasql_type));
+  table->AddColumn(zetasql_column.release(), true);
 }
 
 void UpdateCatalogFromJSON(const std::string &json_schema_path,
-                           SimpleCatalog *catalog) {
-  if (!std::filesystem::is_regular_file(json_schema_path) &
+                           zetasql::SimpleCatalog *catalog) {
+  if (!std::filesystem::is_regular_file(json_schema_path) &&
       !std::filesystem::is_fifo(json_schema_path)) {
     std::cout << "ERROR: not a json file path " << json_schema_path
               << std::endl;
@@ -118,20 +127,23 @@ void UpdateCatalogFromJSON(const std::string &json_schema_path,
   property_tree::ptree pt;
   property_tree::read_json(json_schema_path, pt);
 
-  std::string table_name;
+  std::vector<std::unique_ptr<zetasql::SimpleTable>> tables;
   for (property_tree::ptree::const_iterator it = pt.begin(); it != pt.end();
        ++it) {
-    table_name = it->first;
+    const auto table_name = it->first;
     const property_tree::ptree &schema = it->second;
-    std::unique_ptr<SimpleTable> table(new SimpleTable(table_name));
-    BOOST_FOREACH (const property_tree::ptree::value_type &field, schema) {
-      AddColumnToTable(table.get(), field);
+    std::unique_ptr<zetasql::SimpleTable> table(
+        new zetasql::SimpleTable(table_name));
+    for (property_tree::ptree::const_iterator it = schema.begin();
+         it != schema.end(); ++it) {
+      std::ostringstream oss;
+      property_tree::write_json(oss, it->second);
+      AddColumnToTable(table.get(), oss.str());
     }
-
     catalog->AddTable(table.release());
   }
 
   return;
 }
 
-} // namespace zetasql
+} // namespace alphasql

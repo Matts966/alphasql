@@ -7,4 +7,9 @@ UNION ALL
 SELECT
   x
 FROM
-  datawarehouse3;
+  datawarehouse3
+UNION ALL
+SELECT
+  str.a.b
+FROM
+  `dataset.main`;

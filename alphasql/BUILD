@@ -18,14 +18,14 @@ package(
     default_visibility = ["//:__subpackages__"],
 )
 
-load("@rules_proto//proto:defs.bzl", "proto_library")
+proto_library(
+    name = "alphasql_service_proto",
+    srcs = ["proto/alphasql_service.proto"],
+)
 
-cc_library(
+cc_proto_library(
     name = "alphasql_service_cc_proto",
-    hdrs = ["proto/alphasql_service.pb.h"],
-    deps = [
-        "@com_github_google_protobuf//:protobuf_lite",
-    ],
+    deps = [":alphasql_service_proto"],
 )
 
 cc_library(
@@ -113,6 +113,9 @@ cc_binary(
         "@com_google_absl//absl/types:span",
         "@com_google_protobuf//:protobuf",
         "@boost//:graph",
+    ],
+    copts = [
+        "-Iexternal/com_github_google_protobuf/src"
     ],
 )
 

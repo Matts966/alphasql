@@ -1,17 +1,15 @@
-syntax = "proto3";
-
-import "type.proto";
+syntax = "proto2";
 
 message File {
-  string name = 1;
-  string content = 2;
+  required string name = 1;
+  required string content = 2;
 }
 
 message AlphaDAGRequest {
-  bool warning_as_error = 1;
-  bool with_tables = 2;
-  bool with_functions = 3;
-  bool side_effect_first = 4;
+  required bool warning_as_error = 1;
+  required bool with_tables = 2;
+  required bool with_functions = 3;
+  required bool side_effect_first = 4;
   repeated File files = 5;
 }
 
@@ -48,36 +46,23 @@ enum Mode {
 /* import "google/protobuf/any.proto"; */
 
 message Column {
-  string name = 1;
-  SupportedType type = 2;
-  Mode mode = 3;
+  required string name = 1;
+  required SupportedType type = 2;
+  required Mode mode = 3;
   // For record types
   repeated Column fields = 4;
   /* optional string description = 6; */
   /* optional google.protobuf.Any policyTags = 7; */
 }
 
-message ZetaSQLColumn {
-  string name = 1;
-  zetasql.TypeProto zetasql_type = 2;
-}
-
-message GenericColumn {
-  oneof column {
-    Column columns = 2;
-    ZetaSQLColumn zetasql_columns = 3;
-  }
-}
-
-
 message TableSchema {
-  string table_name = 1;
-  repeated GenericColumn columns = 2;
+  required string table_name = 1;
+  repeated Column columns = 2;
 }
 
 message AlphaCheckRequest {
   repeated TableSchema external_required_tables_schema = 1;
-  string dag_dot_string = 2;
+  required string dag_dot_string = 2;
   repeated File files = 3;
 }
 
