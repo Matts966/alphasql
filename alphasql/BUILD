@@ -22,7 +22,7 @@ cc_library(
     name = "alphasql_service_cc_proto",
     hdrs = ["proto/alphasql_service.pb.h"],
     deps = [
-        "@com_github_google_protobuf//protobuf_lite",
+        "@com_github_google_protobuf//:protobuf_lite",
     ],
 )
 
