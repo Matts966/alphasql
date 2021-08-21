@@ -193,6 +193,18 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
     }
     break;
   }
+  case RESOLVED_CREATE_PROCEDURE_STMT: {
+    auto *create_proc_stmt =
+        resolved_statement->GetAs<ResolvedCreateProcedureStmt>();
+    std::cout
+        << "Create Procedure Statement analyzed, adding procedure to catalog..."
+        << std::endl;
+    std::cout << create_proc_stmt->signature().DebugString() << std::endl;
+    const Procedure *proc = new Procedure(create_proc_stmt->name_path(),
+                                    create_proc_stmt->signature());
+    catalog->AddOwnedProcedure(proc);
+    break;
+  }
   case RESOLVED_DROP_STMT: {
     auto *drop_stmt = resolved_statement->GetAs<ResolvedDropStmt>();
     std::cout << "Drop Statement analyzed, dropping table from catalog..."

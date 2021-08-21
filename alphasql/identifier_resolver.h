@@ -104,6 +104,8 @@ public:
   void visitASTCreateTableFunctionStatement(
       const ASTCreateTableFunctionStatement *node, void *data) override;
   void visitASTCallStatement(const ASTCallStatement *node, void *data) override;
+  void visitASTCreateProcedureStatement(const ASTCreateProcedureStatement *node,
+                                        void *data) override;
 };
 
 } // namespace identifier_resolver

@@ -1,10 +1,8 @@
+Analyzing "samples/scripting/procedure.sql"
+Create Procedure Statement analyzed, adding procedure to catalog...
+() -> <void>
+SUCCESS: analysis finished!
 Analyzing "samples/scripting/script.sql"
 DDL analyzed, adding table to catalog...
 DDL analyzed, adding table to catalog...
-ERROR: INVALID_ARGUMENT: Procedure not found: create_datawarehouse3 [at samples/scripting/script.sql:12:8]
-catalog:
-	tablename2
-	tablename1
-	dataset.main
-	datawarehouse2
-	datawarehouse1
+2021-08-16 08:20:12  FATAL  function_signature.cc : 496 : Check failed: kind == ARG_TYPE_FIXED == type != nullptr (1 vs. 0) 

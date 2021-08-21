@@ -245,15 +245,15 @@ void IdentifierResolver::visitASTCreateTableFunctionStatement(
 
 void IdentifierResolver::visitASTCallStatement(const ASTCallStatement *node,
                                                void *data) {
-  node->ChildrenAccept(this, data);
-  // print("CALL");
-  // node->procedure_name()->Accept(this, data);
-  // print("(");
-  // UnparseVectorWithSeparator(node->arguments(), data, ",");
-  // print(")");
+  identifier_information.function_information.called.insert(
+      node->procedure_name()->ToIdentifierVector());
+  visitASTChildren(node, data);
+}
 
-  // Currently procedures are ignored.
-  return;
+void IdentifierResolver::visitASTCreateProcedureStatement(
+    const ASTCreateProcedureStatement *node, void *data) {
+  identifier_information.function_information.defined.insert(
+      node->name()->ToIdentifierVector());
 }
 
 } // namespace identifier_resolver

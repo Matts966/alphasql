@@ -1,3 +1,2 @@
 tablename1
 tablename2
-tmp

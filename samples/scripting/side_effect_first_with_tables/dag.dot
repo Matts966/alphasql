@@ -4,18 +4,15 @@ digraph G {
 2 [label="samples/scripting/script.sql", shape="", type=query];
 3 [label=datawarehouse1, shape=box, type=table];
 4 [label=datawarehouse2, shape=box, type=table];
-5 [label=datawarehouse3, shape=box, type=table];
-6 [label=mart, shape=box, type=table];
-7 [label=tablename1, shape=box, type=table];
-8 [label=tablename2, shape=box, type=table];
-9 [label=tmp, shape=box, type=table];
-0->6 ;
-1->5 ;
+5 [label=mart, shape=box, type=table];
+6 [label=tablename1, shape=box, type=table];
+7 [label=tablename2, shape=box, type=table];
+0->5 ;
+1->2 ;
 2->3 ;
 2->4 ;
 3->0 ;
 4->0 ;
+6->2 ;
 7->2 ;
-8->2 ;
-9->0 ;
 }
