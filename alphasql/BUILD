@@ -114,9 +114,6 @@ cc_binary(
         "@com_google_protobuf//:protobuf",
         "@boost//:graph",
     ],
-    copts = [
-        "-Iexternal/com_github_google_protobuf/src"
-    ],
 )
 
 cc_binary(
