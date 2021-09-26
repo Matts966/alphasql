@@ -48,9 +48,18 @@ cc_library(
 )
 
 cc_library(
+    name = "common_lib",
+    hdrs = ["common_lib.h"],
+    deps = [
+        "@com_google_zetasql//zetasql/parser:parser",
+    ],
+)
+
+cc_library(
     name = "table_name_resolver",
     hdrs = ["table_name_resolver.h"],
     deps = [
+        ":common_lib",
         "@com_google_zetasql//zetasql/public:simple_catalog",
         "@com_google_zetasql//zetasql/public:type",
         "@boost//:property_tree",
@@ -65,6 +74,7 @@ cc_binary(
     ],
     deps = [
         ":json_schema_reader",
+        ":common_lib",
         "@com_google_zetasql//zetasql/base",
         "@com_google_zetasql//zetasql/base:map_util",
         "@com_google_zetasql//zetasql/base:ret_check",

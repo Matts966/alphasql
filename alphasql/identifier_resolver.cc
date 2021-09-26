@@ -73,16 +73,12 @@ GetIdentifierInformation(const std::string &sql_file_path) {
   std::ifstream file(file_path, std::ios::in);
   std::string sql(std::istreambuf_iterator<char>(file), {});
 
-  ZETASQL_RETURN_IF_ERROR(ParseScript(sql, options.GetParserOptions(),
-                                      options.error_message_mode(),
-                                      &parser_output));
+  ZETASQL_RETURN_IF_ERROR(alphasql::ParseScript(sql, options.GetParserOptions(),
+                                                options.error_message_mode(),
+                                                &parser_output, file_path));
+
   IdentifierResolver resolver = IdentifierResolver();
   parser_output->script()->Accept(&resolver, nullptr);
-  // TODO: The below function call is not OK compared to GetTables, but more
-  // performant. Try to fix bugs and use FindTableNamesInScript.
-  // ZETASQL_RETURN_IF_ERROR(alphasql::table_name_resolver::FindTableNamesInScript(sql,
-  //                         *parser_output->script(), options,
-  //                         &resolver.identifier_information.table_information.referenced));
   table_name_resolver::GetTables(
       sql_file_path, options,
       &resolver.identifier_information.table_information.referenced);

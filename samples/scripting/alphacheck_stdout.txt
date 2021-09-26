@@ -1,0 +1,10 @@
+Analyzing "samples/scripting/script.sql"
+DDL analyzed, adding table to catalog...
+DDL analyzed, adding table to catalog...
+ERROR: INVALID_ARGUMENT: Procedure not found: create_datawarehouse3 [at samples/scripting/script.sql:12:8]
+catalog:
+	tablename2
+	tablename1
+	dataset.main
+	datawarehouse2
+	datawarehouse1

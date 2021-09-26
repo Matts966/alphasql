@@ -22,7 +22,7 @@ without_options: osx
 		dot -Tpng $$sample_path/dag.dot -o $$sample_path/dag.png; \
 		alphacheck $$sample_path/dag.dot \
 			--json_schema_path ./samples/sample-schema.json \
-			> $$sample_path/alphacheck_stdout.txt 2> $$sample_path/alphacheck_stderr.txt; \
+			> $$sample_path/alphacheck_stdout.txt 2> $$sample_path/alphacheck_stderr.txt || echo alphacheck $$sample_path failed; \
 	done;
 
 .PHONY: with_functions

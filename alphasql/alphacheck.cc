@@ -33,6 +33,7 @@
 #include "zetasql/base/logging.h"
 #include "zetasql/public/analyzer.h"
 #include "zetasql/public/catalog.h"
+#include "zetasql/public/error_helpers.h"
 #include "zetasql/public/evaluator.h"
 #include "zetasql/public/evaluator_table_iterator.h"
 #include "zetasql/public/language_options.h"
@@ -42,6 +43,7 @@
 #include "zetasql/public/value.h"
 #include "zetasql/resolved_ast/resolved_ast.h"
 
+#include "alphasql/common_lib.h"
 #include "alphasql/json_schema_reader.h"
 #include "boost/graph/graphviz.hpp"
 #include "zetasql/base/status.h"
@@ -122,6 +124,92 @@ SimpleCatalog *ConstructCatalog(const google::protobuf::DescriptorPool *pool,
   return catalog;
 }
 
+absl::Status check(const std::string &sql, const ASTStatement *statement,
+                   std::vector<std::string> *temp_function_names,
+                   std::vector<std::string> *temp_table_names,
+                   const AnalyzerOptions &options, SimpleCatalog *catalog) {
+  std::unique_ptr<const AnalyzerOutput> output;
+
+  if (statement->node_kind() == AST_BEGIN_END_BLOCK) {
+    const ASTBeginEndBlock *stmt = statement->GetAs<ASTBeginEndBlock>();
+    for (const auto &body : stmt->statement_list_node()->statement_list()) {
+      ZETASQL_RETURN_IF_ERROR(check(sql, body, temp_function_names,
+                                    temp_table_names, options, catalog));
+    }
+    if (stmt->handler_list() == nullptr) {
+      return absl::OkStatus();
+    }
+    for (const ASTExceptionHandler *handler :
+         stmt->handler_list()->exception_handler_list()) {
+      auto exception_handlers = handler->statement_list()->statement_list();
+      for (const auto &handler : exception_handlers) {
+        ZETASQL_RETURN_IF_ERROR(check(sql, handler, temp_function_names,
+                                      temp_table_names, options, catalog));
+      }
+    }
+    return absl::OkStatus();
+  }
+  ZETASQL_RETURN_IF_ERROR(AnalyzeStatementFromParserAST(
+      *statement, options, sql, catalog, catalog->type_factory(), &output));
+  auto resolved_statement = output->resolved_statement();
+  switch (resolved_statement->node_kind()) {
+  case RESOLVED_CREATE_TABLE_STMT:
+  case RESOLVED_CREATE_TABLE_AS_SELECT_STMT: {
+    auto *create_table_stmt =
+        resolved_statement->GetAs<ResolvedCreateTableStmt>();
+    std::cout << "DDL analyzed, adding table to catalog..." << std::endl;
+    std::string table_name = absl::StrJoin(create_table_stmt->name_path(), ".");
+    std::unique_ptr<zetasql::SimpleTable> table(
+        new zetasql::SimpleTable(table_name));
+    for (const auto &column_definition :
+         create_table_stmt->column_definition_list()) {
+      std::unique_ptr<zetasql::SimpleColumn> column(new SimpleColumn(
+          table_name, column_definition->column().name_id().ToString(),
+          catalog->type_factory()->MakeSimpleType(
+              column_definition->column().type()->kind())));
+      ZETASQL_RETURN_IF_ERROR(table->AddColumn(column.release(), false));
+    }
+    catalog->AddOwnedTable(table.release());
+    if (create_table_stmt->create_scope() ==
+        ResolvedCreateStatement::CREATE_TEMP) {
+      temp_table_names->push_back(table_name);
+    }
+    break;
+  }
+  case RESOLVED_CREATE_FUNCTION_STMT: {
+    auto *create_function_stmt =
+        resolved_statement->GetAs<ResolvedCreateFunctionStmt>();
+    std::cout
+        << "Create Function Statement analyzed, adding function to catalog..."
+        << std::endl;
+    std::string function_name =
+        absl::StrJoin(create_function_stmt->name_path(), ".");
+    Function *function = new Function(function_name, "group", Function::SCALAR);
+    function->AddSignature(create_function_stmt->signature());
+    catalog->AddOwnedFunction(function);
+    if (create_function_stmt->create_scope() ==
+        ResolvedCreateStatement::CREATE_TEMP) {
+      temp_function_names->push_back(function_name);
+    }
+    break;
+  }
+  case RESOLVED_DROP_STMT: {
+    auto *drop_stmt = resolved_statement->GetAs<ResolvedDropStmt>();
+    std::cout << "Drop Statement analyzed, dropping table from catalog..."
+              << std::endl;
+    std::string table_name = absl::StrJoin(drop_stmt->name_path(), ".");
+    if (drop_stmt->is_if_exists()) {
+      zetasql::dropOwnedTableIfExists(catalog, table_name);
+    } else {
+      zetasql::dropOwnedTable(catalog, table_name);
+    }
+    break;
+  }
+  }
+
+  return absl::OkStatus();
+}
+
 // Runs the tool.
 absl::Status Run(const std::string &sql_file_path,
                  const AnalyzerOptions &options, SimpleCatalog *catalog) {
@@ -130,76 +218,98 @@ absl::Status Run(const std::string &sql_file_path,
   std::ifstream file(file_path, std::ios::in);
   std::string sql(std::istreambuf_iterator<char>(file), {});
 
-  TypeFactory factory;
-  ParseResumeLocation location =
-      ParseResumeLocation::FromStringView(sql_file_path, sql);
-  bool at_end_of_input = false;
-  std::unique_ptr<const AnalyzerOutput> output;
-
   std::vector<std::string> temp_function_names;
   std::vector<std::string> temp_table_names;
 
-  while (!at_end_of_input) {
-    ZETASQL_RETURN_IF_ERROR(AnalyzeNextStatement(
-        &location, options, catalog, &factory, &output, &at_end_of_input));
-    auto resolved_statement = output->resolved_statement();
-    switch (resolved_statement->node_kind()) {
-    case RESOLVED_CREATE_TABLE_STMT:
-    case RESOLVED_CREATE_TABLE_AS_SELECT_STMT: {
-      auto *create_table_stmt =
-          resolved_statement->GetAs<ResolvedCreateTableStmt>();
-      std::cout << "DDL analyzed, adding table to catalog..." << std::endl;
-      std::string table_name =
-          absl::StrJoin(create_table_stmt->name_path(), ".");
-      std::unique_ptr<zetasql::SimpleTable> table(
-          new zetasql::SimpleTable(table_name));
-      for (const auto &column_definition :
-           create_table_stmt->column_definition_list()) {
-        std::unique_ptr<zetasql::SimpleColumn> column(new SimpleColumn(
-            table_name, column_definition->column().name_id().ToString(),
-            catalog->type_factory()->MakeSimpleType(
-                column_definition->column().type()->kind())));
-        ZETASQL_RETURN_IF_ERROR(table->AddColumn(column.release(), false));
-      }
-      catalog->AddOwnedTable(table.release());
-      if (create_table_stmt->create_scope() ==
-          ResolvedCreateStatement::CREATE_TEMP) {
-        temp_table_names.push_back(table_name);
-      }
-      break;
-    }
-    case RESOLVED_CREATE_FUNCTION_STMT: {
-      auto *create_function_stmt =
-          resolved_statement->GetAs<ResolvedCreateFunctionStmt>();
-      std::cout
-          << "Create Function Statement analyzed, adding function to catalog..."
-          << std::endl;
-      std::string function_name =
-          absl::StrJoin(create_function_stmt->name_path(), ".");
-      Function *function =
-          new Function(function_name, "group", Function::SCALAR);
-      function->AddSignature(create_function_stmt->signature());
-      catalog->AddOwnedFunction(function);
-      if (create_function_stmt->create_scope() ==
-          ResolvedCreateStatement::CREATE_TEMP) {
-        temp_function_names.push_back(function_name);
-      }
-      break;
-    }
-    case RESOLVED_DROP_STMT: {
-      auto *drop_stmt = resolved_statement->GetAs<ResolvedDropStmt>();
-      std::cout << "Drop Statement analyzed, dropping table from catalog..."
-                << std::endl;
-      std::string table_name = absl::StrJoin(drop_stmt->name_path(), ".");
-      if (drop_stmt->is_if_exists()) {
-        zetasql::dropOwnedTableIfExists(catalog, table_name);
-      } else {
-        zetasql::dropOwnedTable(catalog, table_name);
-      }
-      break;
-    }
-    }
+  std::unique_ptr<ParserOutput> parser_output;
+  ZETASQL_RETURN_IF_ERROR(alphasql::ParseScript(sql, options.GetParserOptions(),
+                                                options.error_message_mode(),
+                                                &parser_output, file_path));
+
+  auto statements =
+      parser_output->script()->statement_list_node()->statement_list();
+  for (const ASTStatement *statement : statements) {
+    ZETASQL_RETURN_IF_ERROR(check(sql, statement, &temp_function_names,
+                                  &temp_table_names, options, catalog));
   }
+  /* for (const ASTStatement *statement : statements) { */
+  /*   if (statement->node_kind() == AST_BEGIN_END_BLOCK) { */
+  /*     const ASTBeginEndBlock *stmt = statement->GetAs<ASTBeginEndBlock>(); */
+  /*     auto body = stmt->statement_list_node()->statement_list(); */
+  /*     statements.insert(statements.end(), body.begin(), body.end()); */
+  /*     for (const ASTExceptionHandler *handler : */
+  /*           stmt->handler_list()->exception_handler_list()) { */
+  /*       auto exception_handlers =
+   * handler->statement_list()->statement_list(); */
+  /*       statements.insert(statements.end(), exception_handlers.begin(),
+   * exception_handlers.end()); */
+  /*     } */
+  /*     continue; */
+  /*   } */
+  /*   ZETASQL_RETURN_IF_ERROR(AnalyzeStatementFromParserAST( */
+  /*       *statement, options, sql, catalog, &factory, &output)); */
+  /*   auto resolved_statement = output->resolved_statement(); */
+  /*   switch (resolved_statement->node_kind()) { */
+  /*   case RESOLVED_CREATE_TABLE_STMT: */
+  /*   case RESOLVED_CREATE_TABLE_AS_SELECT_STMT: { */
+  /*     auto *create_table_stmt = */
+  /*         resolved_statement->GetAs<ResolvedCreateTableStmt>(); */
+  /*     std::cout << "DDL analyzed, adding table to catalog..." << std::endl;
+   */
+  /*     std::string table_name = */
+  /*         absl::StrJoin(create_table_stmt->name_path(), "."); */
+  /*     std::unique_ptr<zetasql::SimpleTable> table( */
+  /*         new zetasql::SimpleTable(table_name)); */
+  /*     for (const auto &column_definition : */
+  /*          create_table_stmt->column_definition_list()) { */
+  /*       std::unique_ptr<zetasql::SimpleColumn> column(new SimpleColumn( */
+  /*           table_name, column_definition->column().name_id().ToString(), */
+  /*           catalog->type_factory()->MakeSimpleType( */
+  /*               column_definition->column().type()->kind()))); */
+  /*       ZETASQL_RETURN_IF_ERROR(table->AddColumn(column.release(), false));
+   */
+  /*     } */
+  /*     catalog->AddOwnedTable(table.release()); */
+  /*     if (create_table_stmt->create_scope() == */
+  /*         ResolvedCreateStatement::CREATE_TEMP) { */
+  /*       temp_table_names.push_back(table_name); */
+  /*     } */
+  /*     break; */
+  /*   } */
+  /*   case RESOLVED_CREATE_FUNCTION_STMT: { */
+  /*     auto *create_function_stmt = */
+  /*         resolved_statement->GetAs<ResolvedCreateFunctionStmt>(); */
+  /*     std::cout */
+  /*         << "Create Function Statement analyzed, adding function to
+   * catalog..." */
+  /*         << std::endl; */
+  /*     std::string function_name = */
+  /*         absl::StrJoin(create_function_stmt->name_path(), "."); */
+  /*     Function *function = */
+  /*         new Function(function_name, "group", Function::SCALAR); */
+  /*     function->AddSignature(create_function_stmt->signature()); */
+  /*     catalog->AddOwnedFunction(function); */
+  /*     if (create_function_stmt->create_scope() == */
+  /*         ResolvedCreateStatement::CREATE_TEMP) { */
+  /*       temp_function_names.push_back(function_name); */
+  /*     } */
+  /*     break; */
+  /*   } */
+  /*   case RESOLVED_DROP_STMT: { */
+  /*     auto *drop_stmt = resolved_statement->GetAs<ResolvedDropStmt>(); */
+  /*     std::cout << "Drop Statement analyzed, dropping table from catalog..."
+   */
+  /*               << std::endl; */
+  /*     std::string table_name = absl::StrJoin(drop_stmt->name_path(), "."); */
+  /*     if (drop_stmt->is_if_exists()) { */
+  /*       zetasql::dropOwnedTableIfExists(catalog, table_name); */
+  /*     } else { */
+  /*       zetasql::dropOwnedTable(catalog, table_name); */
+  /*     } */
+  /*     break; */
+  /*   } */
+  /*   } */
+  /* } */
 
   for (const auto &table_name : temp_table_names) {
     std::cout << "Removing temporary table " << table_name << std::endl;
@@ -279,10 +389,12 @@ int main(int argc, char *argv[]) {
       std::cout << "ERROR: not a file " << sql_file_path << std::endl;
       return 1;
     }
-    const absl::Status status = alphasql::Run(sql_file_path, options, catalog);
+    absl::Status status = alphasql::Run(sql_file_path, options, catalog);
     if (status.ok()) {
       std::cout << "SUCCESS: analysis finished!" << std::endl;
     } else {
+      status = zetasql::UpdateErrorLocationPayloadWithFilenameIfNotPresent(
+          status, sql_file_path);
       std::cout << "ERROR: " << status << std::endl;
       std::cout << "catalog:" << std::endl;
       for (const std::string &table_name : catalog->table_names()) {
