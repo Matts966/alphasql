@@ -115,7 +115,7 @@ using namespace zetasql;
 
 SimpleCatalog *ConstructCatalog(const google::protobuf::DescriptorPool *pool,
                                 TypeFactory *type_factory) {
-  auto catalog = new SimpleCatalog("catalog", type_factory);
+  auto catalog = new zetasql::SimpleCatalog("catalog", type_factory);
   catalog->AddZetaSQLFunctions();
   catalog->SetDescriptorPool(pool);
   const std::string json_schema_path = absl::GetFlag(FLAGS_json_schema_path);
@@ -222,7 +222,7 @@ absl::Status Run(const std::string &sql_file_path,
   std::vector<std::string> temp_table_names;
 
   std::unique_ptr<ParserOutput> parser_output;
-  ZETASQL_RETURN_IF_ERROR(alphasql::ParseScript(sql, options.GetParserOptions(),
+  ZETASQL_RETURN_IF_ERROR(zetasql::ParseScript(sql, options.GetParserOptions(),
                                                 options.error_message_mode(),
                                                 &parser_output, file_path));
 

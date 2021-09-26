@@ -73,7 +73,7 @@ GetIdentifierInformation(const std::string &sql_file_path) {
   std::ifstream file(file_path, std::ios::in);
   std::string sql(std::istreambuf_iterator<char>(file), {});
 
-  ZETASQL_RETURN_IF_ERROR(alphasql::ParseScript(sql, options.GetParserOptions(),
+  ZETASQL_RETURN_IF_ERROR(zetasql::ParseScript(sql, options.GetParserOptions(),
                                                 options.error_message_mode(),
                                                 &parser_output, file_path));
 
