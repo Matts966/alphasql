@@ -98,7 +98,11 @@ You can resolve side effects such as `INSERT` and `UPDATE` statements before sim
 
 You can extract dependencies containing tables and functions by `--with_tables` and `--with_functions` options.
 
+#### With tables
+
 ![dag.dot](./samples/sample/with_all/dag.png)
+
+### With functions
 
 ![dag.dot](./samples/sample-function-dependency/with_all/dag.png)
 
