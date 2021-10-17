@@ -1217,7 +1217,7 @@ absl::Status GetTables(const std::string &sql_file_path,
   std::filesystem::path file_path(sql_file_path);
   std::ifstream file(file_path, std::ios::in);
   std::string sql(std::istreambuf_iterator<char>(file), {});
-  ZETASQL_RETURN_IF_ERROR(alphasql::ParseScript(
+  ZETASQL_RETURN_IF_ERROR(zetasql::ParseScript(
       sql, analyzer_options.GetParserOptions(),
       analyzer_options.error_message_mode(), &parser_output, file_path));
 

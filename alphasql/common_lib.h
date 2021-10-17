@@ -19,9 +19,8 @@
 #include "zetasql/parser/parse_tree.h"
 #include "zetasql/parser/parser.h"
 
-namespace alphasql {
+namespace zetasql {
 
-using namespace zetasql;
 using namespace zetasql::parser;
 using zetasql::parser::BisonParser;
 using zetasql::parser::BisonParserMode;

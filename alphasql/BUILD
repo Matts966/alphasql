@@ -18,6 +18,16 @@ package(
     default_visibility = ["//:__subpackages__"],
 )
 
+proto_library(
+    name = "alphasql_service_proto",
+    srcs = ["proto/alphasql_service.proto"],
+)
+
+cc_proto_library(
+    name = "alphasql_service_cc_proto",
+    deps = [":alphasql_service_proto"],
+)
+
 cc_library(
     name = "json_schema_reader",
     hdrs = ["json_schema_reader.h"],
@@ -26,6 +36,7 @@ cc_library(
         "@com_google_zetasql//zetasql/public:type",
         "@boost//:property_tree",
         "@com_google_absl//absl/strings",
+        ":alphasql_service_cc_proto"
     ],
 )
 

@@ -21,6 +21,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
@@ -114,12 +115,12 @@ using namespace zetasql;
 
 SimpleCatalog *ConstructCatalog(const google::protobuf::DescriptorPool *pool,
                                 TypeFactory *type_factory) {
-  auto catalog = new SimpleCatalog("catalog", type_factory);
+  auto catalog = new zetasql::SimpleCatalog("catalog", type_factory);
   catalog->AddZetaSQLFunctions();
   catalog->SetDescriptorPool(pool);
   const std::string json_schema_path = absl::GetFlag(FLAGS_json_schema_path);
   if (!json_schema_path.empty()) {
-    zetasql::UpdateCatalogFromJSON(json_schema_path, catalog);
+    UpdateCatalogFromJSON(json_schema_path, catalog);
   }
   return catalog;
 }
@@ -165,8 +166,7 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
          create_table_stmt->column_definition_list()) {
       std::unique_ptr<zetasql::SimpleColumn> column(new SimpleColumn(
           table_name, column_definition->column().name_id().ToString(),
-          catalog->type_factory()->MakeSimpleType(
-              column_definition->column().type()->kind())));
+          column_definition->column().type()));
       ZETASQL_RETURN_IF_ERROR(table->AddColumn(column.release(), false));
     }
     catalog->AddOwnedTable(table.release());
@@ -222,7 +222,7 @@ absl::Status Run(const std::string &sql_file_path,
   std::vector<std::string> temp_table_names;
 
   std::unique_ptr<ParserOutput> parser_output;
-  ZETASQL_RETURN_IF_ERROR(alphasql::ParseScript(sql, options.GetParserOptions(),
+  ZETASQL_RETURN_IF_ERROR(zetasql::ParseScript(sql, options.GetParserOptions(),
                                                 options.error_message_mode(),
                                                 &parser_output, file_path));
 
@@ -397,7 +397,10 @@ int main(int argc, char *argv[]) {
           status, sql_file_path);
       std::cout << "ERROR: " << status << std::endl;
       std::cout << "catalog:" << std::endl;
-      for (const std::string &table_name : catalog->table_names()) {
+      // For deterministic output
+      auto table_names = catalog->table_names();
+      std::sort(table_names.begin(), table_names.end());
+      for (const std::string &table_name : table_names) {
         std::cout << "\t" << table_name << std::endl;
       }
       return 1;
