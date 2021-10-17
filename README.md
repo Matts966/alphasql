@@ -63,7 +63,7 @@ wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alph
 
 ## Extract DAG from SQL set
 
-`alphadag` finds dependencies between table references and create table statements.
+`alphadag` finds dependencies between table references and create table statements, function calls and create function statements.
 
 ```bash
 # To extract DAG from your SQL set
@@ -98,7 +98,13 @@ You can resolve side effects such as `INSERT` and `UPDATE` statements before sim
 
 You can extract dependencies containing tables and functions by `--with_tables` and `--with_functions` options.
 
+#### With tables
+
 ![dag.dot](./samples/sample/with_all/dag.png)
+
+### With functions
+
+![dag.dot](./samples/sample-function-dependency/with_all/dag.png)
 
 ## Parallel Execution
 
@@ -108,6 +114,8 @@ For BigQuery, the output DAG can be run parallely using
 - [bq-jobrunner](https://github.com/tsintermax/bq_jobrunner)
 
 ### bq-airflow-dag-generator
+
+![airflow DAG](./samples/airflow.png)
 
 `bq-airflow-dag-generator` as Python package can generate Airflow DAG by simple Python script.
 
