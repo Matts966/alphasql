@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
       "--output_path <filename> <directory or file paths of sql...>\n";
   std::vector<char *> args = absl::ParseCommandLine(argc, argv);
   if (argc <= 1) {
-    std::cout << kUsage;
+    std::cerr << kUsage;
     return 1;
   }
   std::vector<char *> remaining_args(args.begin() + 1, args.end());
@@ -58,7 +58,8 @@ int main(int argc, char *argv[]) {
       absl::Status status = alphasql::UpdateIdentifierQueriesMapsAndVertices(
           file_path, table_queries_map, function_queries_map, vertices);
       if (!status.ok()) {
-        std::cout << status << std::endl;
+        status = zetasql::UpdateErrorLocationPayloadWithFilenameIfNotPresent(status, path);
+        std::cerr << status << std::endl;
         return 1;
       }
       continue;
@@ -78,7 +79,8 @@ int main(int argc, char *argv[]) {
       absl::Status status = alphasql::UpdateIdentifierQueriesMapsAndVertices(
           file_path->path(), table_queries_map, function_queries_map, vertices);
       if (!status.ok()) {
-        std::cout << status << std::endl;
+        status = zetasql::UpdateErrorLocationPayloadWithFilenameIfNotPresent(status, path);
+        std::cerr << status << std::endl;
         return 1;
       }
     }
@@ -252,7 +254,7 @@ int main(int argc, char *argv[]) {
       std::ofstream out(output_path);
       write_graphviz_dp(out, g, dp);
     } else {
-      std::cout << "output_path is not a file!" << std::endl;
+      std::cerr << "output_path is not a file!" << std::endl;
       return 1;
     }
   }
@@ -280,7 +282,7 @@ int main(int argc, char *argv[]) {
         out << required_table << std::endl;
       }
     } else {
-      std::cout << "external_required_tables_output_path is not a file!"
+      std::cerr << "external_required_tables_output_path is not a file!"
                 << std::endl;
       return 1;
     }

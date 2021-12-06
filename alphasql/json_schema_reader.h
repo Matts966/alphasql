@@ -44,83 +44,86 @@ std::map<SupportedType, zetasql::TypeKind> FromBigQueryTypeToZetaSQLTypeMap = {
 static zetasql::TypeFactory tf;
 
 // TODO: Handle return statuses of type:: functions
-void ConvertSupportedTypeToZetaSQLType(const zetasql::Type **zetasql_type,
+absl::Status ConvertSupportedTypeToZetaSQLType(const zetasql::Type **zetasql_type,
                                        const Column *column) {
   if (column->mode() == REPEATED && column->type() != RECORD) {
     // Array types
     *zetasql_type = zetasql::types::ArrayTypeFromSimpleTypeKind(
         FromBigQueryTypeToZetaSQLTypeMap[column->type()]);
-    return;
   }
   if (column->type() != RECORD) {
     *zetasql_type = zetasql::types::TypeFromSimpleTypeKind(
         FromBigQueryTypeToZetaSQLTypeMap[column->type()]);
-    return;
   }
   // Struct types
   std::vector<zetasql::StructField> fields;
   for (const auto &field : column->fields()) {
     const zetasql::Type *field_type;
-    ConvertSupportedTypeToZetaSQLType(&field_type, &field);
+    const auto status = ConvertSupportedTypeToZetaSQLType(&field_type, &field);
+    if (!status.ok()) {
+      return status;
+    }
     fields.push_back(zetasql::StructField(field.name(), field_type));
   }
   if (column->mode() != REPEATED) {
     const auto status = tf.MakeStructTypeFromVector(fields, zetasql_type);
     if (!status.ok()) {
-      std::cout << "ERROR converting record " << column->name() << ": "
-                << status << std::endl;
+      std::cerr << "ERROR converting record " << column->name() << " failed." << std::endl;
+      return status;
     }
-    return;
   }
-  const zetasql::Type *element_type;
   auto status = tf.MakeStructTypeFromVector(fields, &element_type);
   if (!status.ok()) {
-    std::cout << "ERROR converting repeated record " << column->name() << ": "
-              << status << std::endl;
+    std::cerr << "ERROR converting repeated record " << column->name() << " failed." << std::endl;
+    return status;
   }
 
   status = tf.MakeArrayType(element_type, zetasql_type);
   if (!status.ok()) {
-    std::cout << "ERROR converting repeated record " << column->name() << ": "
-              << status << std::endl;
+    std::cerr << "ERROR converting repeated record " << column->name() << " failed." << std::endl;
+    return status;
   }
+
+  return absl::OkStatus;
 }
 
-void AddColumnToTable(zetasql::SimpleTable *table, const std::string field) {
+absl::Status AddColumnToTable(zetasql::SimpleTable *table, const std::string field) {
   Column column_msg;
   google::protobuf::util::JsonParseOptions jsonParseOptions;
   jsonParseOptions.ignore_unknown_fields = true;
-  const auto status = google::protobuf::util::JsonStringToMessage(
+  auto status = google::protobuf::util::JsonStringToMessage(
       field, &column_msg, jsonParseOptions);
   if (!status.ok()) {
-    std::cout << "ERROR: " << status << std::endl;
-    throw;
+    return status;
   }
 
   const zetasql::Type *zetasql_type;
 
-  ConvertSupportedTypeToZetaSQLType(&zetasql_type, &column_msg);
+  status = ConvertSupportedTypeToZetaSQLType(&zetasql_type, &column_msg);
+  if (!status.ok()) {
+    return status;
+  }
 
   if (zetasql_type == nullptr) {
     std::string message;
     google::protobuf::util::MessageToJsonString(column_msg, &message);
-    std::cout << "ERROR: invalid column " << message << std::endl;
-    throw;
+    return absl::InvalidArgumentError("ERROR: invalid column " + message);
   }
 
   std::unique_ptr<zetasql::SimpleColumn> zetasql_column(
       new zetasql::SimpleColumn(table->Name(), column_msg.name(),
                                 zetasql_type));
   table->AddColumn(zetasql_column.release(), true);
+  return absl::OkStatus();
 }
 
 void UpdateCatalogFromJSON(const std::string &json_schema_path,
                            zetasql::SimpleCatalog *catalog) {
   if (!std::filesystem::is_regular_file(json_schema_path) &&
       !std::filesystem::is_fifo(json_schema_path)) {
-    std::cout << "ERROR: not a json file path " << json_schema_path
+    std::cerr << "ERROR: not a json file path [at " << json_schema_path << ":1:1]"
               << std::endl;
-    return;
+    throw;
   }
 
   using namespace boost;
@@ -138,7 +141,12 @@ void UpdateCatalogFromJSON(const std::string &json_schema_path,
          it != schema.end(); ++it) {
       std::ostringstream oss;
       property_tree::write_json(oss, it->second);
-      AddColumnToTable(table.get(), oss.str());
+      auto status = AddColumnToTable(table.get(), oss.str());
+      if (!status.ok()) {
+        status = zetasql::UpdateErrorLocationPayloadWithFilenameIfNotPresent(status, json_schema_path);
+        std::cerr << "Failed to generate catalog from JSON file: " << status << std::endl;
+        throw;
+      }
     }
     catalog->AddTable(table.release());
   }
