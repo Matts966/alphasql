@@ -49,7 +49,7 @@ jobs:
           restore-keys: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-
       - name: Test the repository
         run: |
-          make test
+          make
       - name: Test installation
         shell: bash
         run: |
