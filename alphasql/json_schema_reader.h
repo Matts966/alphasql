@@ -50,10 +50,12 @@ absl::Status ConvertSupportedTypeToZetaSQLType(const zetasql::Type **zetasql_typ
     // Array types
     *zetasql_type = zetasql::types::ArrayTypeFromSimpleTypeKind(
         FromBigQueryTypeToZetaSQLTypeMap[column->type()]);
+    return absl::OkStatus();
   }
   if (column->type() != RECORD) {
     *zetasql_type = zetasql::types::TypeFromSimpleTypeKind(
         FromBigQueryTypeToZetaSQLTypeMap[column->type()]);
+    return absl::OkStatus();
   }
   // Struct types
   std::vector<zetasql::StructField> fields;
@@ -71,7 +73,9 @@ absl::Status ConvertSupportedTypeToZetaSQLType(const zetasql::Type **zetasql_typ
       std::cerr << "ERROR converting record " << column->name() << " failed." << std::endl;
       return status;
     }
+    return absl::OkStatus();
   }
+  const zetasql::Type *element_type;
   auto status = tf.MakeStructTypeFromVector(fields, &element_type);
   if (!status.ok()) {
     std::cerr << "ERROR converting repeated record " << column->name() << " failed." << std::endl;
