@@ -248,8 +248,14 @@ int main(int argc, char *argv[]) {
         !std::filesystem::exists(output_path)) {
       std::filesystem::path parent =
           std::filesystem::path(output_path).parent_path();
-      if (!parent.empty() && !std::filesystem::is_directory(parent)) {
-        std::filesystem::create_directories(parent);
+      if (!std::filesystem::is_directory(parent)) {
+        try {
+          std::filesystem::create_directories(parent);
+        } catch (const std::filesystem::filesystem_error &e) {
+          std::cerr << "Failed to create directory: " << parent << std::endl;
+          std::cerr << e.what() << std::endl;
+          std::cerr << "This seems to be the current directory. Skipping..." << std::endl;
+        }
       }
       std::ofstream out(output_path);
       write_graphviz_dp(out, g, dp);
@@ -275,7 +281,13 @@ int main(int argc, char *argv[]) {
           std::filesystem::path(external_required_tables_output_path)
               .parent_path();
       if (!parent.empty() && !std::filesystem::is_directory(parent)) {
-        std::filesystem::create_directories(parent);
+        try {
+          std::filesystem::create_directories(parent);
+        } catch (const std::filesystem::filesystem_error &e) {
+          std::cerr << "Failed to create directory: " << parent << std::endl;
+          std::cerr << e.what() << std::endl;
+          std::cerr << "This seems to be the current directory. Skipping..." << std::endl;
+        }
       }
       std::ofstream out(external_required_tables_output_path);
       for (const auto &required_table : external_required_tables) {
