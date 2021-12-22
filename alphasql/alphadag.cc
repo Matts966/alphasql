@@ -251,7 +251,7 @@ int main(int argc, char *argv[]) {
       if (!std::filesystem::is_directory(parent)) {
         try {
           std::filesystem::create_directories(parent);
-        } catch (const std::exception &e) {
+        } catch (const std::filesystem::__cxx11::filesystem_error &e) {
           std::cerr << "Failed to create directory: " << parent << std::endl;
           std::cerr << e.what() << std::endl;
           std::cerr << "This seems to be the current directory. Skipping..." << std::endl;
@@ -283,7 +283,7 @@ int main(int argc, char *argv[]) {
       if (!std::filesystem::is_directory(parent)) {
         try {
           std::filesystem::create_directories(parent);
-        } catch (const std::exception &e) {
+        } catch (const std::filesystem::__cxx11::filesystem_error &e) {
           std::cerr << "Failed to create directory: " << parent << std::endl;
           std::cerr << e.what() << std::endl;
           std::cerr << "This seems to be the current directory. Skipping..." << std::endl;
