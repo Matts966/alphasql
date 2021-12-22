@@ -63,32 +63,33 @@ absl::Status ConvertSupportedTypeToZetaSQLType(const zetasql::Type **zetasql_typ
     const zetasql::Type *field_type;
     const auto status = ConvertSupportedTypeToZetaSQLType(&field_type, &field);
     if (!status.ok()) {
-      return status;
+      return absl::InvalidArgumentError(
+          absl::StrCat("Could not convert field type: ", status.message()));
     }
     fields.push_back(zetasql::StructField(field.name(), field_type));
   }
   if (column->mode() != REPEATED) {
     const auto status = tf.MakeStructTypeFromVector(fields, zetasql_type);
     if (!status.ok()) {
-      std::cerr << "ERROR converting record " << column->name() << " failed." << std::endl;
-      return status;
+      return absl::InvalidArgumentError(
+          absl::StrCat("Could not convert record type: ", status.message()));
     }
     return absl::OkStatus();
   }
   const zetasql::Type *element_type;
   auto status = tf.MakeStructTypeFromVector(fields, &element_type);
   if (!status.ok()) {
-    std::cerr << "ERROR converting repeated record " << column->name() << " failed." << std::endl;
-    return status;
+    return absl::InvalidArgumentError(
+        absl::StrCat("Could not convert repeated record type: ", status.message()));
   }
 
   status = tf.MakeArrayType(element_type, zetasql_type);
   if (!status.ok()) {
-    std::cerr << "ERROR converting repeated record " << column->name() << " failed." << std::endl;
-    return status;
+    return absl::InvalidArgumentError(
+        absl::StrCat("Could not convert repeated record type: ", status.message()));
   }
 
-  return absl::OkStatus;
+  return absl::OkStatus();
 }
 
 absl::Status AddColumnToTable(zetasql::SimpleTable *table, const std::string field) {
