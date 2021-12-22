@@ -63,8 +63,7 @@ absl::Status ConvertSupportedTypeToZetaSQLType(const zetasql::Type **zetasql_typ
     const zetasql::Type *field_type;
     const auto status = ConvertSupportedTypeToZetaSQLType(&field_type, &field);
     if (!status.ok()) {
-      return absl::InvalidArgumentError(
-          absl::StrCat("Could not convert field type: ", status.message()));
+      return status;
     }
     fields.push_back(zetasql::StructField(field.name(), field_type));
   }
@@ -96,15 +95,16 @@ absl::Status AddColumnToTable(zetasql::SimpleTable *table, const std::string fie
   Column column_msg;
   google::protobuf::util::JsonParseOptions jsonParseOptions;
   jsonParseOptions.ignore_unknown_fields = true;
-  auto status = google::protobuf::util::JsonStringToMessage(
+  const auto protoStatus = google::protobuf::util::JsonStringToMessage(
       field, &column_msg, jsonParseOptions);
-  if (!status.ok()) {
-    return status;
+  if (!protoStatus.ok()) {
+    return absl::InvalidArgumentError(
+        absl::StrCat("Could not parse column: ", protoStatus.message()));
   }
 
   const zetasql::Type *zetasql_type;
 
-  status = ConvertSupportedTypeToZetaSQLType(&zetasql_type, &column_msg);
+  const auto status = ConvertSupportedTypeToZetaSQLType(&zetasql_type, &column_msg);
   if (!status.ok()) {
     return status;
   }
