@@ -169,6 +169,7 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
           column_definition->column().type()));
       ZETASQL_RETURN_IF_ERROR(table->AddColumn(column.release(), false));
     }
+    dropOwnedTableIfExists(catalog, table_name); // In case it already exists in json schema
     catalog->AddOwnedTable(table.release());
     if (create_table_stmt->create_scope() ==
         ResolvedCreateStatement::CREATE_TEMP) {
