@@ -99,7 +99,7 @@ absl::Status AddColumnToTable(zetasql::SimpleTable *table, const std::string fie
       field, &column_msg, jsonParseOptions);
   if (!protoStatus.ok()) {
     return absl::InvalidArgumentError(
-        absl::StrCat("Could not parse column: ", protoStatus.message()));
+        absl::StrCat("Could not parse field: ", field));
   }
 
   const zetasql::Type *zetasql_type;
@@ -118,8 +118,7 @@ absl::Status AddColumnToTable(zetasql::SimpleTable *table, const std::string fie
   std::unique_ptr<zetasql::SimpleColumn> zetasql_column(
       new zetasql::SimpleColumn(table->Name(), column_msg.name(),
                                 zetasql_type));
-  table->AddColumn(zetasql_column.release(), true);
-  return absl::OkStatus();
+  return table->AddColumn(zetasql_column.release(), true);
 }
 
 void UpdateCatalogFromJSON(const std::string &json_schema_path,
