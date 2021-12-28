@@ -47,6 +47,7 @@ jobs:
           restore-keys: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-
       - name: Test the repository
         run: |
+          brew install graphviz
           sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
           bazel shutdown
           make
