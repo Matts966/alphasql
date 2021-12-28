@@ -17,6 +17,7 @@
 #include "absl/flags/flag.h"
 #include "alphasql/dag_lib.h"
 #include <filesystem>
+#include <system_error>
 #include <regex>
 
 std::regex DEFAULT_EXCLUDES(".*(.git/.*|.hg/.*|.svn/.*)");
@@ -248,14 +249,10 @@ int main(int argc, char *argv[]) {
         !std::filesystem::exists(output_path)) {
       std::filesystem::path parent =
           std::filesystem::path(output_path).parent_path();
-      if (!std::filesystem::is_directory(parent)) {
-        try {
-          std::filesystem::create_directories(parent);
-        } catch (const std::filesystem::__cxx11::filesystem_error &e) {
-          std::cerr << "Failed to create directory: " << parent << std::endl;
-          std::cerr << e.what() << std::endl;
-          std::cerr << "This seems to be the current directory. Skipping..." << std::endl;
-        }
+      if (!std::filesystem::is_directory(parent) && parent != "") {
+        // Ignore error code for empty directory
+        std::error_code ec;
+        std::filesystem::create_directories(parent, ec);
       }
       std::ofstream out(output_path);
       write_graphviz_dp(out, g, dp);
@@ -281,13 +278,9 @@ int main(int argc, char *argv[]) {
           std::filesystem::path(external_required_tables_output_path)
               .parent_path();
       if (!std::filesystem::is_directory(parent)) {
-        try {
-          std::filesystem::create_directories(parent);
-        } catch (const std::filesystem::__cxx11::filesystem_error &e) {
-          std::cerr << "Failed to create directory: " << parent << std::endl;
-          std::cerr << e.what() << std::endl;
-          std::cerr << "This seems to be the current directory. Skipping..." << std::endl;
-        }
+        // Ignore error code for empty directory
+        std::error_code ec;
+        std::filesystem::create_directories(parent, ec);
       }
       std::ofstream out(external_required_tables_output_path);
       for (const auto &required_table : external_required_tables) {
