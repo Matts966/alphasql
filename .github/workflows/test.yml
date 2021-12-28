@@ -26,9 +26,9 @@ jobs:
           bazelisk build //alphasql/...
           bazelisk test --test_output=errors //alphasql/...
 
-          alphadag ./samples/sample
-          alphadag --output_path=dag.dot ./samples/sample
-          alphadag --external_required_tables_output_path=dag.dot ./samples/sample
+          ./bazel-bin/alphasql/alphadag ./samples/sample
+          ./bazel-bin/alphasql/alphadag --output_path=dag.dot ./samples/sample
+          ./bazel-bin/alphasql/alphadag --external_required_tables_output_path=dag.dot ./samples/sample
 
 
   osx:
