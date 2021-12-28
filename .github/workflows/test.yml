@@ -47,7 +47,9 @@ jobs:
           restore-keys: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-
       - name: Test the repository
         run: |
-          make test
+          sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+          bazel shutdown
+          make
 
           alphadag ./samples/sample
           alphadag --output_path=dag.dot ./samples/sample
