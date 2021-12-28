@@ -1,6 +1,9 @@
 .PHONY: build-and-check
-build-and-check: test
+build-and-check: test git-clean
 	make samples
+
+git-clean:
+	git diff --quiet
 
 .PHONY: osx
 osx:

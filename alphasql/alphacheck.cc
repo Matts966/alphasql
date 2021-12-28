@@ -169,6 +169,7 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
           column_definition->column().type()));
       ZETASQL_RETURN_IF_ERROR(table->AddColumn(column.release(), false));
     }
+    dropOwnedTableIfExists(catalog, table_name); // In case it already exists in json schema
     catalog->AddOwnedTable(table.release());
     if (create_table_stmt->create_scope() ==
         ResolvedCreateStatement::CREATE_TEMP) {
@@ -354,7 +355,7 @@ int main(int argc, char *argv[]) {
                         "<dependency_graph.dot>\n";
   std::vector<char *> remaining_args = absl::ParseCommandLine(argc, argv);
   if (argc <= 1) {
-    std::cout << kUsage;
+    std::cerr << kUsage;
     return 1;
   }
 
@@ -363,7 +364,7 @@ int main(int argc, char *argv[]) {
 
   if (!std::filesystem::is_regular_file(dot_path) &&
       !std::filesystem::is_fifo(dot_path)) {
-    std::cout << "ERROR: not a file " << dot_path << std::endl;
+    std::cerr << "ERROR: not a file " << dot_path << std::endl;
     return 1;
   }
 
@@ -386,7 +387,7 @@ int main(int argc, char *argv[]) {
 
   for (const std::string &sql_file_path : execution_plan) {
     if (!std::filesystem::is_regular_file(sql_file_path)) {
-      std::cout << "ERROR: not a file " << sql_file_path << std::endl;
+      std::cerr << "ERROR: not a file " << sql_file_path << std::endl;
       return 1;
     }
     absl::Status status = alphasql::Run(sql_file_path, options, catalog);
@@ -395,7 +396,7 @@ int main(int argc, char *argv[]) {
     } else {
       status = zetasql::UpdateErrorLocationPayloadWithFilenameIfNotPresent(
           status, sql_file_path);
-      std::cout << "ERROR: " << status << std::endl;
+      std::cerr << "ERROR: " << status << std::endl;
       std::cout << "catalog:" << std::endl;
       // For deterministic output
       auto table_names = catalog->table_names();

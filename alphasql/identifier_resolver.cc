@@ -136,8 +136,8 @@ void IdentifierResolver::visitASTInsertStatement(const ASTInsertStatement *node,
                                                  void *data) {
   const auto status_or_path = node->GetTargetPathForNonNested();
   if (!status_or_path.ok()) {
-    std::cout << "Path expression can't be extracted" << std::endl;
-    std::cout << status_or_path.status() << std::endl;
+    std::cerr << "Path expression can't be extracted" << std::endl;
+    std::cerr << status_or_path.status() << std::endl;
     visitASTChildren(node, data);
     return;
   }
@@ -170,8 +170,8 @@ void IdentifierResolver::visitASTUpdateStatement(const ASTUpdateStatement *node,
                                                  void *data) {
   const auto status_or_path = node->GetTargetPathForNonNested();
   if (!status_or_path.ok()) {
-    std::cout << "Path expression can't be extracted!" << std::endl;
-    std::cout << status_or_path.status() << std::endl;
+    std::cerr << "Path expression can't be extracted!" << std::endl;
+    std::cerr << status_or_path.status() << std::endl;
     visitASTChildren(node, data);
     return;
   }
