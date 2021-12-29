@@ -25,17 +25,15 @@ jobs:
             --slave /usr/bin/g++ g++ /usr/bin/g++-9
           bazelisk build //alphasql/...
           bazelisk test --test_output=errors //alphasql/...
-      - name: Test installation
-        run: |
-          temp=$(mktemp -d)
-          wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alphasql_linux_x86_64.tar.gz \
-            && sudo tar -zxvf $temp/alphasql_linux_x86_64.tar.gz -C /usr/local/bin --strip=1
-          alphadag ./samples/sample
+
+          ./bazel-bin/alphasql/alphadag ./samples/sample
+          ./bazel-bin/alphasql/alphadag --output_path=dag.dot ./samples/sample
+          ./bazel-bin/alphasql/alphadag --external_required_tables_output_path=dag.dot ./samples/sample
 
 
   osx:
     name: Test the repository on Mac
-    runs-on: macOS-latest
+    runs-on: macos-10.15
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
@@ -49,11 +47,11 @@ jobs:
           restore-keys: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-
       - name: Test the repository
         run: |
-          make test
-      - name: Test installation
-        shell: bash
-        run: |
-          temp=$(mktemp -d)
-          wget -P $temp https://github.com/Matts966/alphasql/releases/latest/download/alphasql_darwin_x86_64.tar.gz \
-            && sudo tar -zxvf $temp/alphasql_darwin_x86_64.tar.gz -C /usr/local/bin --strip=1
+          brew install graphviz
+          sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+          bazel shutdown
+          make
+
           alphadag ./samples/sample
+          alphadag --output_path=dag.dot ./samples/sample
+          alphadag --external_required_tables_output_path=dag.dot ./samples/sample
