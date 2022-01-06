@@ -65,12 +65,12 @@ int main(int argc, char *argv[]) {
       }
       continue;
     }
-    std::filesystem::recursive_directory_iterator file_path(
-        path, std::filesystem::directory_options::skip_permission_denied),
-        end;
+    std::vector<std::filesystem::path> files_in_directory;
+    std::copy(std::filesystem::recursive_directory_iterator(path, std::filesystem::directory_options::skip_permission_denied), std::filesystem::recursive_directory_iterator(), std::back_inserter(files_in_directory));
+    std::sort(files_in_directory.begin(), files_in_directory.end());
     std::error_code err;
-    for (; file_path != end; file_path.increment(err)) {
-      std::string path_str = file_path->path().string();
+    for (const std::filesystem::path & file_path : files_in_directory) {
+      std::string path_str = file_path.string();
       if (regex_match(path_str, m, DEFAULT_EXCLUDES)) {
         continue;
       }
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
         std::cout << "WARNING: " << err << std::endl;
       }
       absl::Status status = alphasql::UpdateIdentifierQueriesMapsAndVertices(
-          file_path->path(), table_queries_map, function_queries_map, vertices);
+          file_path, table_queries_map, function_queries_map, vertices);
       if (!status.ok()) {
         status = zetasql::UpdateErrorLocationPayloadWithFilenameIfNotPresent(status, path);
         std::cerr << status << std::endl;
