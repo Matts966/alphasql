@@ -1,5 +1,5 @@
 Reading paths passed as a command line arguments...
 Only files that end with .sql or .bq are analyzed.
+Reading "samples/scripting/mart.sql"
 Reading "samples/scripting/procedure.sql"
 Reading "samples/scripting/script.sql"
-Reading "samples/scripting/mart.sql"

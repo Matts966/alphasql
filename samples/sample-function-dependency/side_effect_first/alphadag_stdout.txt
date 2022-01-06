@@ -1,5 +1,5 @@
 Reading paths passed as a command line arguments...
 Only files that end with .sql or .bq are analyzed.
-Reading "samples/sample-function-dependency/with-udf.sql"
-Reading "samples/sample-function-dependency/udf2.sql"
 Reading "samples/sample-function-dependency/udf1.sql"
+Reading "samples/sample-function-dependency/udf2.sql"
+Reading "samples/sample-function-dependency/with-udf.sql"

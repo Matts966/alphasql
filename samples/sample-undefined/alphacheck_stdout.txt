@@ -1,8 +1,8 @@
 Analyzing "samples/sample-undefined/create.sql"
 DDL analyzed, adding table to catalog...
 SUCCESS: analysis finished!
-Analyzing "samples/sample-undefined/insert.sql"
-SUCCESS: analysis finished!
 Analyzing "samples/sample-undefined/select.sql"
+SUCCESS: analysis finished!
+Analyzing "samples/sample-undefined/insert.sql"
 SUCCESS: analysis finished!
 Successfully finished type check!
