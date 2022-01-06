@@ -105,6 +105,11 @@ GetIdentifierInformation(const std::string &sql_file_path) {
 void IdentifierResolver::visitASTDropStatement(const ASTDropStatement *node,
                                                void *data) {
   if (node->schema_object_kind() == SchemaObjectKind::kTable) {
+    const auto table_name = absl::StrJoin(node->name()->ToIdentifierVector(), ".");
+    if (temporary_tables.find(table_name) != temporary_tables.end()) {
+      visitASTChildren(node, data);
+      return;
+    }
     identifier_information.table_information.dropped.insert(
         node->name()->ToIdentifierVector());
   }
@@ -143,6 +148,11 @@ void IdentifierResolver::visitASTInsertStatement(const ASTInsertStatement *node,
   }
 
   const auto path = status_or_path.value()->ToIdentifierVector();
+  const auto table_name = absl::StrJoin(path, ".");
+  if (temporary_tables.find(table_name) != temporary_tables.end()) {
+    visitASTChildren(node, data);
+    return;
+  }
   identifier_information.table_information.inserted.insert(path);
 
   const std::string path_str = absl::StrJoin(path, ".");
@@ -177,6 +187,11 @@ void IdentifierResolver::visitASTUpdateStatement(const ASTUpdateStatement *node,
   }
 
   const auto path = status_or_path.value()->ToIdentifierVector();
+  const auto table_name = absl::StrJoin(path, ".");
+  if (temporary_tables.find(table_name) != temporary_tables.end()) {
+    visitASTChildren(node, data);
+    return;
+  }
   identifier_information.table_information.updated.insert(path);
 
   const std::string path_str = absl::StrJoin(path, ".");

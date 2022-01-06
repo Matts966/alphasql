@@ -1,1 +1,1 @@
-libc++abi: terminating with uncaught exception of type boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag> >: The graph must be a DAG.
+ERROR: cycle detected! [at samples/sample-cycle/dag.dot:1:1]

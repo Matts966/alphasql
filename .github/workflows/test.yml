@@ -20,16 +20,19 @@ jobs:
       - name: Setup
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y gcc-9 g++-9
+          sudo apt-get install --no-install-recommends -y gcc-9 g++-9 graphviz
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 900 \
             --slave /usr/bin/g++ g++ /usr/bin/g++-9
-          bazelisk build //alphasql/...
-          bazelisk test --test_output=errors //alphasql/...
+          make
 
-          ./bazel-bin/alphasql/alphadag ./samples/sample
-          ./bazel-bin/alphasql/alphadag --output_path=dag.dot ./samples/sample
-          ./bazel-bin/alphasql/alphadag --external_required_tables_output_path=dag.dot ./samples/sample
+          echo 🚨 checking sample testing result...
+          echo 🚨 exit if not up-to-date
+          # TODO: check dag output isomorphism
+          git diff --exit-code -- '*.txt'
 
+          alphadag ./samples/sample
+          alphadag --output_path=dag.dot ./samples/sample
+          alphadag --external_required_tables_output_path=dag.dot ./samples/sample
 
   osx:
     name: Test the repository on Mac
@@ -50,7 +53,13 @@ jobs:
           brew install graphviz
           sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
           bazel shutdown
+          export CC=g++
           make
+
+          echo 🚨 checking sample testing result...
+          echo 🚨 exit if not up-to-date
+          # TODO: check dag output isomorphism
+          git diff --exit-code -- '*.txt'
 
           alphadag ./samples/sample
           alphadag --output_path=dag.dot ./samples/sample

@@ -325,6 +325,18 @@ absl::Status Run(const std::string &sql_file_path,
   return absl::OkStatus();
 }
 
+// TODO: Hide implementation and unify
+struct cycle_detector : public boost::dfs_visitor<> {
+  cycle_detector(bool &has_cycle) : _has_cycle(has_cycle) {}
+
+  template <class Edge, class Graph> void back_edge(Edge, Graph &) {
+    _has_cycle = true;
+  }
+
+protected:
+  bool &_has_cycle;
+};
+
 bool GetExecutionPlan(const std::string dot_path,
                       std::vector<std::string> &execution_plan) {
   using namespace boost;
@@ -339,6 +351,16 @@ bool GetExecutionPlan(const std::string dot_path,
   if (!boost::read_graphviz(file, g, dp)) {
     return false;
   }
+
+  bool has_cycle = false;
+  cycle_detector vis(has_cycle);
+  depth_first_search(g, visitor(vis));
+  if (has_cycle) {
+    std::cerr << "ERROR: cycle detected! [at " << dot_path << ":1:1]"
+              << std::endl;
+    exit(1);
+  }
+
   std::list<int> result;
   topological_sort(g, std::front_inserter(result));
   property_map<Graph, vertex_name_t>::type names = get(vertex_name, g);

@@ -19,10 +19,10 @@ SUCCESS: analysis finished!
 Analyzing "samples/sample/create_mart.sql"
 DDL analyzed, adding table to catalog...
 SUCCESS: analysis finished!
-Analyzing "samples/sample/test_mart1.sql"
+Analyzing "samples/sample/test_mart3.sql"
 SUCCESS: analysis finished!
 Analyzing "samples/sample/test_mart2.sql"
 SUCCESS: analysis finished!
-Analyzing "samples/sample/test_mart3.sql"
+Analyzing "samples/sample/test_mart1.sql"
 SUCCESS: analysis finished!
 Successfully finished type check!
