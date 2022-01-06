@@ -1,23 +1,21 @@
 .PHONY: build-and-check
-build-and-check: test git-clean
+build-and-check: build
+	make test
 	make samples
 
-git-clean:
-	git diff --quiet
-
-.PHONY: osx
-osx:
-	CC=g++ bazelisk build //alphasql:all
-	sudo cp ./bazel-bin/alphasql/alphadag /usr/local/bin
-	sudo chmod +x /usr/local/bin/alphadag
-	sudo cp ./bazel-bin/alphasql/alphacheck /usr/local/bin
-	sudo chmod +x /usr/local/bin/alphacheck
+.PHONY: build
+build:
+	bazel build //alphasql:all
+	cp ./bazel-bin/alphasql/alphadag /usr/local/bin
+	chmod +x /usr/local/bin/alphadag
+	cp ./bazel-bin/alphasql/alphacheck /usr/local/bin
+	chmod +x /usr/local/bin/alphacheck
 
 .PHONY: samples
 samples: without_options with_functions with_tables with_all side_effect_first side_effect_first_with_tables
 
 .PHONY: without_options
-without_options: osx
+without_options:
 	find samples -mindepth 1 -maxdepth 1 -type d | while read sample_path; do \
 		alphadag $$sample_path --output_path $$sample_path/dag.dot \
 			--external_required_tables_output_path $$sample_path/external_tables.txt \
@@ -29,7 +27,7 @@ without_options: osx
 	done;
 
 .PHONY: with_functions
-with_functions: osx
+with_functions:
 	find samples -mindepth 1 -maxdepth 1 -type d | while read sample_path; do \
 	  mkdir -p $$sample_path/with_functions; \
 		alphadag --with_functions $$sample_path --output_path $$sample_path/with_functions/dag.dot \
@@ -39,7 +37,7 @@ with_functions: osx
 	done;
 
 .PHONY: with_tables
-with_tables: osx
+with_tables:
 	find samples -mindepth 1 -maxdepth 1 -type d | while read sample_path; do \
 	  mkdir -p $$sample_path/with_tables; \
     alphadag --with_tables $$sample_path --output_path $$sample_path/with_tables/dag.dot \
@@ -49,7 +47,7 @@ with_tables: osx
 	done;
 
 .PHONY: with_all
-with_all: osx
+with_all:
 	find samples -mindepth 1 -maxdepth 1 -type d | while read sample_path; do \
 	  mkdir -p $$sample_path/with_all; \
 		alphadag --with_tables --with_functions $$sample_path --output_path $$sample_path/with_all/dag.dot \
@@ -59,7 +57,7 @@ with_all: osx
 	done;
 
 .PHONY: side_effect_first
-side_effect_first: osx
+side_effect_first:
 	find samples -mindepth 1 -maxdepth 1 -type d | while read sample_path; do \
 	  mkdir -p $$sample_path/side_effect_first; \
 		alphadag --side_effect_first $$sample_path --output_path $$sample_path/side_effect_first/dag.dot \
@@ -68,7 +66,7 @@ side_effect_first: osx
     dot -Tpng $$sample_path/side_effect_first/dag.dot -o $$sample_path/side_effect_first/dag.png; \
 	done;
 
-side_effect_first_with_tables: osx
+side_effect_first_with_tables:
 	find samples -mindepth 1 -maxdepth 1 -type d | while read sample_path; do \
 	  mkdir -p $$sample_path/side_effect_first_with_tables; \
 	 	alphadag --side_effect_first --with_tables $$sample_path --output_path $$sample_path/side_effect_first_with_tables/dag.dot \
@@ -78,5 +76,5 @@ side_effect_first_with_tables: osx
 	done;
 
 .PHONY: test
-test: osx
-	CC=g++ bazelisk test //alphasql:all
+test:
+	bazel test //alphasql:all
