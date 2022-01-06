@@ -27,7 +27,8 @@ jobs:
 
           echo 🚨 checking sample testing result...
           echo 🚨 exit if not up-to-date
-          git diff --exit-code
+          # TODO: check dag output isomorphism
+          git diff --exit-code -- '*.txt'
 
           alphadag ./samples/sample
           alphadag --output_path=dag.dot ./samples/sample
@@ -57,7 +58,8 @@ jobs:
 
           echo 🚨 checking sample testing result...
           echo 🚨 exit if not up-to-date
-          git diff --exit-code
+          # TODO: check dag output isomorphism
+          git diff --exit-code -- '*.txt'
 
           alphadag ./samples/sample
           alphadag --output_path=dag.dot ./samples/sample
