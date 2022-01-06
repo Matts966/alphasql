@@ -1,3 +1,1 @@
-terminate called after throwing an instance of 'boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag> >'
-  what():  The graph must be a DAG.
-Aborted
+ERROR: cycle detected! [at samples/sample-cycle/dag.dot:1:1]
