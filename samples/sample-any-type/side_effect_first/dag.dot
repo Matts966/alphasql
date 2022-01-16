@@ -1,0 +1,5 @@
+digraph G {
+0 [label="samples/sample-any-type/dedup.sql", shape="", type=query];
+1 [label="samples/sample-any-type/dedup_count.sql", shape="", type=query];
+0->1 ;
+}

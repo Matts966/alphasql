@@ -1,0 +1,10 @@
+CREATE OR REPLACE FUNCTION dedup (arr ANY TYPE)
+AS ((
+  SELECT IFNULL(ARRAY_AGG(DISTINCT x), [])
+  FROM UNNEST(arr) x
+));
+ASSERT ARRAY_LENGTH(dedup([])) = 0;
+ASSERT ARRAY_LENGTH(dedup([1])) = 1;
+ASSERT ARRAY_LENGTH(dedup([1, 2])) = 2;
+ASSERT ARRAY_LENGTH(dedup([1, 3, 5])) = 3;
+ASSERT ARRAY_LENGTH(dedup([1, 3, 3, 5, 5])) = 3;

@@ -1,0 +1,5 @@
+Analyzing "samples/ml/create_input.sql"
+catalog:
+	dataset.main
+	tablename1
+	tablename2

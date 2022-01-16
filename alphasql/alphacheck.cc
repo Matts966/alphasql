@@ -42,6 +42,7 @@
 #include "zetasql/public/simple_catalog.h"
 #include "zetasql/public/type.h"
 #include "zetasql/public/value.h"
+#include "zetasql/public/templated_sql_function.h"
 #include "zetasql/resolved_ast/resolved_ast.h"
 
 #include "alphasql/common_lib.h"
@@ -185,9 +186,19 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
         << std::endl;
     std::string function_name =
         absl::StrJoin(create_function_stmt->name_path(), ".");
-    Function *function = new Function(function_name, "group", Function::SCALAR);
-    function->AddSignature(create_function_stmt->signature());
-    catalog->AddOwnedFunction(function);
+    if (create_function_stmt->signature().IsTemplated()) {
+      TemplatedSQLFunction *function;
+      function = new TemplatedSQLFunction(
+        create_function_stmt->name_path(),
+        create_function_stmt->signature(),
+        create_function_stmt->argument_name_list(),
+        ParseResumeLocation::FromString(create_function_stmt->code()));
+      catalog->AddOwnedFunction(function);
+    } else {
+      Function *function = new Function(function_name, "group", Function::SCALAR);
+      function->AddSignature(create_function_stmt->signature());
+      catalog->AddOwnedFunction(function);
+    }
     if (create_function_stmt->create_scope() ==
         ResolvedCreateStatement::CREATE_TEMP) {
       temp_function_names->push_back(function_name);

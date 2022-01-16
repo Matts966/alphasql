@@ -1,0 +1,11 @@
+digraph G {
+0 [label="samples/ml/create_input.sql", shape="", type=query];
+1 [label="samples/ml/create_model.sql", shape="", type=query];
+2 [label=datawarehouse2, shape=box, type=table];
+3 [label=datawarehouse3, shape=box, type=table];
+4 [label=input, shape=box, type=table];
+0->4 ;
+2->0 ;
+3->0 ;
+4->1 ;
+}
