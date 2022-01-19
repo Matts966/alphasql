@@ -1,0 +1,9 @@
+Analyzing "samples/create-temp-table-test/temp_table.sql"
+DDL analyzed, adding table to catalog...
+Removing temporary table tmp
+SUCCESS: analysis finished!
+Analyzing "samples/create-temp-table-test/reference.sql"
+DDL analyzed, adding table to catalog...
+Removing temporary table tmp
+SUCCESS: analysis finished!
+Successfully finished type check!

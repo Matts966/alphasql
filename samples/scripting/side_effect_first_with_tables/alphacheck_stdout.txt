@@ -1,0 +1,9 @@
+Analyzing "samples/scripting/script.sql"
+DDL analyzed, adding table to catalog...
+DDL analyzed, adding table to catalog...
+catalog:
+	dataset.main
+	datawarehouse1
+	datawarehouse2
+	tablename1
+	tablename2
