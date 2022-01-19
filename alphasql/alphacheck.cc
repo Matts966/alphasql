@@ -348,15 +348,19 @@ protected:
   bool &_has_cycle;
 };
 
+struct DotVertex {
+    std::string name;
+    std::string type;
+};
+
 bool GetExecutionPlan(const std::string dot_path,
                       std::vector<std::string> &execution_plan) {
   using namespace boost;
-  typedef adjacency_list<vecS, vecS, directedS,
-                         property<vertex_name_t, std::string>>
-      Graph;
+  typedef adjacency_list<vecS, vecS, directedS, DotVertex> Graph;
   Graph g;
   dynamic_properties dp(ignore_other_properties);
-  dp.property("label", get(vertex_name, g));
+  dp.property("label", get(&DotVertex::name, g));
+  dp.property("type", get(&DotVertex::type, g));
   std::filesystem::path file_path(dot_path);
   std::ifstream file(file_path, std::ios::in);
   if (!boost::read_graphviz(file, g, dp)) {
@@ -374,9 +378,12 @@ bool GetExecutionPlan(const std::string dot_path,
 
   std::list<int> result;
   topological_sort(g, std::front_inserter(result));
-  property_map<Graph, vertex_name_t>::type names = get(vertex_name, g);
+  property_map<Graph, std::string DotVertex::*>::type names = get(&DotVertex::name, g);
+  property_map<Graph, std::string DotVertex::*>::type types = get(&DotVertex::type, g);
   for (int i : result) {
-    execution_plan.push_back(names[i]);
+    if (types[i] == "query") {
+      execution_plan.push_back(names[i]);
+    }
   }
   return true;
 }
