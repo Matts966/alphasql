@@ -1,0 +1,17 @@
+Analyzing "samples/mutasions-and-query/query3.sql"
+DDL analyzed, adding table to catalog...
+SUCCESS: analysis finished!
+Analyzing "samples/mutasions-and-query/query2.sql"
+DDL analyzed, adding table to catalog...
+SUCCESS: analysis finished!
+Analyzing "samples/mutasions-and-query/mutation3.sql"
+DDL analyzed, adding table to catalog...
+SUCCESS: analysis finished!
+Analyzing "samples/mutasions-and-query/query1.sql"
+DDL analyzed, adding table to catalog...
+SUCCESS: analysis finished!
+Analyzing "samples/mutasions-and-query/mutation2.sql"
+SUCCESS: analysis finished!
+Analyzing "samples/mutasions-and-query/mutation1.sql"
+SUCCESS: analysis finished!
+Successfully finished type check!

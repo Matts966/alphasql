@@ -34,6 +34,9 @@ with_functions:
       --external_required_tables_output_path $$sample_path/with_functions/external_tables.txt \
       > $$sample_path/with_functions/alphadag_stdout.txt 2> $$sample_path/with_functions/alphadag_stderr.txt; \
 		dot -Tpng $$sample_path/with_functions/dag.dot -o $$sample_path/with_functions/dag.png; \
+		alphacheck $$sample_path/with_functions/dag.dot \
+			--json_schema_path ./samples/sample-schema.json \
+			> $$sample_path/with_functions/alphacheck_stdout.txt 2> $$sample_path/with_functions/alphacheck_stderr.txt || echo alphacheck --with_functions $$sample_path failed; \
 	done;
 
 .PHONY: with_tables
@@ -44,6 +47,9 @@ with_tables:
       --external_required_tables_output_path $$sample_path/with_tables/external_tables.txt \
       > $$sample_path/with_tables/alphadag_stdout.txt 2> $$sample_path/with_tables/alphadag_stderr.txt; \
     dot -Tpng $$sample_path/with_tables/dag.dot -o $$sample_path/with_tables/dag.png; \
+		alphacheck $$sample_path/with_tables/dag.dot \
+			--json_schema_path ./samples/sample-schema.json \
+			> $$sample_path/with_tables/alphacheck_stdout.txt 2> $$sample_path/with_tables/alphacheck_stderr.txt || echo alphacheck --with_tables $$sample_path failed; \
 	done;
 
 .PHONY: with_all
@@ -54,6 +60,9 @@ with_all:
 			--external_required_tables_output_path $$sample_path/with_all/external_tables.txt \
 		 	> $$sample_path/with_all/alphadag_stdout.txt 2> $$sample_path/with_all/alphadag_stderr.txt; \
 		dot -Tpng $$sample_path/with_all/dag.dot -o $$sample_path/with_all/dag.png; \
+		alphacheck $$sample_path/with_all/dag.dot \
+			--json_schema_path ./samples/sample-schema.json \
+			> $$sample_path/with_all/alphacheck_stdout.txt 2> $$sample_path/with_all/alphacheck_stderr.txt || echo alphacheck with all resources $$sample_path failed; \
 	done;
 
 .PHONY: side_effect_first
@@ -64,8 +73,12 @@ side_effect_first:
 			--external_required_tables_output_path $$sample_path/side_effect_first/external_tables.txt \
 		 	> $$sample_path/side_effect_first/alphadag_stdout.txt 2> $$sample_path/side_effect_first/alphadag_stderr.txt; \
     dot -Tpng $$sample_path/side_effect_first/dag.dot -o $$sample_path/side_effect_first/dag.png; \
+		alphacheck $$sample_path/side_effect_first/dag.dot \
+			--json_schema_path ./samples/sample-schema.json \
+			> $$sample_path/side_effect_first/alphacheck_stdout.txt 2> $$sample_path/side_effect_first/alphacheck_stderr.txt || echo alphacheck --side_effect_first $$sample_path failed; \
 	done;
 
+.PHONY: side_effect_first_with_tables
 side_effect_first_with_tables:
 	find samples -mindepth 1 -maxdepth 1 -type d | while read sample_path; do \
 	  mkdir -p $$sample_path/side_effect_first_with_tables; \
@@ -73,6 +86,9 @@ side_effect_first_with_tables:
 			--external_required_tables_output_path $$sample_path/side_effect_first_with_tables/external_tables.txt \
 		 	> $$sample_path/side_effect_first_with_tables/alphadag_stdout.txt 2> $$sample_path/side_effect_first_with_tables/alphadag_stderr.txt; \
 		dot -Tpng $$sample_path/side_effect_first_with_tables/dag.dot -o $$sample_path/side_effect_first_with_tables/dag.png; \
+		alphacheck $$sample_path/side_effect_first_with_tables/dag.dot \
+			--json_schema_path ./samples/sample-schema.json \
+			> $$sample_path/side_effect_first_with_tables/alphacheck_stdout.txt 2> $$sample_path/side_effect_first_with_tables/alphacheck_stderr.txt || echo alphacheck --side_effect_first --with_tables $$sample_path failed; \
 	done;
 
 .PHONY: test
