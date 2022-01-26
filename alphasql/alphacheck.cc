@@ -205,6 +205,20 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
     }
     break;
   }
+  // TODO: DROP PROCEDURE Support?
+  case RESOLVED_CREATE_PROCEDURE_STMT: {
+    auto *create_procedure_stmt =
+        resolved_statement->GetAs<ResolvedCreateProcedureStmt>();
+    std::cout
+        << "Create Procedure Statement analyzed, adding function to catalog..."
+        << std::endl;
+    std::string proc_name =
+        absl::StrJoin(create_procedure_stmt->name_path(), ".");
+    Procedure *proc = new Procedure(create_procedure_stmt->name_path(), create_procedure_stmt->signature());
+    catalog->AddOwnedProcedure(proc);
+    // TODO: TEMP PROCEDURE Support?
+    break;
+  }
   case RESOLVED_DROP_STMT: {
     auto *drop_stmt = resolved_statement->GetAs<ResolvedDropStmt>();
     std::cout << "Drop Statement analyzed, dropping table from catalog..."
