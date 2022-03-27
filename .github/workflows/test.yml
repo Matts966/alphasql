@@ -46,11 +46,12 @@ jobs:
       - name: Cache
         uses: pat-s/always-upload-cache@v2.1.5
         with:
-          path: /private/var/tmp
+          path: ~/.cache/bazel
           key: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
           restore-keys: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-
       - name: Setup
         run: |
+          export TEST_TMPDIR=~/.cache/bazel
           brew install graphviz
           sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
           bazel shutdown
