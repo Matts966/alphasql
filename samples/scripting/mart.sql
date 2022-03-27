@@ -9,10 +9,6 @@ SELECT * FROM datawarehouse2
 UNION ALL
 SELECT * FROM datawarehouse3;
 
-DROP TABLE IF EXISTS `datawarehouse1`;
-DROP TABLE IF EXISTS `datawarehouse2`;
-DROP TABLE IF EXISTS `datawarehouse3`;
-
 CREATE OR REPLACE TABLE mart AS
 SELECT * FROM tmp;
 
