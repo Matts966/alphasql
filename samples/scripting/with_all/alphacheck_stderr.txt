@@ -1,1 +1,0 @@
-ERROR: INVALID_ARGUMENT: Procedure not found: create_datawarehouse3 [at samples/scripting/script.sql:12:8]

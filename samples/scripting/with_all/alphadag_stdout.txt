@@ -1,6 +1,0 @@
-Reading paths passed as a command line arguments...
-Only files that end with .sql or .bq are analyzed.
-Reading "samples/scripting/mart.sql"
-WARNING: table name resolver may ignore some table names with the error: INVALID_ARGUMENT: Statement not supported: VariableDeclaration [type.googleapis.com/zetasql.InternalErrorLocation='\x18\x00\"\x1asamples/scripting/mart.sql']
-Reading "samples/scripting/procedure.sql"
-Reading "samples/scripting/script.sql"

@@ -1,4 +1,0 @@
-Reading paths passed as a command line arguments...
-Only files that end with .sql or .bq are analyzed.
-Reading "samples/sample-any-type/dedup.sql"
-Reading "samples/sample-any-type/dedup_count.sql"

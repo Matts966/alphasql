@@ -1,7 +1,0 @@
-Analyzing "samples/sample-any-type/dedup.sql"
-Create Function Statement analyzed, adding function to catalog...
-SUCCESS: analysis finished!
-Analyzing "samples/sample-any-type/dedup_count.sql"
-Create Function Statement analyzed, adding function to catalog...
-SUCCESS: analysis finished!
-Successfully finished type check!

@@ -1,1 +1,0 @@
-ERROR: INVALID_ARGUMENT: Table not found: datawarehouse2 [at samples/ml/create_input.sql:5:3]

@@ -1,1 +1,0 @@
-ERROR: INVALID_ARGUMENT: Table not found: `bigquery-public-data.samples.gsod` [at samples/sample-ci/sample/create_datawarehouse3.sql:5:3]

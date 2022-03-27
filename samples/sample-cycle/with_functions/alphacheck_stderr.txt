@@ -1,1 +1,0 @@
-ERROR: cycle detected! [at samples/sample-cycle/with_functions/dag.dot:1:1]

@@ -1,1 +1,0 @@
-ERROR: cycle detected! [at samples/sample-cycle/side_effect_first/dag.dot:1:1]

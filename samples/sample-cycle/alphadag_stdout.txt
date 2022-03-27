@@ -1,5 +1,0 @@
-Reading paths passed as a command line arguments...
-Only files that end with .sql or .bq are analyzed.
-Reading "samples/sample-cycle/create_table1.sql"
-Reading "samples/sample-cycle/create_table2.sql"
-Warning!!! There are cycles in your dependency graph!!! 

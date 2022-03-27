@@ -1,4 +1,0 @@
-Reading paths passed as a command line arguments...
-Only files that end with .sql or .bq are analyzed.
-Reading "samples/create-temp-table-test/reference.sql"
-Reading "samples/create-temp-table-test/temp_table.sql"
