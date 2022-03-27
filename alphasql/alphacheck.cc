@@ -214,7 +214,7 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
         << std::endl;
     Function *function = new Function("", "group", Function::SCALAR);
     function->AddSignature(create_procedure_stmt->signature());
-    Procedure *proc = new Procedure(create_procedure_stmt->name_path(), function->signature());
+    Procedure *proc = new Procedure(create_procedure_stmt->name_path(), function->GetSignature(0));
     catalog->AddOwnedProcedure(proc);
     // TODO: TEMP PROCEDURE Support?
     break;
