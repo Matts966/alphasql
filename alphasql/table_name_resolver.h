@@ -677,7 +677,7 @@ absl::Status TableNameResolver::FindInStatement(const ASTStatement *statement) {
   }
   }
 
-  const status = MakeSqlErrorAt(statement)
+  const auto status = MakeSqlErrorAt(statement)
        << "Statement not supported: " << statement->GetNodeKindString();
   std::cout << "WARNING: table name resolver may ignore some table names with the error: " << status << std::endl;
   return absl::OkStatus();
@@ -916,7 +916,7 @@ TableNameResolver::FindInQueryExpression(const ASTQueryExpression *query_expr,
         FindInQuery(query_expr->GetAs<ASTQuery>(), visible_aliases));
     break;
   default:
-    const status = MakeSqlErrorAt(query_expr) << "Unhandled query_expr:\n"
+    const auto status = MakeSqlErrorAt(query_expr) << "Unhandled query_expr:\n"
       << query_expr->DebugString();
     std::cout << "WARNING: table name resolver may ignore some table names with the error: " << status << std::endl;
     return absl::OkStatus();
@@ -986,7 +986,7 @@ absl::Status TableNameResolver::FindInTableExpression(
     return FindInTVF(table_expr->GetAs<ASTTVF>(), external_visible_aliases,
                      local_visible_aliases);
   default:
-    const status = MakeSqlErrorAt(table_expr) << "Unhandled node type in from clause: "
+    const auto status = MakeSqlErrorAt(table_expr) << "Unhandled node type in from clause: "
                                       << table_expr->GetNodeKindString();
     std::cout << "WARNING: table name resolver may ignore some table names with the error: " << status << std::endl;
     return absl::OkStatus();
@@ -1129,7 +1129,7 @@ absl::Status TableNameResolver::FindInTablePathExpression(
         const ASTForSystemTime *for_system_time = table_ref->for_system_time();
         if (for_system_time != nullptr) {
           if (!for_system_time_as_of_feature_enabled_) {
-            const status = MakeSqlErrorAt(for_system_time)
+            const auto status = MakeSqlErrorAt(for_system_time)
                    << "FOR SYSTEM_TIME AS OF is not supported";
             std::cout << "WARNING: table name resolver may ignore some table names with the error: " << status << std::endl;
             return absl::OkStatus();
