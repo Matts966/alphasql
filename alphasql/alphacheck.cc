@@ -229,7 +229,7 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
     catalog->AddOwnedProcedure(proc);
     procedure_bodies[create_procedure_stmt->name_path()] = create_procedure_stmt->procedure_body();
     const ASTCreateProcedureStatement *stmt = statement->GetAs<ASTCreateProcedureStatement>();
-    procedure_statements[create_procedure_stmt->name_path()] = new ASTStatment(stmt->body()->statement_list()[0]);
+    procedure_statements[create_procedure_stmt->name_path()] = new ASTStatement(stmt->body()->statement_list()[0]);
     // TODO: TEMP PROCEDURE Support?
     break;
   }
