@@ -25,6 +25,9 @@ jobs:
         run: |
           export TEST_TMPDIR=~/.cache/bazel
           brew install graphviz
+          sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+          bazel shutdown
+          export CC=g++
           make
           mkdir alphasql_darwin_x86_64
           mv ./bazel-bin/alphasql/alphadag /usr/local/bin/
