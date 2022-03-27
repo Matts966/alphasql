@@ -67,6 +67,7 @@ jobs:
           alphadag ./samples/sample
           alphadag --output_path=dag.dot ./samples/sample
           alphadag --external_required_tables_output_path=dag.dot ./samples/sample
+          rm dag.dot
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         if: always()
