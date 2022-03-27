@@ -57,10 +57,13 @@ diff --git zetasql/public/function_signature.cc zetasql/public/function_signatur
 index 5c3c636..5404163 100644
 --- zetasql/public/function_signature.cc
 +++ zetasql/public/function_signature.cc
-@@ -20,7 +20,7 @@     : kind_(kind),
+@@ -493,7 +493,7 @@     : kind_(kind),
        num_occurrences_(num_occurrences),
        type_(type),
        options_(std::move(options)) {
 -  ZETASQL_DCHECK_EQ(kind == ARG_TYPE_FIXED, type != nullptr);
 +
  }
+
+ FunctionArgumentType::FunctionArgumentType(SignatureArgumentKind kind,
+
