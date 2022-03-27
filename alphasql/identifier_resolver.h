@@ -64,10 +64,7 @@ GetIdentifierInformation(const std::string &sql_file_path);
 
 class IdentifierResolver : public DefaultParseTreeVisitor {
 public:
-  explicit IdentifierResolver(
-      std::map<std::vector<std::string>, std::set<std::vector<std::string>>>
-        procedure_artifacts_map
-  ) : procedure_artifacts_map(procedure_artifacts_map) {}
+  explicit IdentifierResolver() {}
   IdentifierResolver(const IdentifierResolver &) = delete;
   IdentifierResolver &operator=(const IdentifierResolver &) = delete;
   ~IdentifierResolver() override {}
