@@ -126,8 +126,8 @@ SimpleCatalog *ConstructCatalog(const google::protobuf::DescriptorPool *pool,
   return catalog;
 }
 
-const std::map<std::vector<std::string>, std::string> procedure_bodies;
-const std::map<std::vector<std::string>, ASTStatement> procedure_statements;
+std::map<std::vector<std::string>, std::string> procedure_bodies;
+std::map<std::vector<std::string>, ASTStatement> procedure_statements;
 
 absl::Status check(const std::string &sql, const ASTStatement *statement,
                    std::vector<std::string> *temp_function_names,
