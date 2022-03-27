@@ -214,7 +214,7 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
         << std::endl;
     Procedure *proc = new Procedure(create_procedure_stmt->name_path(), {
         create_procedure_stmt->signature().result_type(),
-        create_procedure_stmt->signature().arguments(),
+        {},
         -1,
     });
     catalog->AddOwnedProcedure(proc);
