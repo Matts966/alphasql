@@ -214,7 +214,7 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
         << std::endl;
     const auto result_type = create_procedure_stmt->signature().result_type();
     Procedure *proc = new Procedure(create_procedure_stmt->name_path(), {
-        result_type == nullptr ? ARG_TYPE_VOID : result_type,
+        result_type.type() == nullptr ? FunctionArgumentType(ARG_TYPE_VOID) : result_type,
         create_procedure_stmt->signature().arguments(),
         -1,
     });
