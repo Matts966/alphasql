@@ -127,7 +127,7 @@ SimpleCatalog *ConstructCatalog(const google::protobuf::DescriptorPool *pool,
 }
 
 std::map<std::vector<std::string>, std::string> procedure_bodies;
-std::map<std::vector<std::string>, const ASTStatement*> procedure_statements;
+std::map<std::vector<std::string>, const ASTStatement> procedure_statements;
 
 absl::Status check(const std::string &sql, const ASTStatement *statement,
                    std::vector<std::string> *temp_function_names,
@@ -229,7 +229,7 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
     catalog->AddOwnedProcedure(proc);
     procedure_bodies[create_procedure_stmt->name_path()] = create_procedure_stmt->procedure_body();
     const ASTCreateProcedureStatement *stmt = statement->GetAs<ASTCreateProcedureStatement>();
-    procedure_statements[create_procedure_stmt->name_path()] = std::unique_ptr(stmt->body()->statement_list()[0]);
+    procedure_statements[create_procedure_stmt->name_path()] = *stmt->body()->statement_list()[0];
     // TODO: TEMP PROCEDURE Support?
     break;
   }
