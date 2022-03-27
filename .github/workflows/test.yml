@@ -49,7 +49,7 @@ jobs:
           path: ~/.cache/bazel
           key: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
           restore-keys: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-
-      - name: Test the repository
+      - name: Setup
         run: |
           brew install graphviz
           sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
