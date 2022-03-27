@@ -129,6 +129,9 @@ void IdentifierResolver::visitASTCreateTableStatement(
     return;
   }
 
+  if (is_inside_procedure) {
+    procedure_artifacts_map[name_vector] = procedure_name;
+  }
   identifier_information.table_information.created.insert(name_vector);
   visitASTChildren(node, data);
 }
@@ -263,14 +266,27 @@ void IdentifierResolver::visitASTCreateTableFunctionStatement(
 
 void IdentifierResolver::visitASTCallStatement(const ASTCallStatement *node,
                                                void *data) {
+  identifier_information.table_information.created.insert(procedure_artifacts_map[node->procedure()->ToIdentifierVector()]);
+  identifier_information.function_information.called.insert(
+      node->procedure()->ToIdentifierVector());
   node->ChildrenAccept(this, data);
-  // print("CALL");
-  // node->procedure_name()->Accept(this, data);
-  // print("(");
-  // UnparseVectorWithSeparator(node->arguments(), data, ",");
-  // print(")");
+  return;
+}
 
-  // Currently procedures are ignored.
+void IdentifierResolver::visitASTCreateProcedureStatement(
+    const ASTCreateProcedureStatement* node, void* data) {
+  const auto &name_vector = node->name()->ToIdentifierVector();
+  if (node->scope() == ASTCreateStatement::TEMPORARY) {
+    node->ChildrenAccept(this, data);
+    return;
+  }
+
+  is_inside_procedure = true;
+  procedure_name = name_vector;
+  identifier_information.function_information.defined.insert(name_vector);
+  node->ChildrenAccept(this, data);
+  is_inside_procedure = false;
+  procedure_name = nullptr;
   return;
 }
 
