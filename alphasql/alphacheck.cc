@@ -212,9 +212,11 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
     std::cout
         << "Create Procedure Statement analyzed, adding function to catalog..."
         << std::endl;
-    Function *function = new Function("", "group", Function::SCALAR);
-    function->AddSignature(create_procedure_stmt->signature());
-    Procedure *proc = new Procedure(create_procedure_stmt->name_path(), *function->GetSignature(0));
+    Procedure *proc = new Procedure(create_procedure_stmt->name_path(), {
+        create_procedure_stmt->result_type(),
+        create_procedure_stmt->arguments(),
+        -1,
+    });
     catalog->AddOwnedProcedure(proc);
     // TODO: TEMP PROCEDURE Support?
     break;
