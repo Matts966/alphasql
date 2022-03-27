@@ -9,11 +9,13 @@ digraph G {
 7 [label=tablename1, shape=box, type=table];
 8 [label=tablename2, shape=box, type=table];
 0->6 ;
-1->5 ;
+1->2 ;
 2->3 ;
 2->4 ;
+2->5 ;
 3->0 ;
 4->0 ;
+5->0 ;
 7->2 ;
 8->2 ;
 }

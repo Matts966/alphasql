@@ -1,9 +1,18 @@
+Analyzing "samples/scripting/procedure.sql"
+Create Procedure Statement analyzed, adding function to catalog...
+SUCCESS: analysis finished!
 Analyzing "samples/scripting/script.sql"
 DDL analyzed, adding table to catalog...
 DDL analyzed, adding table to catalog...
+Call Procedure Statement analyzed, checking body...
+DDL analyzed, adding table to catalog...
+SUCCESS: analysis finished!
+Analyzing "samples/scripting/mart.sql"
+WARNING: check skipped with the error: INVALID_ARGUMENT: Statement not supported: VariableDeclaration [at samples/scripting/mart.sql:1:1]
 catalog:
 	dataset.main
 	datawarehouse1
 	datawarehouse2
+	datawarehouse3
 	tablename1
 	tablename2

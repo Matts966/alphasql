@@ -1,1 +1,1 @@
-ERROR: INVALID_ARGUMENT: Procedure not found: create_datawarehouse3 [at samples/scripting/script.sql:12:8]
+ERROR: INVALID_ARGUMENT: Column 1 in UNION ALL has incompatible types: INT64, STRING, INT64 [at samples/scripting/mart.sql:8:1]
