@@ -212,9 +212,10 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
     std::cout
         << "Create Procedure Statement analyzed, adding function to catalog..."
         << std::endl;
+    const auto result_type = create_procedure_stmt->signature().result_type();
     Procedure *proc = new Procedure(create_procedure_stmt->name_path(), {
-        create_procedure_stmt->signature().result_type(),
-        {},
+        result_type == nullptr ? ARG_TYPE_VOID : result_type,
+        create_procedure_stmt->signature().arguments(),
         -1,
     });
     catalog->AddOwnedProcedure(proc);
