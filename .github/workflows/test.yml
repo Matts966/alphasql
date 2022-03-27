@@ -12,7 +12,7 @@ jobs:
         with:
           ref: ${{ github.ref }}
       - name: Cache
-        uses: actions/cache@v2
+        uses: pat-s/always-upload-cache@v2.1.5
         with:
           path: ~/.cache/bazel
           key: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
@@ -44,9 +44,9 @@ jobs:
         with:
           ref: ${{ github.ref }}
       - name: Cache
-        uses: actions/cache@v2
+        uses: pat-s/always-upload-cache@v2.1.5
         with:
-          path: /private/var/tmp/*bazel*
+          path: ~/.cache/bazel
           key: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
           restore-keys: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-
       - name: Test the repository
