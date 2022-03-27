@@ -23,6 +23,7 @@ jobs:
           sudo apt-get install --no-install-recommends -y gcc-9 g++-9 graphviz
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 900 \
             --slave /usr/bin/g++ g++ /usr/bin/g++-9
+          rm **/*.txt
           make
       - name: Test
         run: |
