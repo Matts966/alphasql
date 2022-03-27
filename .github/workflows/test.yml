@@ -59,7 +59,6 @@ jobs:
           git rm '*.txt'
           make
       - name: Test
-        continue-on-error: true
         run: |
           echo 🚨 checking sample testing result...
           echo 🚨 exit if not up-to-date
@@ -71,6 +70,7 @@ jobs:
           alphadag --external_required_tables_output_path=dag.dot ./samples/sample
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
+        if: always()
         with:
           commit-message: Update Snapshot
           reviewers: Matts966
