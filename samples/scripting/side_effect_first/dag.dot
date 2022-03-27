@@ -2,5 +2,6 @@ digraph G {
 0 [label="samples/scripting/mart.sql", shape="", type=query];
 1 [label="samples/scripting/procedure.sql", shape="", type=query];
 2 [label="samples/scripting/script.sql", shape="", type=query];
+1->2 ;
 2->0 ;
 }

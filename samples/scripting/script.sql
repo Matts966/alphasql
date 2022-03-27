@@ -1,7 +1,7 @@
 BEGIN
   CREATE OR REPLACE TABLE datawarehouse2 AS
   SELECT
-    column1 AS x
+    CAST(column1 AS INT64) AS x
   FROM
     tablename1;
   CREATE OR REPLACE TABLE datawarehouse1 AS

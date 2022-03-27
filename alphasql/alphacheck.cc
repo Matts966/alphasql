@@ -126,6 +126,8 @@ SimpleCatalog *ConstructCatalog(const google::protobuf::DescriptorPool *pool,
   return catalog;
 }
 
+std::map<std::vector<std::string>, std::string> procedure_bodies;
+
 absl::Status check(const std::string &sql, const ASTStatement *statement,
                    std::vector<std::string> *temp_function_names,
                    std::vector<std::string> *temp_table_names,
@@ -151,8 +153,17 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
     }
     return absl::OkStatus();
   }
-  ZETASQL_RETURN_IF_ERROR(AnalyzeStatementFromParserAST(
-      *statement, options, sql, catalog, catalog->type_factory(), &output));
+
+  const auto status = AnalyzeStatementFromParserAST(
+      *statement, options, sql, catalog, catalog->type_factory(), &output);
+  if (!status.ok()) {
+    if (status.message().find("Statement not supported") == std::string::npos) {
+      return status;
+    }
+    std::cout << "WARNING: check skipped with the error: " << status << std::endl;
+    return absl::OkStatus();
+  }
+
   auto resolved_statement = output->resolved_statement();
   switch (resolved_statement->node_kind()) {
   case RESOLVED_CREATE_TABLE_STMT:
@@ -202,6 +213,42 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
     if (create_function_stmt->create_scope() ==
         ResolvedCreateStatement::CREATE_TEMP) {
       temp_function_names->push_back(function_name);
+    }
+    break;
+  }
+  // TODO: DROP PROCEDURE Support?
+  case RESOLVED_CREATE_PROCEDURE_STMT: {
+    auto *create_procedure_stmt =
+        resolved_statement->GetAs<ResolvedCreateProcedureStmt>();
+    std::cout
+        << "Create Procedure Statement analyzed, adding function to catalog..."
+        << std::endl;
+    const auto result_type = create_procedure_stmt->signature().result_type();
+    Procedure *proc = new Procedure(create_procedure_stmt->name_path(), create_procedure_stmt->signature());
+    catalog->AddOwnedProcedure(proc);
+    procedure_bodies[create_procedure_stmt->name_path()] = create_procedure_stmt->procedure_body();
+    // TODO: TEMP PROCEDURE Support?
+    break;
+  }
+  case RESOLVED_CALL_STMT: {
+    auto *call_stmt =
+        resolved_statement->GetAs<ResolvedCallStmt>();
+    std::cout
+        << "Call Procedure Statement analyzed, checking body..."
+        << std::endl;
+    std::unique_ptr<ParserOutput> parser_output;
+    ZETASQL_RETURN_IF_ERROR(zetasql::ParseScript(
+          procedure_bodies[call_stmt->procedure()->name_path()],
+          options.GetParserOptions(),
+          options.error_message_mode(),
+          &parser_output
+    ));
+    for (const auto *statement : parser_output->script()->statement_list_node()->statement_list()) {
+      ZETASQL_RETURN_IF_ERROR(check(
+          procedure_bodies[call_stmt->procedure()->name_path()],
+          statement,
+          temp_function_names, temp_table_names, options, catalog
+      ));
     }
     break;
   }

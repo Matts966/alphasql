@@ -4,6 +4,7 @@ on:
     types: [ published ]
 env:
   GITHUB_TOKEN: ${{ github.token }}
+  cache-version: v1.0.0
 jobs:
   osx:
     name: Create artifacts on macOS-latest
@@ -13,9 +14,16 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.ref }}
+      - name: Cache
+        uses: pat-s/always-upload-cache@v2.1.5
+        with:
+          path: ~/.cache/bazel
+          key: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-
       - name: Build
         shell: bash
         run: |
+          export TEST_TMPDIR=~/.cache/bazel
           brew install graphviz
           make
           mkdir alphasql_darwin_x86_64
@@ -56,6 +64,12 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.ref }}
+      - name: Cache
+        uses: pat-s/always-upload-cache@v2.1.5
+        with:
+          path: ~/.cache/bazel
+          key: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-${{ hashFiles('./**') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-bazelisk-build-
       - name: Build
         run: |
             sudo apt-get update

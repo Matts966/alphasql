@@ -19,6 +19,7 @@
 
 #include <filesystem>
 #include <string>
+#include <vector>
 
 #include "absl/flags/flag.h"
 #include "absl/strings/string_view.h"
@@ -70,6 +71,10 @@ public:
 
   identifier_info identifier_information;
   std::set<std::string> temporary_tables;
+  bool is_inside_procedure = false;
+  std::vector<std::string> procedure_name;
+  inline static std::map<std::vector<std::string>, std::set<std::vector<std::string>>>
+      procedure_artifacts_map;
 
   void defaultVisit(const ASTNode *node, void *data) override {
     visitASTChildren(node, data);
@@ -104,6 +109,7 @@ public:
   void visitASTCreateTableFunctionStatement(
       const ASTCreateTableFunctionStatement *node, void *data) override;
   void visitASTCallStatement(const ASTCallStatement *node, void *data) override;
+  void visitASTCreateProcedureStatement(const ASTCreateProcedureStatement* node, void* data) override;
 };
 
 } // namespace identifier_resolver

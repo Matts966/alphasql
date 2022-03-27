@@ -276,7 +276,7 @@ absl::Status TableNameResolver::FindInStatement(const ASTStatement *statement) {
       if (analyzer_options_->language().SupportsStatementKind(
               RESOLVED_CREATE_TABLE_AS_SELECT_STMT)) {
         if (create_statement->scope() == ASTCreateStatement::TEMPORARY) {
-          return absl::OkStatus();
+          return FindInQuery(query, /*visible_aliases=*/{});
         }
         _node_kind_to_table_names[RESOLVED_CREATE_TABLE_AS_SELECT_STMT].insert(
             create_statement->name()->ToIdentifierVector());
@@ -675,14 +675,12 @@ absl::Status TableNameResolver::FindInStatement(const ASTStatement *statement) {
     }
     return absl::OkStatus();
   }
-
-  default:
-    break;
   }
 
-  // This statement is not currently supported so we return an error here.
-  return MakeSqlErrorAt(statement)
-         << "Statement not supported: " << statement->GetNodeKindString();
+  const auto status = MakeSqlErrorAt(statement)
+       << "Statement not supported: " << statement->GetNodeKindString();
+  std::cout << "WARNING: table name resolver may ignore some table names with the error: " << status << std::endl;
+  return absl::OkStatus();
 }
 
 absl::Status
@@ -918,8 +916,10 @@ TableNameResolver::FindInQueryExpression(const ASTQueryExpression *query_expr,
         FindInQuery(query_expr->GetAs<ASTQuery>(), visible_aliases));
     break;
   default:
-    return MakeSqlErrorAt(query_expr) << "Unhandled query_expr:\n"
-                                      << query_expr->DebugString();
+    const auto status = MakeSqlErrorAt(query_expr) << "Unhandled query_expr:\n"
+      << query_expr->DebugString();
+    std::cout << "WARNING: table name resolver may ignore some table names with the error: " << status << std::endl;
+    return absl::OkStatus();
   }
 
   if (query_expr->node_kind() != AST_SELECT) {
@@ -986,8 +986,10 @@ absl::Status TableNameResolver::FindInTableExpression(
     return FindInTVF(table_expr->GetAs<ASTTVF>(), external_visible_aliases,
                      local_visible_aliases);
   default:
-    return MakeSqlErrorAt(table_expr) << "Unhandled node type in from clause: "
+    const auto status = MakeSqlErrorAt(table_expr) << "Unhandled node type in from clause: "
                                       << table_expr->GetNodeKindString();
+    std::cout << "WARNING: table name resolver may ignore some table names with the error: " << status << std::endl;
+    return absl::OkStatus();
   }
 }
 
@@ -1127,8 +1129,10 @@ absl::Status TableNameResolver::FindInTablePathExpression(
         const ASTForSystemTime *for_system_time = table_ref->for_system_time();
         if (for_system_time != nullptr) {
           if (!for_system_time_as_of_feature_enabled_) {
-            return MakeSqlErrorAt(for_system_time)
+            const auto status = MakeSqlErrorAt(for_system_time)
                    << "FOR SYSTEM_TIME AS OF is not supported";
+            std::cout << "WARNING: table name resolver may ignore some table names with the error: " << status << std::endl;
+            return absl::OkStatus();
           }
 
           const ASTExpression *expr = for_system_time->expression();

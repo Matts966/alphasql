@@ -1,3 +1,5 @@
+DECLARE x INT64;
+
 BEGIN TRANSACTION;
 
 CREATE TEMP TABLE tmp AS
@@ -9,7 +11,7 @@ SELECT * FROM datawarehouse3;
 
 DROP TABLE IF EXISTS `datawarehouse1`;
 DROP TABLE IF EXISTS `datawarehouse2`;
-DROP TABLE IF EXISTS `datawarehouse1`;
+DROP TABLE IF EXISTS `datawarehouse3`;
 
 CREATE OR REPLACE TABLE mart AS
 SELECT * FROM tmp;
