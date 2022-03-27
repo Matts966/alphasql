@@ -79,9 +79,12 @@ GetIdentifierInformation(const std::string &sql_file_path) {
 
   IdentifierResolver resolver = IdentifierResolver();
   parser_output->script()->Accept(&resolver, nullptr);
-  table_name_resolver::GetTables(
+  const auto status = table_name_resolver::GetTables(
       sql_file_path, options,
       &resolver.identifier_information.table_information.referenced);
+  if (!status.ok()) {
+    return status;
+  }
 
   // Filter temporary tables from referenced tables because they are local.
   for (const auto &temporary_table : resolver.temporary_tables) {
