@@ -9,5 +9,5 @@ BEGIN
     column2 AS x
   FROM
     tablename2;
-  CALL create_datawarehouse3;
-END
+END;
+CALL create_datawarehouse3();
