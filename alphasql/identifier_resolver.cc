@@ -130,7 +130,7 @@ void IdentifierResolver::visitASTCreateTableStatement(
   }
 
   if (is_inside_procedure) {
-    procedure_artifacts_map[name_vector] = procedure_name;
+    procedure_artifacts_map[name_vector].insert(procedure_name);
   }
   identifier_information.table_information.created.insert(name_vector);
   visitASTChildren(node, data);
@@ -286,7 +286,6 @@ void IdentifierResolver::visitASTCreateProcedureStatement(
   identifier_information.function_information.defined.insert(name_vector);
   node->ChildrenAccept(this, data);
   is_inside_procedure = false;
-  procedure_name = nullptr;
   return;
 }
 
