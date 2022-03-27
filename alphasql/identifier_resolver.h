@@ -73,7 +73,7 @@ public:
   std::set<std::string> temporary_tables;
   bool is_inside_procedure = false;
   std::vector<std::string> procedure_name;
-  std::map<std::vector<std::string>>, std::set<std::vector<std::string>>>
+  std::map<std::vector<std::string>, std::set<std::vector<std::string>>>
       procedure_artifacts_map;
 
   void defaultVisit(const ASTNode *node, void *data) override {
@@ -109,6 +109,7 @@ public:
   void visitASTCreateTableFunctionStatement(
       const ASTCreateTableFunctionStatement *node, void *data) override;
   void visitASTCallStatement(const ASTCallStatement *node, void *data) override;
+  void visitASTCreateProcedureStatement(const ASTCreateProcedureStatement* node, void* data) {
 };
 
 } // namespace identifier_resolver
