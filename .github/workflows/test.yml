@@ -24,7 +24,8 @@ jobs:
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 900 \
             --slave /usr/bin/g++ g++ /usr/bin/g++-9
           make
-
+      - name: Test
+        run: |
           echo 🚨 checking sample testing result...
           echo 🚨 exit if not up-to-date
           # TODO: check dag output isomorphism
@@ -55,7 +56,8 @@ jobs:
           bazel shutdown
           export CC=g++
           make
-
+      - name: Test
+        run: |
           echo 🚨 checking sample testing result...
           echo 🚨 exit if not up-to-date
           # TODO: check dag output isomorphism
