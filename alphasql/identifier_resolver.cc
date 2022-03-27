@@ -266,7 +266,9 @@ void IdentifierResolver::visitASTCreateTableFunctionStatement(
 
 void IdentifierResolver::visitASTCallStatement(const ASTCallStatement *node,
                                                void *data) {
-  identifier_information.table_information.created.insert(procedure_artifacts_map[node->procedure_name()->ToIdentifierVector()]);
+  for (const auto &artifact_table : procedure_artifacts_map[node->procedure_name()->ToIdentifierVector()]) {
+    identifier_information.table_information.created.insert(artifact_table);
+  }
   identifier_information.function_information.called.insert(
       node->procedure_name()->ToIdentifierVector());
   node->ChildrenAccept(this, data);
