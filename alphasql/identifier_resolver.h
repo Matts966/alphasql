@@ -64,7 +64,10 @@ GetIdentifierInformation(const std::string &sql_file_path);
 
 class IdentifierResolver : public DefaultParseTreeVisitor {
 public:
-  explicit IdentifierResolver() {}
+  explicit IdentifierResolver(
+      std::map<std::vector<std::string>, std::set<std::vector<std::string>>>
+        procedure_artifacts_map
+  ) : procedure_artifacts_map(procedure_artifacts_map) {}
   IdentifierResolver(const IdentifierResolver &) = delete;
   IdentifierResolver &operator=(const IdentifierResolver &) = delete;
   ~IdentifierResolver() override {}
@@ -73,7 +76,7 @@ public:
   std::set<std::string> temporary_tables;
   bool is_inside_procedure = false;
   std::vector<std::string> procedure_name;
-  std::map<std::vector<std::string>, std::set<std::vector<std::string>>>
+  static std::map<std::vector<std::string>, std::set<std::vector<std::string>>>
       procedure_artifacts_map;
 
   void defaultVisit(const ASTNode *node, void *data) override {
