@@ -276,7 +276,7 @@ absl::Status TableNameResolver::FindInStatement(const ASTStatement *statement) {
       if (analyzer_options_->language().SupportsStatementKind(
               RESOLVED_CREATE_TABLE_AS_SELECT_STMT)) {
         if (create_statement->scope() == ASTCreateStatement::TEMPORARY) {
-          return absl::OkStatus();
+          return FindInQuery(query, /*visible_aliases=*/{});
         }
         _node_kind_to_table_names[RESOLVED_CREATE_TABLE_AS_SELECT_STMT].insert(
             create_statement->name()->ToIdentifierVector());
