@@ -126,6 +126,9 @@ SimpleCatalog *ConstructCatalog(const google::protobuf::DescriptorPool *pool,
   return catalog;
 }
 
+const std::map<std::vector<std::string>, std::string> procedure_bodies;
+const std::map<std::vector<std::string>, ASTStatement> procedure_statements;
+
 absl::Status check(const std::string &sql, const ASTStatement *statement,
                    std::vector<std::string> *temp_function_names,
                    std::vector<std::string> *temp_table_names,
@@ -224,7 +227,23 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
     const auto result_type = create_procedure_stmt->signature().result_type();
     Procedure *proc = new Procedure(create_procedure_stmt->name_path(), create_procedure_stmt->signature());
     catalog->AddOwnedProcedure(proc);
+    procedure_bodies[create_procedure_stmt->name_path()] = create_procedure_stmt->procedure_body();
+    const ASTCreateProcedureStatement *stmt = statement->GetAs<ASTCreateProcedureStatement>();
+    procedure_statements[create_procedure_stmt->name_path()] = *stmt->body()->statement_list()[0];
     // TODO: TEMP PROCEDURE Support?
+    break;
+  }
+  case RESOLVED_CALL_STMT: {
+    auto *call_stmt =
+        resolved_statement->GetAs<ResolvedCallStmt>();
+    std::cout
+        << "Call Procedure Statement analyzed, checking body..."
+        << std::endl;
+    check(
+        procedure_bodies[call_stmt->procedure()->name_path()],
+        procedure_statements[call_stmt->procedure()->name_path()],
+        &temp_function_names, &temp_table_names, options, catalog
+    );
     break;
   }
   case RESOLVED_DROP_STMT: {
