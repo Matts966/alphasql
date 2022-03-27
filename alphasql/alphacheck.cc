@@ -151,8 +151,17 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
     }
     return absl::OkStatus();
   }
-  ZETASQL_RETURN_IF_ERROR(AnalyzeStatementFromParserAST(
-      *statement, options, sql, catalog, catalog->type_factory(), &output));
+
+  const auto status = AnalyzeStatementFromParserAST(
+      *statement, options, sql, catalog, catalog->type_factory(), &output);
+  if (!status.ok()) {
+    if (status.message().find("Statement not supported") == std::string::npos) {
+      return status;
+    }
+    std::cout << "WARNING: check skipped with the error: " << status << std::endl;
+    return absl::OkStatus();
+  }
+
   auto resolved_statement = output->resolved_statement();
   switch (resolved_statement->node_kind()) {
   case RESOLVED_CREATE_TABLE_STMT:
