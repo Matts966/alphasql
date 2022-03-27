@@ -127,7 +127,6 @@ SimpleCatalog *ConstructCatalog(const google::protobuf::DescriptorPool *pool,
 }
 
 std::map<std::vector<std::string>, std::string> procedure_bodies;
-std::map<std::vector<std::string>, const ASTStatement> procedure_statements;
 
 absl::Status check(const std::string &sql, const ASTStatement *statement,
                    std::vector<std::string> *temp_function_names,
@@ -228,8 +227,6 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
     Procedure *proc = new Procedure(create_procedure_stmt->name_path(), create_procedure_stmt->signature());
     catalog->AddOwnedProcedure(proc);
     procedure_bodies[create_procedure_stmt->name_path()] = create_procedure_stmt->procedure_body();
-    const ASTCreateProcedureStatement *stmt = statement->GetAs<ASTCreateProcedureStatement>();
-    procedure_statements[create_procedure_stmt->name_path()] = *stmt->body()->statement_list()[0];
     // TODO: TEMP PROCEDURE Support?
     break;
   }
@@ -239,11 +236,18 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
     std::cout
         << "Call Procedure Statement analyzed, checking body..."
         << std::endl;
-    check(
+    std::unique_ptr<ParserOutput> parser_output;
+    ZETASQL_RETURN_IF_ERROR(zetasql::ParseScript(
+          procedure_bodies[call_stmt->procedure()->name_path()],
+          options.GetParserOptions(),
+          options.error_message_mode(),
+          &parser_output
+    ));
+    ZETASQL_RETURN_IF_ERROR(check(
         procedure_bodies[call_stmt->procedure()->name_path()],
-        procedure_statements[call_stmt->procedure()->name_path()],
+        parser_output->script()->statement_list_node()->statement_list(),
         temp_function_names, temp_table_names, options, catalog
-    );
+    ));
     break;
   }
   case RESOLVED_DROP_STMT: {
