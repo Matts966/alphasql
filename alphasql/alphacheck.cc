@@ -237,16 +237,19 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
         << "Call Procedure Statement analyzed, checking body..."
         << std::endl;
     std::unique_ptr<ParserOutput> parser_output;
-    ZETASQL_RETURN_IF_ERROR(zetasql::ParseStatement(
+    ZETASQL_RETURN_IF_ERROR(zetasql::ParseScript(
           procedure_bodies[call_stmt->procedure()->name_path()],
           options.GetParserOptions(),
+          options.error_message_mode(),
           &parser_output
     ));
-    ZETASQL_RETURN_IF_ERROR(check(
-        procedure_bodies[call_stmt->procedure()->name_path()],
-        parser_output->statement(),
-        temp_function_names, temp_table_names, options, catalog
-    ));
+    for (const auto *statement : parser_output->script()->statement_list_node()->statement_list()) {
+      ZETASQL_RETURN_IF_ERROR(check(
+          procedure_bodies[call_stmt->procedure()->name_path()],
+          statement,
+          temp_function_names, temp_table_names, options, catalog
+      ));
+    }
     break;
   }
   case RESOLVED_DROP_STMT: {
