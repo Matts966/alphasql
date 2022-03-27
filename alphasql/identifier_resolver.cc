@@ -131,6 +131,8 @@ void IdentifierResolver::visitASTCreateTableStatement(
 
   if (is_inside_procedure) {
     procedure_artifacts_map[name_vector].insert(procedure_name);
+    visitASTChildren(node, data);
+    return;
   }
   identifier_information.table_information.created.insert(name_vector);
   visitASTChildren(node, data);
