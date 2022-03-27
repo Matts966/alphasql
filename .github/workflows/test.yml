@@ -56,7 +56,6 @@ jobs:
           sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
           bazel shutdown
           export CC=g++
-          git rm '*.txt'
           make
       - name: Test
         run: |
