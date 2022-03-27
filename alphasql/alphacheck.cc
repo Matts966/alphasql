@@ -245,7 +245,7 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
     ));
     ZETASQL_RETURN_IF_ERROR(check(
         procedure_bodies[call_stmt->procedure()->name_path()],
-        parser_output->script()->statement_list_node(),
+        parser_output->script(),
         temp_function_names, temp_table_names, options, catalog
     ));
     break;
