@@ -4,5 +4,5 @@ BEGIN
   SELECT
     x
   FROM
-    dataset.main;
+    `dataset.main`;
 END
