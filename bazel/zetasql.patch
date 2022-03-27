@@ -53,15 +53,14 @@ index 5c3c636..5404163 100644
    // Construct a Catalog with catalog name <name>.
    //
 
-diff --git zetasql/public/sql_formatter.cc zetasql/public/sql_formatter.cc
-index 26e52ed..28e8928 100644
---- zetasql/public/sql_formatter.cc
-+++ zetasql/public/sql_formatter.cc
-@@ -72,6 +72,7 @@ absl::Status FormatSql(const std::string& sql, std::string* formatted_sql) {
-       std::vector<ParseToken> parse_tokens;
-       ParseTokenOptions options;
-       options.stop_at_end_of_statement = true;
-+      options.include_comments = true;
-       const int statement_start = location.byte_position();
-       const absl::Status token_status =
-           GetParseTokens(options, &location, &parse_tokens);
+diff --git zetasql/public/function_signature.cc zetasql/public/function_signature.cc
+index 5c3c636..5404163 100644
+--- zetasql/public/function_signature.cc
++++ zetasql/public/function_signature.cc
+@@ -20,7 +20,7 @@     : kind_(kind),
+       num_occurrences_(num_occurrences),
+       type_(type),
+       options_(std::move(options)) {
+-  ZETASQL_DCHECK_EQ(kind == ARG_TYPE_FIXED, type != nullptr);
++
+ }
