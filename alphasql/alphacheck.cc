@@ -241,7 +241,7 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
         << std::endl;
     check(
         procedure_bodies[call_stmt->procedure()->name_path()],
-        procedure_statements[call_stmt->procedure()->name_path()],
+        &procedure_statements[call_stmt->procedure()->name_path()],
         &temp_function_names, &temp_table_names, options, catalog
     );
     break;
