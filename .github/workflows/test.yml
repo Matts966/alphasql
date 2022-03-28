@@ -68,13 +68,17 @@ jobs:
           alphadag --output_path=dag.dot ./samples/sample
           alphadag --external_required_tables_output_path=dag.dot ./samples/sample
           rm dag.dot
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         if: always()
         with:
           commit-message: Update Snapshot
           reviewers: Matts966
-          branch: snapshot-testing
+          branch: snapshot-testing-${{ steps.extract_branch.outputs.branch }}
           delete-branch: true
           title: 'Updated Snapshot :tada:'
           body: |
