@@ -52,17 +52,3 @@ index 5c3c636..5404163 100644
   public:
    // Construct a Catalog with catalog name <name>.
    //
-
-diff --git zetasql/public/function_signature.cc zetasql/public/function_signature.cc
-index bca4494..707ea2e 100644
---- zetasql/public/function_signature.cc
-+++ zetasql/public/function_signature.cc
-@@ -493,7 +493,6 @@ FunctionArgumentType::FunctionArgumentType(
-       num_occurrences_(num_occurrences),
-       type_(type),
-       options_(options) {
--  ZETASQL_DCHECK_EQ(kind == ARG_TYPE_FIXED, type != nullptr);
- }
-
- FunctionArgumentType::FunctionArgumentType(SignatureArgumentKind kind,
-
