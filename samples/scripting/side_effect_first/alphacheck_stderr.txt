@@ -1,0 +1,1 @@
+2022-03-29 15:34:53  FATAL  function_signature.cc : 496 : Check failed: kind == ARG_TYPE_FIXED == type != nullptr (1 vs. 0) 
