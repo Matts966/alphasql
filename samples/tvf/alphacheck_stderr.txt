@@ -1,0 +1,1 @@
+ERROR: INVALID_ARGUMENT: Table-valued function not found: dataset.tvf [at samples/tvf/call_tvf.sql:5:3]

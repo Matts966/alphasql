@@ -1,0 +1,8 @@
+Analyzing "samples/tvf/define_tvf.sql"
+Create Table Function Statement analyzed, adding function to catalog...
+SUCCESS: analysis finished!
+Analyzing "samples/tvf/call_tvf.sql"
+catalog:
+	dataset.main
+	tablename1
+	tablename2
