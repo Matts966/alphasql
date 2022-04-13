@@ -1,5 +1,6 @@
 Analyzing "samples/sample-ci/sample/create_datawarehouse3.sql"
-catalog:
+tables:
 	dataset.main
 	tablename1
 	tablename2
+tvfs:

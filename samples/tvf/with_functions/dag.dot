@@ -1,0 +1,7 @@
+digraph G {
+0 [label="samples/tvf/call_tvf.sql", shape="", type=query];
+1 [label="samples/tvf/define_tvf.sql", shape="", type=query];
+2 [label="dataset.tvf", shape=cds, type=function];
+1->2 ;
+2->0 ;
+}

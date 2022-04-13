@@ -1,0 +1,4 @@
+Reading paths passed as a command line arguments...
+Only files that end with .sql or .bq are analyzed.
+Reading "samples/tvf/call_tvf.sql"
+Reading "samples/tvf/define_tvf.sql"
