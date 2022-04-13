@@ -138,12 +138,6 @@ void IdentifierResolver::visitASTCreateTableStatement(
   visitASTChildren(node, data);
 }
 
-// TODO:(Matts966) Check if this node is callee or caller and implement
-// correctly void IdentifierResolver::visitASTTVF(const ASTTVF* node, void*
-// data) {
-//   function_information.called.insert(node->name()->ToIdentifierVector());
-// }
-
 // Check INSERT and UPDATE statement to emit warnings for side effects.
 void IdentifierResolver::visitASTInsertStatement(const ASTInsertStatement *node,
                                                  void *data) {
@@ -227,6 +221,12 @@ void IdentifierResolver::visitASTDropFunctionStatement(
     const ASTDropFunctionStatement *node, void *data) {
   // if (node->is_if_exists()) {}
   identifier_information.function_information.dropped.insert(
+      node->name()->ToIdentifierVector());
+  visitASTChildren(node, data);
+}
+
+void IdentifierResolver::visitASTTVF(const ASTTVF* node, void* data) {
+  identifier_information.function_information.called.insert(
       node->name()->ToIdentifierVector());
   visitASTChildren(node, data);
 }
