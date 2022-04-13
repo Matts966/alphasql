@@ -1,5 +1,6 @@
 Analyzing "samples/ml/create_input.sql"
-catalog:
+tables:
 	dataset.main
 	tablename1
 	tablename2
+tvfs:
