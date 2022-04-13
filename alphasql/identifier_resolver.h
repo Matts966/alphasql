@@ -101,6 +101,7 @@ public:
   // Functions
   void visitASTDropFunctionStatement(const ASTDropFunctionStatement *node,
                                      void *data) override;
+  void visitASTTVF(const ASTTVF* node, void* data) override;
   void visitASTFunctionCall(const ASTFunctionCall *node, void *data) override;
   void visitASTFunctionDeclaration(const ASTFunctionDeclaration *node,
                                    void *data) override;
