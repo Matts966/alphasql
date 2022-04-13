@@ -99,6 +99,7 @@ cc_binary(
         "@com_google_zetasql//zetasql/public:evaluator_table_iterator",
         "@com_google_zetasql//zetasql/public:language_options",
         "@com_google_zetasql//zetasql/public:simple_catalog",
+        "@com_google_zetasql//zetasql/public:templated_sql_tvf",
         "@com_google_zetasql//zetasql/public:type",
         "@com_google_zetasql//zetasql/public:type_cc_proto",
         "@com_google_zetasql//zetasql/public:value",

@@ -43,6 +43,7 @@
 #include "zetasql/public/type.h"
 #include "zetasql/public/value.h"
 #include "zetasql/public/templated_sql_function.h"
+#include "zetasql/public/templated_sql_tvf.h"
 #include "zetasql/resolved_ast/resolved_ast.h"
 
 #include "alphasql/common_lib.h"
@@ -214,6 +215,19 @@ absl::Status check(const std::string &sql, const ASTStatement *statement,
         ResolvedCreateStatement::CREATE_TEMP) {
       temp_function_names->push_back(function_name);
     }
+    break;
+  }
+  case RESOLVED_CREATE_TABLE_FUNCTION_STMT: {
+    auto *create_table_function_stmt =
+        resolved_statement->GetAs<ResolvedCreateTableFunctionStmt>();
+    std::cout
+        << "Create Table Function Statement analyzed, adding function to catalog..."
+        << std::endl;
+    catalog->AddOwnedTableValuedFunction(new TemplatedSQLTVF(
+      create_table_function_stmt->name_path(),
+      create_table_function_stmt->signature(),
+      create_table_function_stmt->argument_name_list(),
+      ParseResumeLocation::FromString(create_table_function_stmt->code())));
     break;
   }
   // TODO: DROP PROCEDURE Support?
