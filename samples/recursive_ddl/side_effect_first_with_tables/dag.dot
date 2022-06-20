@@ -1,0 +1,5 @@
+digraph G {
+0 [label="samples/recursive_ddl/recursive_create_t1.sql", shape="", type=query];
+1 [label=t1, shape=box, type=table];
+0->1 ;
+}
