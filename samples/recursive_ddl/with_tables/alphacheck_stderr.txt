@@ -1,0 +1,1 @@
+ERROR: INVALID_ARGUMENT: Table not found: t1 [at samples/recursive_ddl/recursive_create_t1.sql:5:3]

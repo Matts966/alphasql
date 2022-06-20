@@ -1,0 +1,6 @@
+Analyzing "samples/recursive_ddl/recursive_create_t1.sql"
+tables:
+	dataset.main
+	tablename1
+	tablename2
+tvfs:
